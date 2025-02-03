@@ -65,3 +65,4 @@ public class FieldUtil {
     public void removeObject(String name) {
         field.getObject(name).setPoses();
     }
+}
