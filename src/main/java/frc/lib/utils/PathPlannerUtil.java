@@ -24,7 +24,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Drive;
-import frc.robot.subsystems.Shooter;
 
 
 public class PathPlannerUtil {
@@ -32,7 +31,7 @@ public class PathPlannerUtil {
         .getDoubleArrayTopic("/Pathplanner/targetPose")
         .subscribe(new double[] {0,0,0});
 
-    public static void configure(Drive drive, Shooter shooter){
+    public static void configure(Drive drive){
         HolonomicPathFollowerConfig config = new HolonomicPathFollowerConfig(
             SwerveConstants.translationalPID, 
             SwerveConstants.rotationalPID, 
@@ -52,25 +51,7 @@ public class PathPlannerUtil {
         );
 
         NamedCommands.registerCommand("brake", drive.brakeCommand());
-        NamedCommands.registerCommand("pickUpNote",Commands.print("Running intakes in"));
-        NamedCommands.registerCommand("intakeOut", Commands.print("Running Intake Out"));
-        // NamedCommands.registerCommand("stopIntake", intake.stopIntakeCommand());
-        NamedCommands.registerCommand("stopIntake", Commands.print("Stopping Intake"));
-        // NamedCommands.registerCommand("armLow", intake.setArmLowCommand());
-        NamedCommands.registerCommand("armLow", Commands.print("Setting intake Arm Low"));
-        // NamedCommands.registerCommand("armHigh", intake.setArmHighCommand());
-        NamedCommands.registerCommand("armHigh", Commands.print("Setting intake Arm High"));
-        // NamedCommands.registerCommand("shoot", shooter.shootCommand().withTimeout(5));
-        NamedCommands.registerCommand("shoot", Commands.print("Running Shooter Out"));
-        // NamedCommands.registerCommand("shooterIn", shooter.shootCommand());
-        NamedCommands.registerCommand("shooterIn", Commands.print("Running SHooter in"));
-        // NamedCommands.registerCommand("shooterLow", shooter.setArmIn());
-        NamedCommands.registerCommand("shooterLow", Commands.print("Setting Shooter Low"));
-        // NamedCommands.registerCommand("shooterHigh", shooter.setArmOut());
-        NamedCommands.registerCommand("shooterHigh", Commands.print("Setting Shooter High"));
-        NamedCommands.registerCommand("elevatorHigh", Commands.print("elevatorHigh"));
-        NamedCommands.registerCommand("elevatorMid", Commands.print("elevatorMed"));
-        NamedCommands.registerCommand("elevatorLow", Commands.print("elevatorLow"));
+       
     }
 
     public static Command getAutoCommand(String name){
