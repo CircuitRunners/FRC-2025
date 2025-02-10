@@ -61,9 +61,9 @@ public class TunerConstants {
     public static final double kSteerFrictionVoltage = 0.25;
     public static final double kDriveFrictionVoltage = 0.25;
 
-    public static final SwerveDrivetrainConstants DrivetrainConstants = new SwerveDrivetrainConstants().withPigeon2Id(kPigeonId).withCANbusName(kCANbusName);
+    public static final LegacySwerveDrivetrainConstants DrivetrainConstants = new LegacySwerveDrivetrainConstants().withPigeon2Id(kPigeonId).withCANbusName(kCANbusName);
     
-    public static final SwerveModuleConstantsFactory ConstantCreator = new SwerveModuleConstantsFactory()
+    public static final LegacySwerveModuleConstantsFactory ConstantCreator = new LegacySwerveModuleConstantsFactory()
         .withDriveMotorGearRatio(kDriveGearRatio)
         .withSteerMotorGearRatio(kSteerGearRatio)
         .withWheelRadius(kWheelRadiusInches)
@@ -118,16 +118,16 @@ public class TunerConstants {
     public static final double kBackRightYPosInches = -12;
 
 
-    public static final SwerveModuleConstants FrontLeft = ConstantCreator.createModuleConstants(
+    public static final LegacySwerveModuleConstants FrontLeft = ConstantCreator.createModuleConstants(
             kFrontLeftSteerMotorId, kFrontLeftDriveMotorId, kFrontLeftEncoderId, kFrontLeftEncoderOffset, Units.inchesToMeters(kFrontLeftXPosInches), Units.inchesToMeters(kFrontLeftYPosInches), kInvertLeftSide);
-    public static final SwerveModuleConstants FrontRight = ConstantCreator.createModuleConstants(
+    public static final LegacySwerveModuleConstants FrontRight = ConstantCreator.createModuleConstants(
             kFrontRightSteerMotorId, kFrontRightDriveMotorId, kFrontRightEncoderId, kFrontRightEncoderOffset, Units.inchesToMeters(kFrontRightXPosInches), Units.inchesToMeters(kFrontRightYPosInches), kInvertRightSide);
-    public static final SwerveModuleConstants BackLeft = ConstantCreator.createModuleConstants(
+    public static final LegacySwerveModuleConstants BackLeft = ConstantCreator.createModuleConstants(
             kBackLeftSteerMotorId, kBackLeftDriveMotorId, kBackLeftEncoderId, kBackLeftEncoderOffset, Units.inchesToMeters(kBackLeftXPosInches), Units.inchesToMeters(kBackLeftYPosInches), kInvertLeftSide);
-    public static final SwerveModuleConstants BackRight = ConstantCreator.createModuleConstants(
+    public static final LegacySwerveModuleConstants BackRight = ConstantCreator.createModuleConstants(
             kBackRightSteerMotorId, kBackRightDriveMotorId, kBackRightEncoderId, kBackRightEncoderOffset, Units.inchesToMeters(kBackRightXPosInches), Units.inchesToMeters(kBackRightYPosInches), kInvertRightSide);
 
-    public static final Swerve DriveTrain = new Swerve(DrivetrainConstants, new SwerveModuleConstants[] {FrontLeft,
+    public static final Swerve DriveTrain = new Swerve(DrivetrainConstants, new LegacySwerveModuleConstants[] {FrontLeft,
             FrontRight, BackLeft, BackRight});
 
 

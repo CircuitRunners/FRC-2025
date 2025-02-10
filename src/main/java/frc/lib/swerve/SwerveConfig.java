@@ -39,7 +39,7 @@ public class SwerveConfig {
     }
   };
 
-  private static final SwerveModuleConstantsFactory CONSTANTS_FACTORY = new SwerveModuleConstantsFactory()
+  private static final LegacySwerveModuleConstantsFactory CONSTANTS_FACTORY = new LegacySwerveModuleConstantsFactory()
       .withDriveMotorGearRatio(SwerveConstants.driveGearRatio)
       .withSteerMotorGearRatio(SwerveConstants.angleGearRatio)
       .withWheelRadius(Units.metersToInches(SwerveConstants.wheelCircumference / (2 * Math.PI)))
@@ -52,7 +52,7 @@ public class SwerveConfig {
       .withSteerMotorInverted(false)
       .withCouplingGearRatio(SwerveConstants.couplingGearRatio);
 
-  private static final SwerveModuleConstants generateConstants(int turnID, int driveID, int canCoderID,
+  private static final LegacySwerveModuleConstants generateConstants(int turnID, int driveID, int canCoderID,
       Translation2d position, double absoluteOffset) {
     return CONSTANTS_FACTORY.createModuleConstants(turnID, driveID, canCoderID, absoluteOffset, position.getX(),
         position.getY(), false);
@@ -60,8 +60,8 @@ public class SwerveConfig {
   }
 
   public static Swerve getConfiguredDrivetrain() {
-    var drivetrain = new SwerveDrivetrainConstants()
-        .withPigeon2Id(SwerveConstants.pigeonID)
+    var drivetrain = new LegacySwerveDrivetrainConstants()
+        .withPigeon2Id(SwerveConstants.pigeonId)
         .withCANbusName(SwerveConstants.CANBusName);
     var frontLeft = generateConstants(SwerveConstants.Mod0.angleMotorID, SwerveConstants.Mod0.driveMotorID,
         SwerveConstants.Mod0.canCoderID, SwerveConstants.Mod0.position, SwerveConstants.Mod0.angleOffset.getRadians());
@@ -73,14 +73,14 @@ public class SwerveConfig {
         SwerveConstants.Mod3.canCoderID, SwerveConstants.Mod3.position, SwerveConstants.Mod3.angleOffset.getRadians());
 
     return new Swerve(drivetrain,
-        new SwerveModuleConstants[] { frontLeft, frontRight, backLeft, backRight });
+        new LegacySwerveModuleConstants[] { frontLeft, frontRight, backLeft, backRight });
   }
 
-  public static final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric().withDriveRequestType(DriveRequestType.OpenLoopVoltage);
-  public static final SwerveRequest.RobotCentric robotCentric = new SwerveRequest.RobotCentric();
-  public static final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-  public static final SwerveRequest.PointWheelsAt pointWheelsAt = new SwerveRequest.PointWheelsAt();
-  public static final SwerveRequest.ApplyChassisSpeeds applyChassisSpeeds = new SwerveRequest.ApplyChassisSpeeds();
+  public static final LegacySwerveRequest.FieldCentric drive = new LegacySwerveRequest.FieldCentric().withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+  public static final LegacySwerveRequest.RobotCentric robotCentric = new LegacySwerveRequest.RobotCentric();
+  public static final LegacySwerveRequest.SwerveDriveBrake brake = new LegacySwerveRequest.SwerveDriveBrake();
+  public static final LegacySwerveRequest.PointWheelsAt pointWheelsAt = new LegacySwerveRequest.PointWheelsAt();
+  public static final LegacySwerveRequest.ApplyChassisSpeeds applyChassisSpeeds = new LegacySwerveRequest.ApplyChassisSpeeds();
 
   public static ChassisSpeeds toChassisSpeeds(DriverControls driverControls, Drive drive) {
     return new ChassisSpeeds(driverControls.driveForward(), driverControls.driveStrafe(),
