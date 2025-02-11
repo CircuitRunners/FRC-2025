@@ -91,7 +91,7 @@ public class SwerveConfig {
   public static final PointWheelsAt pointWheelsAt = new PointWheelsAt();
   public static final ApplyRobotSpeeds applyChassisSpeeds = new ApplyRobotSpeeds();
 
-  public static ChassisSpeeds toChassisSpeeds(DriverControls driverControls, Drive drive) {
+  public static ChassisSpeeds toChassisSpeeds(DriverControls driverControls) {
     return new ChassisSpeeds(driverControls.driveForward(), driverControls.driveStrafe(),
             driverControls.driveRotation());
   }

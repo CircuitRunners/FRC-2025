@@ -14,6 +14,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -77,7 +79,7 @@ public class Drive extends SubsystemBase {
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
     Pose2d targetPose = PathPlannerUtil.getCurrentTargetPose();
-    fieldUtil.setSwerveRobotPose(swerve.getPose2d(),swerve.getModuleStates(), SwerveConstants.modulePositions);
+    fieldUtil.setSwerveRobotPose(swerve.getPose2d(), swerve.getModuleStates(), SwerveConstants.modulePositions);
     fieldUtil.setObjectGlobalPose("Target Pose", targetPose);
     swerve.updateSimState(0.02, 12);
   }

@@ -119,7 +119,7 @@ public class Robot extends TimedRobot {
     
     // ------------------------------- DRIVER CONTROLS ---------------------------------------------------------
     driverControls = new DriverControls(DriverConstants.driverPort);
-    drive.setDefaultCommand(drive.driveFieldCentricCommand(() -> SwerveConfig.toChassisSpeeds(driverControls, drive)));
+    drive.setDefaultCommand(drive.driveFieldCentricCommand(() -> SwerveConfig.toChassisSpeeds(driverControls)));
       driverControls.y()
       .onTrue(Commands.runOnce(() -> Drive.limit = 1.0))
       .onFalse(Commands.runOnce(() -> Drive.limit = 0.4 ));
