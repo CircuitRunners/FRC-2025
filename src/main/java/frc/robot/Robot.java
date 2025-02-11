@@ -128,7 +128,7 @@ public class Robot extends TimedRobot {
   }
 
   private void configureSubsystems() {
-    drive = new Drive(TunerConstants.DriveTrain);
+    drive = new Drive(TunerConstants.createDrivetrain());
   }
 
 }

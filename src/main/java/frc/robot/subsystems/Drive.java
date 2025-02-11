@@ -6,8 +6,8 @@ import static edu.wpi.first.units.Units.Volts;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
-import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveRequest.SysIdSwerveRotation;
-import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveRequest.SysIdSwerveTranslation;
+import com.ctre.phoenix6.swerve.SwerveRequest.SysIdSwerveRotation;
+import com.ctre.phoenix6.swerve.SwerveRequest.SysIdSwerveTranslation;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -33,29 +33,29 @@ public class Drive extends SubsystemBase {
   private Swerve swerve;
   private FieldUtil fieldUtil = FieldUtil.getField();
   private boolean sysIdTranslator = true;
-  private final SysIdSwerveTranslation translation = new SysIdSwerveTranslation();
-  private final SysIdRoutine sysIdTranslation = new SysIdRoutine(
-    new SysIdRoutine.Config(
-      null, 
-      Volts.of(7),
-      null,
-      null),  
-    new SysIdRoutine.Mechanism(
-      (volts) -> swerve.setControl(translation.withVolts(volts)),
-      null,
-      this)
-    );
-  private final SysIdSwerveRotation rotation = new SysIdSwerveRotation();
-  private final SysIdRoutine sysIdRotation = new SysIdRoutine(
-    new SysIdRoutine.Config(
-      null,
-      Volts.of(7),
-      null,
-      null),
-    new SysIdRoutine.Mechanism(
-      (volts) -> swerve.setControl(rotation.withVolts(volts)),
-      null,
-      this));
+  // private final SysIdSwerveTranslation translation = new SysIdSwerveTranslation();
+  // private final SysIdRoutine sysIdTranslation = new SysIdRoutine(
+  //   new SysIdRoutine.Config(
+  //     null, 
+  //     Volts.of(7),
+  //     null,
+  //     null),  
+  //   new SysIdRoutine.Mechanism(
+  //     (volts) -> swerve.setControl(translation.withVolts(volts)),
+  //     null,
+  //     this)
+  //   );
+  // private final SysIdSwerveRotation rotation = new SysIdSwerveRotation();
+  // private final SysIdRoutine sysIdRotation = new SysIdRoutine(
+  //   new SysIdRoutine.Config(
+  //     null,
+  //     Volts.of(7),
+  //     null,
+  //     null),
+  //   new SysIdRoutine.Mechanism(
+  //     (volts) -> swerve.setControl(rotation.withVolts(volts)),
+  //     null,
+  //     this));
 
   private SlewRateLimiter forwardLimiter, strafeLimiter;
   /** Creates a new Drive */
@@ -65,7 +65,7 @@ public class Drive extends SubsystemBase {
 
     forwardLimiter = new SlewRateLimiter(5, -10, 0);
     strafeLimiter = new SlewRateLimiter(5, -10, 0);
-    swerve.setPigeonOffset();
+    // swerve.setPigeonOffset();
   }
 
   @Override
@@ -141,7 +141,7 @@ public class Drive extends SubsystemBase {
   }
 
   public ChassisSpeeds getChassisSpeeds(){
-    return swerve.getChassisSpeeds();
+    return swerve.getState().Speeds;
   }
 
   public Command brakeCommand(){
@@ -157,28 +157,28 @@ public class Drive extends SubsystemBase {
   }
 
   public Command resetGyroCommand(){
-    return swerve.zeroGyroCommand();
+    return run(()->swerve.getPigeon2().reset());
   }
 
-  public Command sysIdDynamic(Direction direction){
-    return sysIdTranslator ? sysIdTranslation.dynamic(direction) : sysIdRotation.dynamic(direction);
-  }
+  // public Command sysIdDynamic(Direction direction){
+  //   return sysIdTranslator ? sysIdTranslation.dynamic(direction) : sysIdRotation.dynamic(direction);
+  // }
 
-  public Command sysIdQuasistatic(Direction direction){
-    return sysIdTranslator ? sysIdTranslation.quasistatic(direction) : sysIdRotation.quasistatic(direction);
-  }
+  // public Command sysIdQuasistatic(Direction direction){
+  //   return sysIdTranslator ? sysIdTranslation.quasistatic(direction) : sysIdRotation.quasistatic(direction);
+  // }
 
-  public Command toggleSysIdMode(){
-    return Commands.runOnce(() -> sysIdTranslator = !sysIdTranslator);
-  }
+  // public Command toggleSysIdMode(){
+  //   return Commands.runOnce(() -> sysIdTranslator = !sysIdTranslator);
+  // }
 
-  public void targetAngleDrive(Translation2d targetAngle, DriverControls controls){
-    swerve.targetAngleDrive(targetAngle, controls.driveForward(), controls.driveStrafe());
-  }
+  // public void targetAngleDrive(Translation2d targetAngle, DriverControls controls){
+  //   swerve.targetAngleDrive(targetAngle, controls.driveForward(), controls.driveStrafe());
+  // }
 
-  public void targetAngleDrive(Rotation2d targetAngle, DriverControls controls){
-    swerve.targetAngleDrive(targetAngle, controls.driveForward(), controls.driveStrafe());
-  }
+  // public void targetAngleDrive(Rotation2d targetAngle, DriverControls controls){
+  //   swerve.targetAngleDrive(targetAngle, controls.driveForward(), controls.driveStrafe());
+  // }
 
   //public void addVisionMeasurement(){}
 

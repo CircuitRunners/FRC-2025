@@ -1,11 +1,20 @@
 package frc.lib.swerve;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveDrivetrainConstants;
-import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveModule.DriveRequestType;
-import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveModuleConstants;
-import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveModuleConstantsFactory;
-import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveRequest;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
+import com.ctre.phoenix6.swerve.SwerveDrivetrain;
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveRequest.ApplyRobotSpeeds;
+import com.ctre.phoenix6.swerve.SwerveRequest.FieldCentric;
+import com.ctre.phoenix6.swerve.SwerveRequest.PointWheelsAt;
+import com.ctre.phoenix6.swerve.SwerveRequest.RobotCentric;
+import com.ctre.phoenix6.swerve.SwerveRequest.SwerveDriveBrake;
+import com.ctre.phoenix6.swerve.SwerveModuleConstants;
+import com.ctre.phoenix6.swerve.SwerveModuleConstantsFactory;
+import com.ctre.phoenix6.swerve.SwerveDrivetrain.DeviceConstructor;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -39,48 +48,48 @@ public class SwerveConfig {
     }
   };
 
-  private static final LegacySwerveModuleConstantsFactory CONSTANTS_FACTORY = new LegacySwerveModuleConstantsFactory()
+  private static final SwerveModuleConstantsFactory<TalonFXConfiguration,TalonFXConfiguration,CANcoderConfiguration> CONSTANTS_FACTORY = new SwerveModuleConstantsFactory<TalonFXConfiguration,TalonFXConfiguration,CANcoderConfiguration>()
       .withDriveMotorGearRatio(SwerveConstants.driveGearRatio)
       .withSteerMotorGearRatio(SwerveConstants.angleGearRatio)
       .withWheelRadius(Units.metersToInches(SwerveConstants.wheelCircumference / (2 * Math.PI)))
       .withSlipCurrent(SwerveConstants.slipCurrent)
       .withSteerMotorGains(turnConfigs)
       .withDriveMotorGains(driveConfigs)
-      .withSpeedAt12VoltsMps(SwerveConstants.maxVelocityMPS)
+      .withSpeedAt12Volts(SwerveConstants.maxVelocityMPS)
       .withSteerInertia(SwerveConstants.steerInertia)
       .withDriveInertia(SwerveConstants.driveInertia)
-      .withSteerMotorInverted(false)
       .withCouplingGearRatio(SwerveConstants.couplingGearRatio);
 
-  private static final LegacySwerveModuleConstants generateConstants(int turnID, int driveID, int canCoderID,
+  private static final SwerveModuleConstants<TalonFXConfiguration,TalonFXConfiguration, CANcoderConfiguration> generateConstants(int turnID, int driveID, int canCoderID,
       Translation2d position, double absoluteOffset) {
     return CONSTANTS_FACTORY.createModuleConstants(turnID, driveID, canCoderID, absoluteOffset, position.getX(),
-        position.getY(), false);
+        position.getY(), false, false, false);
 
   }
 
-  public static Swerve getConfiguredDrivetrain() {
-    var drivetrain = new LegacySwerveDrivetrainConstants()
-        .withPigeon2Id(SwerveConstants.pigeonId)
-        .withCANbusName(SwerveConstants.CANBusName);
-    var frontLeft = generateConstants(SwerveConstants.Mod0.angleMotorID, SwerveConstants.Mod0.driveMotorID,
-        SwerveConstants.Mod0.canCoderID, SwerveConstants.Mod0.position, SwerveConstants.Mod0.angleOffset.getRadians());
-    var frontRight = generateConstants(SwerveConstants.Mod1.angleMotorID, SwerveConstants.Mod1.driveMotorID,
-        SwerveConstants.Mod1.canCoderID, SwerveConstants.Mod1.position, SwerveConstants.Mod1.angleOffset.getRadians());
-    var backLeft = generateConstants(SwerveConstants.Mod2.angleMotorID, SwerveConstants.Mod2.driveMotorID,
-        SwerveConstants.Mod2.canCoderID, SwerveConstants.Mod2.position, SwerveConstants.Mod2.angleOffset.getRadians());
-    var backRight = generateConstants(SwerveConstants.Mod3.angleMotorID, SwerveConstants.Mod3.driveMotorID,
-        SwerveConstants.Mod3.canCoderID, SwerveConstants.Mod3.position, SwerveConstants.Mod3.angleOffset.getRadians());
+  // public static Swerve getConfiguredDrivetrain() {
+  //   var drivetrain = new SwerveDrivetrainConstants()
+  //       .withPigeon2Id(SwerveConstants.pigeonId)
+  //       .withCANBusName(SwerveConstants.CANBusName);
+  //   var frontLeft = generateConstants(SwerveConstants.Mod0.angleMotorID, SwerveConstants.Mod0.driveMotorID,
+  //       SwerveConstants.Mod0.canCoderID, SwerveConstants.Mod0.position, SwerveConstants.Mod0.angleOffset.getRadians());
+  //   var frontRight = generateConstants(SwerveConstants.Mod1.angleMotorID, SwerveConstants.Mod1.driveMotorID,
+  //       SwerveConstants.Mod1.canCoderID, SwerveConstants.Mod1.position, SwerveConstants.Mod1.angleOffset.getRadians());
+  //   var backLeft = generateConstants(SwerveConstants.Mod2.angleMotorID, SwerveConstants.Mod2.driveMotorID,
+  //       SwerveConstants.Mod2.canCoderID, SwerveConstants.Mod2.position, SwerveConstants.Mod2.angleOffset.getRadians());
+  //   var backRight = generateConstants(SwerveConstants.Mod3.angleMotorID, SwerveConstants.Mod3.driveMotorID,
+  //       SwerveConstants.Mod3.canCoderID, SwerveConstants.Mod3.position, SwerveConstants.Mod3.angleOffset.getRadians());
+  //   DeviceConstructor<TalonFX> driveMotorConstructor = new DeviceConstructor<TalonFX>() {
+      
+  //   };
+  //   return new Swerve(null, null, null, null, frontLeft, frontRight, backLeft, backRight);
+  // }
 
-    return new Swerve(drivetrain,
-        new LegacySwerveModuleConstants[] { frontLeft, frontRight, backLeft, backRight });
-  }
-
-  public static final LegacySwerveRequest.FieldCentric drive = new LegacySwerveRequest.FieldCentric().withDriveRequestType(DriveRequestType.OpenLoopVoltage);
-  public static final LegacySwerveRequest.RobotCentric robotCentric = new LegacySwerveRequest.RobotCentric();
-  public static final LegacySwerveRequest.SwerveDriveBrake brake = new LegacySwerveRequest.SwerveDriveBrake();
-  public static final LegacySwerveRequest.PointWheelsAt pointWheelsAt = new LegacySwerveRequest.PointWheelsAt();
-  public static final LegacySwerveRequest.ApplyChassisSpeeds applyChassisSpeeds = new LegacySwerveRequest.ApplyChassisSpeeds();
+  public static final FieldCentric drive = new FieldCentric().withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+  public static final RobotCentric robotCentric = new RobotCentric();
+  public static final SwerveDriveBrake brake = new SwerveDriveBrake();
+  public static final PointWheelsAt pointWheelsAt = new PointWheelsAt();
+  public static final ApplyRobotSpeeds applyChassisSpeeds = new ApplyRobotSpeeds();
 
   public static ChassisSpeeds toChassisSpeeds(DriverControls driverControls, Drive drive) {
     return new ChassisSpeeds(driverControls.driveForward(), driverControls.driveStrafe(),
