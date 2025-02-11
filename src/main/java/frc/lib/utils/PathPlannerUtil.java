@@ -9,8 +9,8 @@ import java.util.stream.Stream;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.ReplanningConfig;
+// import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+// import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -32,23 +32,23 @@ public class PathPlannerUtil {
         .subscribe(new double[] {0,0,0});
 
     public static void configure(Drive drive){
-        HolonomicPathFollowerConfig config = new HolonomicPathFollowerConfig(
-            SwerveConstants.translationalPID, 
-            SwerveConstants.rotationalPID, 
-            TunerConstants.kSpeedAt12VoltsMps, 
-            SwerveConstants.driveBaseRadiusMeter, 
-            new ReplanningConfig(true, true)
-        );
+        // HolonomicPathFollowerConfig config = new HolonomicPathFollowerConfig(
+        //     SwerveConstants.translationalPID, 
+        //     SwerveConstants.rotationalPID, 
+        //     TunerConstants.kSpeedAt12VoltsMps, 
+        //     SwerveConstants.driveBaseRadiusMeter, 
+        //     new ReplanningConfig(true, true)
+        // );
         
-        AutoBuilder.configureHolonomic(
-            drive::getPose,
-            drive::resetPose,
-            drive::getChassisSpeeds,
-            drive::driveRobotCentric,
-            config,
-            () -> DriverStation.getAlliance().get() == Alliance.Red,
-            drive
-        );
+        // AutoBuilder.configureHolonomic(
+        //     drive::getPose,
+        //     drive::resetPose,
+        //     drive::getChassisSpeeds,
+        //     drive::driveRobotCentric,
+        //     config,
+        //     () -> DriverStation.getAlliance().get() == Alliance.Red,
+        //     drive
+        // );
 
         NamedCommands.registerCommand("brake", drive.brakeCommand());
        
