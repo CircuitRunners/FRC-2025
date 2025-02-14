@@ -17,5 +17,6 @@ public class Elevator extends SubsystemBase {
         elevatorSparkMax1 = new SparkMax(20, MotorType.kBrushless);
         elevatorSparkMax2 = new SparkMax(21, MotorType.kBrushless);
         elevatorEncoder = elevatorSparkMax1.getEncoder();
+        
     }
 }

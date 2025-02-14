@@ -213,5 +213,11 @@ public final class Constants {
     public static final AprilTagFieldLayout kFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
 
    }
+
+   public static class ElevatorConstants{
+    public static final int elevatorPort1 = 0;
+    public static final int elevatorPort2 = 1;
+    
+   }
   }
 
