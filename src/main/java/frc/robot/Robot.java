@@ -120,10 +120,9 @@ public class Robot extends TimedRobot {
     // ------------------------------- DRIVER CONTROLS ---------------------------------------------------------
     driverControls = new DriverControls(DriverConstants.driverPort);
     drive.setDefaultCommand(drive.driveFieldCentricCommand(() -> SwerveConfig.toChassisSpeeds(driverControls)));
-      driverControls.y()
-      .onTrue(Commands.runOnce(() -> Drive.limit = 1.0))
-      .onFalse(Commands.runOnce(() -> Drive.limit = 0.4 ));
-    
+    driverControls.increaseLimit().onTrue(drive.increaseLimitCommand());
+    driverControls.decreaseLimit().onTrue(drive.decreaseLimitCommand());
+    driverControls.start().onTrue(drive.resetGyroCommand());
 
   }
 
