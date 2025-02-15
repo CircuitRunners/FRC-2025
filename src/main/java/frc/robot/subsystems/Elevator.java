@@ -32,4 +32,8 @@ public class Elevator extends SubsystemBase {
         elevatorSparkMax1.set(elevatorPidController.calculate(elevatorEncoder.getPosition(), targetPos));
         elevatorSparkMax2.set(-(elevatorPidController.calculate(elevatorEncoder.getPosition(),targetPos)));
     }
+
+    public double getPos () {
+        return elevatorEncoder.getPosition();
+    }
 }
