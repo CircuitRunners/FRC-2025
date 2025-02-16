@@ -16,6 +16,8 @@ public class Elevator extends SubsystemBase {
     private final RelativeEncoder elevatorEncoder;
     private final PIDController pidController;
 
+    private static final double HOLD_POWER = 0.05;
+
     public Elevator(){
         //Initialize motors with correct ports
         elevatorSparkMax1 = new SparkMax(21, MotorType.kBrushless);
@@ -34,16 +36,36 @@ public class Elevator extends SubsystemBase {
         pidController.setTolerance(0.5); //Acceptable error range
     }
 
-    public void moveToPos (double targetPos) {
-  
-        elevatorSparkMax1.set(pidController.calculate(elevatorEncoder.getPosition(), targetPos));
+    // Move the elevator to the specified position
+    public void moveToPos(double targetPos) {
+        // Get the PID output based on current position and target
+        double output = pidController.calculate(elevatorEncoder.getPosition(), targetPos);
+        // Set both motors to the same output to ensure synchronized movement
+        elevatorSparkMax1.set(output);
+        elevatorSparkMax2.set(output);
     }
 
     public double getPos () {
         return elevatorEncoder.getPosition();
     }
 
+    public void holdPosition() {
+        // Calculate the PID output for the current position
+        double output = pidController.calculate(elevatorEncoder.getPosition(), elevatorEncoder.getPosition());
+    
+        // Ensure that the output isn't too low, in which case we use HOLD_POWER
+        if (Math.abs(output) < HOLD_POWER) {
+            output = (output > 0) ? HOLD_POWER : -HOLD_POWER; // Apply HOLD_POWER with correct sign
+        }
+    
+        // Set both motors to the calculated output
+        elevatorSparkMax1.set(output);
+        elevatorSparkMax2.set(output);
+    }
+    
+
     public void stop() {
         elevatorSparkMax1.stopMotor();
+        elevatorSparkMax2.stopMotor();
     }
 }
