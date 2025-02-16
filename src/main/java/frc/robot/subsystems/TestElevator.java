@@ -21,8 +21,8 @@ public class TestElevator extends SubsystemBase {
   public TestElevator() {
     motor1 = new SparkMax(TestElevatorConstants.motor1port, MotorType.kBrushless);
     motor2 = new SparkMax(TestElevatorConstants.motor2port, MotorType.kBrushless);
-    SparkBaseConfig motor1Config = new SparkMaxConfig().idleMode(IdleMode.kBrake);
-    SparkBaseConfig motor2Config = new SparkMaxConfig().follow(TestElevatorConstants.motor1port, true).idleMode(IdleMode.kBrake);
+    SparkBaseConfig motor1Config = new SparkMaxConfig().idleMode(IdleMode.kCoast);
+    SparkBaseConfig motor2Config = new SparkMaxConfig().follow(TestElevatorConstants.motor1port, true).idleMode(IdleMode.kCoast);
     motor2.configure(motor2Config, null, null);
     motor1.configure(motor1Config, null, null);
   }
@@ -30,9 +30,17 @@ public class TestElevator extends SubsystemBase {
   public void moveElevator(double speed) {
     motor1.set(speed);
   }
+  
+  public void stopElevator() {
+    motor1.set(0);
+  }
 
   public Command moveElevatorCommand(double speed) {
     return run(() -> moveElevator(speed));
+  }
+
+  public Command stopElevatorCommand() {
+    return run(this::stopElevator);
   }
 
   @Override

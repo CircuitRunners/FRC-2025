@@ -206,6 +206,11 @@ public final class Constants {
 
   }
 
+  public static final class TestArmConstants {
+    public static final int motor1port = 23;
+    public static final int motor2port = 24;
+  }
+
   public static final class Vision{
     public static final AprilTagFieldLayout fieldLayout = AprilTagFields.k2025Reefscape.loadAprilTagLayoutField();
     public static final Transform3d frontLeftCamTransform = new Transform3d();
