@@ -131,11 +131,11 @@ public class Robot extends TimedRobot {
     driverControls.y().onTrue(testElevator.moveElevatorCommand(-1)).onFalse(testElevator.stopElevatorCommand());
     driverControls.a().onTrue(testElevator.moveElevatorCommand(0.8)).onFalse(testElevator.stopElevatorCommand());
 
-    driverControls.x().onTrue(testArm.moveArmCommand(-0.5)).onFalse(testArm.stopArmCommand());
-    driverControls.b().onTrue(testArm.moveArmCommand(0.5)).onFalse(testArm.stopArmCommand());
+    driverControls.b().onTrue(testArm.moveArmCommand(-0.5)).onFalse(testArm.stopArmCommand());
+    driverControls.x().onTrue(testArm.moveArmCommand(0.5)).onFalse(testArm.stopArmCommand());
 
-    driverControls.rightBumper().onTrue(testArm.moveOuttakeCommand(0.5)).onFalse(testArm.stopOuttakeCommand());
-    driverControls.leftBumper().onTrue(testArm.moveOuttakeCommand(-0.5)).onFalse(testArm.stopOuttakeCommand());
+    driverControls.rightBumper().onTrue(testArm.moveOuttakeCommand(0.8)).onFalse(testArm.stopOuttakeCommand());
+    driverControls.leftBumper().onTrue(testArm.moveOuttakeCommand(-0.8)).onFalse(testArm.stopOuttakeCommand());
 
   }
 

@@ -204,11 +204,23 @@ public final class Constants {
     public static final int motor1port = 21;
     public static final int motor2port = 22;
 
+    public static final double maxEncoderValue = 0; // tune specifically
+    public static final double minEncoderValue = 0; // tune specifically
+    public static final double l1EncoderValue = 0; // tune specifically
+    public static final double l2EncoderValue = 0; // tune specifically
+    public static final double l3EncoderValue = 0; // tune specifically
+    public static final double l4EncoderValue = 0; // tune specifically
+
   }
 
   public static final class TestArmConstants {
     public static final int motor1port = 23;
     public static final int motor2port = 24;
+
+    public static final double maxEncoderValue = 0; //currently set with Neo Encoder
+    public static final double minEncoderValue = 0; //currently set with Neo Encoder
+    public static final double horizontalEncoderValue = 0; //currently set with Neo Encoder
+    public static final double l4EncoderValue = 0; //currently set with Neo Encoder
   }
 
   public static final class Vision{
