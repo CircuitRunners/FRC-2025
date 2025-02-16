@@ -20,8 +20,8 @@ public class Elevate extends Command {
     }
 
     public void end (boolean interrupted) {
-        elevator.elevatorSparkMax1.stopMotor();
-        elevator.elevatorSparkMax2.stopMotor();
+        // Call the stop method from the Elevator subsystem
+        elevator.stop();
     }
 
     public boolean isFinished () {
