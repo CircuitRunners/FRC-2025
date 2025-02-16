@@ -22,8 +22,8 @@ public class Claw extends SubsystemBase {
     }
 
     public void release() {
-        leftMotor.set(1);
-        rightMotor.set(-1);
+        leftMotor.set(-1);
+        rightMotor.set(1);
     }
 
     public Command grabCommand() {
@@ -33,7 +33,6 @@ public class Claw extends SubsystemBase {
     public Command releaseCommand() {
         return run(() -> release());
     }
-
 
 
 }
