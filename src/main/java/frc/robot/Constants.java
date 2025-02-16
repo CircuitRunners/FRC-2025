@@ -200,6 +200,12 @@ public final class Constants {
     public static final int operatorPort = 1;
   }
 
+  public static final class TestElevatorConstants {
+    public static final int motor1port = 21;
+    public static final int motor2port = 22;
+
+  }
+
   public static final class Vision{
     public static final AprilTagFieldLayout fieldLayout = AprilTagFields.k2025Reefscape.loadAprilTagLayoutField();
     public static final Transform3d frontLeftCamTransform = new Transform3d();
