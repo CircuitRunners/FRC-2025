@@ -42,4 +42,8 @@ public class Elevator extends SubsystemBase {
     public double getPos () {
         return elevatorEncoder.getPosition();
     }
+
+    public void stop() {
+        elevatorSparkMax1.stopMotor();
+    }
 }
