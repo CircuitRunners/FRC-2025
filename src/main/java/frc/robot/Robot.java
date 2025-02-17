@@ -20,9 +20,13 @@ import frc.robot.Constants.DriverConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.io.DriverControls;
 import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.TestArm;
+import frc.robot.subsystems.TestElevator;
 
 public class Robot extends TimedRobot {
   private Drive drive;
+  private TestElevator testElevator;
+  private TestArm testArm;
   private DriverControls driverControls;
   private Command m_autonomousCommand;
   private final SendableChooser<Supplier<Command>> autoChooser = new SendableChooser<>();
@@ -120,15 +124,25 @@ public class Robot extends TimedRobot {
     // ------------------------------- DRIVER CONTROLS ---------------------------------------------------------
     driverControls = new DriverControls(DriverConstants.driverPort);
     drive.setDefaultCommand(drive.driveFieldCentricCommand(() -> SwerveConfig.toChassisSpeeds(driverControls)));
-      driverControls.y()
-      .onTrue(Commands.runOnce(() -> Drive.limit = 1.0))
-      .onFalse(Commands.runOnce(() -> Drive.limit = 0.4 ));
+    driverControls.increaseLimit().onTrue(drive.increaseLimitCommand());
+    driverControls.decreaseLimit().onTrue(drive.decreaseLimitCommand());
+    driverControls.start().onTrue(drive.resetGyroCommand());
     
+    driverControls.y().onTrue(testElevator.moveElevatorCommand(-1)).onFalse(testElevator.stopElevatorCommand());
+    driverControls.a().onTrue(testElevator.moveElevatorCommand(0.8)).onFalse(testElevator.stopElevatorCommand());
+
+    driverControls.b().onTrue(testArm.moveArmCommand(-0.5)).onFalse(testArm.stopArmCommand());
+    driverControls.x().onTrue(testArm.moveArmCommand(0.5)).onFalse(testArm.stopArmCommand());
+
+    driverControls.rightBumper().onTrue(testArm.moveOuttakeCommand(0.8)).onFalse(testArm.stopOuttakeCommand());
+    driverControls.leftBumper().onTrue(testArm.moveOuttakeCommand(-0.8)).onFalse(testArm.stopOuttakeCommand());
 
   }
 
   private void configureSubsystems() {
     drive = new Drive(TunerConstants.createDrivetrain());
+    testElevator = new TestElevator();
+    testArm = new TestArm();
   }
 
 }

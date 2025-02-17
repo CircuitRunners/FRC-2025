@@ -65,8 +65,8 @@ public class Drive extends SubsystemBase {
     SignalLogger.setPath("logs/sysid/drive");
     this.swerve = swerve;
 
-    forwardLimiter = new SlewRateLimiter(5, -10, 0);
-    strafeLimiter = new SlewRateLimiter(5, -10, 0);
+    forwardLimiter = new SlewRateLimiter(10, -10, 0);
+    strafeLimiter = new SlewRateLimiter(10, -10, 0);
     // swerve.setPigeonOffset();
   }
 
@@ -93,15 +93,19 @@ public class Drive extends SubsystemBase {
       SwerveConfig.drive
       .withVelocityX(forwardLimiter.calculate(speeds.vxMetersPerSecond))
       .withVelocityY(strafeLimiter.calculate(speeds.vyMetersPerSecond))
+      // .withVelocityX(speeds.vxMetersPerSecond)
+      // .withVelocityY(speeds.vyMetersPerSecond)
       .withRotationalRate(speeds.omegaRadiansPerSecond)
-    );
-  }
-
-  public void driveRobotCentric(ChassisSpeeds speeds){
-    swerve.setControl(
-      SwerveConfig.robotCentric
-      .withVelocityX(forwardLimiter.calculate(speeds.vxMetersPerSecond))
-      .withVelocityY(strafeLimiter.calculate(speeds.vyMetersPerSecond))
+      );
+    }
+    
+    public void driveRobotCentric(ChassisSpeeds speeds){
+      swerve.setControl(
+        SwerveConfig.robotCentric
+        .withVelocityX(forwardLimiter.calculate(speeds.vxMetersPerSecond))
+        .withVelocityY(strafeLimiter.calculate(speeds.vyMetersPerSecond))
+        // .withVelocityX(speeds.vxMetersPerSecond)
+        // .withVelocityY(speeds.vyMetersPerSecond)
       .withRotationalRate(speeds.omegaRadiansPerSecond)
     );
   }
