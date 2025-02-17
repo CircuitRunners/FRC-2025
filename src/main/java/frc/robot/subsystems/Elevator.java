@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -13,7 +14,7 @@ public class Elevator extends SubsystemBase {
 
     public final SparkMax elevatorSparkMax1;
     public final SparkMax elevatorSparkMax2;
-    private final RelativeEncoder elevatorEncoder;
+    private final AbsoluteEncoder elevatorEncoder;
     private final PIDController pidController;
 
     private static final double HOLD_POWER = 0.05;
@@ -23,7 +24,7 @@ public class Elevator extends SubsystemBase {
         elevatorSparkMax1 = new SparkMax(21, MotorType.kBrushless);
         elevatorSparkMax2 = new SparkMax(22, MotorType.kBrushless);
         
-        elevatorEncoder = elevatorSparkMax1.getEncoder();
+        elevatorEncoder = elevatorSparkMax1.getAbsoluteEncoder();
 
         //Tunes the PID gains- Adjust for better control and movement of elevator
         double kp = 1.0; //Proportional (Increase the number if moving too slow, decrease if oscillating)
