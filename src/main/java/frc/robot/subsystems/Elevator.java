@@ -69,4 +69,8 @@ public class Elevator extends SubsystemBase {
         elevatorSparkMax1.stopMotor();
         elevatorSparkMax2.stopMotor();
     }
+
+    public void periodic(){
+        SmartDashboard.putNumber("elevator position",getPos() );
+    }
 }
