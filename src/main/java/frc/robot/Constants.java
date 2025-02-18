@@ -244,10 +244,6 @@ public final class Constants {
     public static final int elevatorPort1 = 21;
     public static final int elevatorPort2 = 22;
     
-    public static final double l1Height = 1;
-    public static final double l2Height = 2;
-    public static final double l3Height = 3;
-    public static final double l4Height = 4;
     
     public static final double maxEncoderValue = 0; // tune specifically
     public static final double minEncoderValue = 0; // tune specifically

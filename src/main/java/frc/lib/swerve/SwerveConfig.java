@@ -20,7 +20,7 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrain.DeviceConstructor;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
-import frc.robot.Constants.SwerveConstants;
+import frc.robot.ClawConstants.SwerveConstants;
 import frc.robot.io.DriverControls;
 import frc.robot.subsystems.Drive;
 
