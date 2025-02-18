@@ -19,7 +19,7 @@ import frc.lib.swerve.SwerveConfig;
 import frc.lib.utils.PathPlannerUtil;
 import frc.robot.Constants.DriverConstants;
 import frc.robot.commands.moving.*;
-import frc.robot.commands.scoring.ScoreL4;
+import frc.robot.commands.scoring.*;
 import frc.robot.generated.TunerConstants;
 import frc.robot.io.*;
 import frc.robot.subsystems.*;
@@ -120,7 +120,12 @@ public class Robot extends TimedRobot {
       autoChooser.addOption(autoName, () -> PathPlannerUtil.getAutoCommand(autoName));
     });
     SmartDashboard.putData("Auto Chooser", autoChooser);
-
+    
+    //register named commands
+    NamedCommands.registerCommand("MoveToIntake", new MoveToIntake(elevator, claw));
+    NamedCommands.registerCommand("ScoreL1", new ScoreL1(elevator, claw));
+    NamedCommands.registerCommand("ScoreL2", new ScoreL2(elevator, claw));
+    NamedCommands.registerCommand("ScoreL3", new ScoreL3(elevator, claw));
     NamedCommands.registerCommand("ScoreL4", new ScoreL4(elevator, claw));
   }
 
@@ -151,7 +156,7 @@ public class Robot extends TimedRobot {
     manipulatorControls.runRollersOut().onTrue(claw.runRollersOutCommand());
 
     //overall controls
-    manipulatorControls.resetToIntake().onTrue(new ParallelCommandGroup(claw.moveClawToIntakeCommand(), Commands.waitUntil(() -> claw.isAtTarget()).andThen(elevator.moveToBottom())));
+    manipulatorControls.resetToIntake().onTrue(new MoveToIntake(elevator, claw));
     manipulatorControls.moveToL1().onTrue(new MoveToL1(elevator, claw));
     manipulatorControls.moveToL2().onTrue(new MoveToL2(elevator, claw));
     manipulatorControls.moveToL3().onTrue(new MoveToL3(elevator, claw));
