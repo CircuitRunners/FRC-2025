@@ -2,28 +2,56 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.math.controller.PIDController;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.AbsoluteEncoder;
 
 // ngl idk what am doing so am stealing from test code
 
 public class Claw extends SubsystemBase {
     
     private SparkMax moveMotor;
-    private SparkMax rollerMotor;
+    private SparkMax roller1Motor;
+    private SparkMax roller2Motor;
+
+    private PIDController pidController;
+    private AbsoluteEncoder clawEncoder;
+
+    private double targetPos;
 
     public Claw() {
-        moveMotor = new SparkMax(24, MotorType.kBrushless);
-        rollerMotor = new SparkMax(25, MotorType.kBrushless);
+        moveMotor = new SparkMax(23, MotorType.kBrushless);
+        roller1Motor = new SparkMax(24, MotorType.kBrushless);
+        roller2Motor = new SparkMax(25, MotorType.kBrushless);
+
+        double constP = 1;
+        double constI = 1;
+        double constD = 1;
+
+        pidController = new PIDController(constP, constI, constD);
+        pidController.setTolerance(1);
+
+        clawEncoder = moveMotor.getAbsoluteEncoder();
+
     }
 
-    public void moveClaw(double speed) {
-        moveMotor.set(speed);
+    public double getClawPos() {
+        return clawEncoder.getPosition();
+    }
+
+    public double getTargetPos() {
+        return targetPos;
+    }
+
+    public void setTargetPos(double desiredPos) {
+        targetPos = desiredPos;
     }
 
     public void changeRollerSpd(double speed) {
-        rollerMotor.set(speed);
+        roller1Motor.set(speed);
+        roller2Motor.set(-speed);
     }
 
     public void stopClaw() {
@@ -31,12 +59,12 @@ public class Claw extends SubsystemBase {
     }
 
     public void stopRoller() {
-        rollerMotor.stopMotor();
+        roller1Motor.stopMotor();
+        roller2Motor.stopMotor();
     }
 
-    public Command moveClawCommand(double speed) {
-        return run(() -> moveClaw(speed));
-    }
+
+    // Commands
 
     public Command changeRollerSpdCommand(double speed) {
         return run(() -> changeRollerSpd(speed));
@@ -53,7 +81,7 @@ public class Claw extends SubsystemBase {
     @Override
     public void periodic() {
         // icl ts pmo sm u bfr rn
+        moveMotor.setVoltage(pidController.calculate(getClawPos(),getTargetPos()));
     }
-
 
 }
