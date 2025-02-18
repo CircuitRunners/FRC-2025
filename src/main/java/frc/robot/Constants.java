@@ -238,14 +238,20 @@ public final class Constants {
    }
 
    public static class ElevatorConstants{
-    public static final int elevatorPort1 = 0;
-    public static final int elevatorPort2 = 1;
+    public static final int elevatorPort1 = 21;
+    public static final int elevatorPort2 = 22;
     
     public static final double l1Height = 1;
     public static final double l2Height = 2;
     public static final double l3Height = 3;
     public static final double l4Height = 4;
     
+    public static final double maxEncoderValue = 0; // tune specifically
+    public static final double minEncoderValue = 0; // tune specifically
+    public static final double l1EncoderValue = 0; // tune specifically
+    public static final double l2EncoderValue = 0; // tune specifically
+    public static final double l3EncoderValue = 0; // tune specifically
+    public static final double l4EncoderValue = 0; // tune specifically
    }
   }
 
