@@ -7,8 +7,10 @@ import edu.wpi.first.math.controller.PIDController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-// ngl idk what am doing so am stealing from test code
 
 public class Claw extends SubsystemBase {
     
@@ -25,6 +27,11 @@ public class Claw extends SubsystemBase {
         moveMotor = new SparkMax(23, MotorType.kBrushless);
         roller1Motor = new SparkMax(24, MotorType.kBrushless);
         roller2Motor = new SparkMax(25, MotorType.kBrushless);
+
+        SparkBaseConfig r1mConfig = new SparkMaxConfig().idleMode(IdleMode.kCoast);
+        SparkBaseConfig r2mConfig = new SparkMaxConfig().follow(24,true).idleMode(IdleMode.kCoast);
+        roller1Motor.configure(r1mConfig, null, null);
+        roller2Motor.configure(r2mConfig, null, null);
 
         double constP = 1; // proportional coefficient gain
         double constI = 1; // integral coefficient gain
@@ -52,10 +59,10 @@ public class Claw extends SubsystemBase {
 
     public void changeRollerSpd(double speed) {
         roller1Motor.set(speed);
-        roller2Motor.set(-speed);
     }
 
     public void stopClaw() {
+        //setTargetPos(getClawPos()); // Hold claw position
         moveMotor.stopMotor();
     }
 
@@ -81,7 +88,6 @@ public class Claw extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // abcd efg hijk lmnop qrs tuv wx y and z
         moveMotor.setVoltage(pidController.calculate(getClawPos(),getTargetPos()));
     }
 
