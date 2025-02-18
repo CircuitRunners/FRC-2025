@@ -126,11 +126,15 @@ public class Claw extends SubsystemBase {
         return moveClawToPositionCommand(ClawConstants.l4EncoderValue);
     }
 
+    public boolean isAtTarget(){
+        return Math.abs(getClawPos() - getTargetPos()) < ClawConstants.tolerance;
+    }
+
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Claw position", getClawPos());
         SmartDashboard.putNumber("Claw target", getTargetPos());
-        if (Math.abs(getClawPos() - getTargetPos()) < ClawConstants.tolerance) {
+        if (isAtTarget()) {
             SmartDashboard.putString("claw state", "at target" + targetState);
             stopClaw();
         } else {

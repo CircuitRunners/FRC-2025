@@ -95,12 +95,16 @@ public class Elevator extends SubsystemBase {
         return run(() -> moveToPos(ElevatorConstants.minEncoderValue));
     }
 
+    public boolean isAtTarget(){
+        return Math.abs(getElevatorPos() - getTargetPos()) < ElevatorConstants.tolerance;
+    }
+
     @Override
     public void periodic(){
         SmartDashboard.putNumber("elevator position",getElevatorPos());
         SmartDashboard.putNumber("elevator target",getTargetPos());
         
-        if (Math.abs(getElevatorPos() - getTargetPos()) < ElevatorConstants.tolerance) {
+        if (isAtTarget()) {
             SmartDashboard.putString("elevator state", "at target" + targetState);
             stop();
         } else {
