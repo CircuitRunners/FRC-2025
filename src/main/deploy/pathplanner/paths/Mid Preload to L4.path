@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.5108732876712367,
-        "y": 3.8221532534246574
+        "x": 0.6010273972602739,
+        "y": 6.151134417808219
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.1403681506849312,
-        "y": 4.227846746575342
+        "x": 5.72478595890411,
+        "y": 3.8221532534246574
       },
       "prevControl": {
-        "x": 2.1403681506849312,
-        "y": 4.227846746575342
+        "x": 8.204023972602737,
+        "y": 7.458369006849315
       },
       "nextControl": null,
-      "isLocked": true,
-      "linkedName": "Reef Tower 1"
+      "isLocked": false,
+      "linkedName": "Reef Tower 7"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -0.881403996582181
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -36.52119387394899
   },
   "useDefaultConstraints": true
 }

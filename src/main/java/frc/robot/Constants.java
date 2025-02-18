@@ -108,7 +108,7 @@ public final class Constants {
     public static final double angleKA = TunerConstants.steerGains.kA;
 
     /**Drive Motor PID Values */
-    public static final double driveKP = TunerConstants.driveGains.kS;
+    public static final double driveKP = TunerConstants.driveGains.kP;
     public static final double driveKI = TunerConstants.driveGains.kI;
     public static final double driveKD = TunerConstants.driveGains.kD;
     public static final double driveKF = 0;
@@ -192,6 +192,9 @@ public final class Constants {
     }
   
     public static final PathConstraints pathConstraints = new PathConstraints(maxVelocityMPS, maxModuleAccelerationMPSSq, maxAngularVelocityRPS, maxAngularAccelerationRPSSq);
+    public static final double robotMass = 54.431;
+    public static final double MOI = 6.898;
+    public static final double wheelCOF = 1.0;
   }
 
   public static final class DriverConstants{

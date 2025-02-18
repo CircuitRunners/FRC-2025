@@ -1,5 +1,8 @@
 package frc.lib.utils;
 
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -9,27 +12,34 @@ import java.util.stream.Stream;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.config.ModuleConfig;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 // import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 // import com.pathplanner.lib.util.ReplanningConfig;
+import com.pathplanner.lib.controllers.PathFollowingController;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.PubSubOption;
+import edu.wpi.first.networktables.StructSubscriber;
+import edu.wpi.first.networktables.StructTopic;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.lib.swerve.SwerveConfig;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Drive;
 
 
 public class PathPlannerUtil {
-    private static final DoubleArraySubscriber kTargetPoseSub = NetworkTableInstance.getDefault()
-        .getDoubleArrayTopic("/Pathplanner/targetPose")
-        .subscribe(new double[] {0,0,0});
+    private static final StructSubscriber<Pose2d> kTargetPoseSub = NetworkTableInstance.getDefault().getStructTopic("targetPose", Pose2d.struct).subscribe(new Pose2d(), new PubSubOption[] {PubSubOption.periodic(0.2)});
 
     public static void configure(Drive drive){
         // HolonomicPathFollowerConfig config = new HolonomicPathFollowerConfig(
@@ -39,19 +49,21 @@ public class PathPlannerUtil {
         //     SwerveConstants.driveBaseRadiusMeter, 
         //     new ReplanningConfig(true, true)
         // );
-        
-        // AutoBuilder.configureHolonomic(
-        //     drive::getPose,
-        //     drive::resetPose,
-        //     drive::getChassisSpeeds,
-        //     drive::driveRobotCentric,
-        //     config,
-        //     () -> DriverStation.getAlliance().get() == Alliance.Red,
-        //     drive
-        // );
+        PathFollowingController controller = new PPHolonomicDriveController(SwerveConfig.translationPID, SwerveConfig.rotationPID); 
+        ModuleConfig moduleConfig = new ModuleConfig(TunerConstants.kWheelRadius, TunerConstants.kSpeedAt12Volts, SwerveConstants.wheelCOF, DCMotor.getKrakenX60(1), TunerConstants.kSlipCurrent, 1); 
+        RobotConfig robotConfig = new RobotConfig(SwerveConstants.robotMass, SwerveConstants.MOI,moduleConfig, Meters.convertFrom(28, Inches));
+        AutoBuilder.configure(
+            drive::getPose,
+            drive::resetPose,
+            drive::getChassisSpeeds,
+            drive::driveRobotCentric,
+            controller,
+            robotConfig,
+            () -> DriverStation.getAlliance().get() == Alliance.Red,
+            drive
+        );
 
         NamedCommands.registerCommand("brake", drive.brakeCommand());
-       
     }
 
     public static Command getAutoCommand(String name){
@@ -67,8 +79,10 @@ public class PathPlannerUtil {
     public static List<String> getAutos(){
         var path = Path.of(Filesystem.getDeployDirectory().getAbsolutePath(), "pathplanner");
         try(Stream<Path> stream = Files.walk(path)){
-            return stream.filter(x -> getFileExtension(x).equals(".auto")) .map(x -> getFileStem(x)) .toList();
+            return stream.filter(x -> getFileExtension(x).equals(".auto")).map(x -> getFileStem(x)) .toList();
         }catch(IOException e){
+            System.err.println("An error occurred while loading autos");
+            e.printStackTrace();
             return Collections.emptyList();
         }
     }
@@ -92,11 +106,7 @@ public class PathPlannerUtil {
     }
 
     public static Pose2d getCurrentTargetPose(){
-        var arr = kTargetPoseSub.get();
-        double x = arr[0];
-        double y = arr[1];
-        Rotation2d rot = Rotation2d.fromRadians(arr[2]);
-        return new Pose2d(x,y,rot); 
+        return kTargetPoseSub.get();
     }
 
 }
