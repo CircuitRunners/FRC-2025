@@ -8,20 +8,20 @@ import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.NamedCommands;
 
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.lib.swerve.SwerveConfig;
 import frc.lib.utils.PathPlannerUtil;
 import frc.robot.Constants.DriverConstants;
-import frc.robot.commands.ScoreL4;
+import frc.robot.commands.moving.*;
+import frc.robot.commands.scoring.ScoreL4;
 import frc.robot.generated.TunerConstants;
-import frc.robot.io.DriverControls;
+import frc.robot.io.*;
 import frc.robot.subsystems.*;
 
 public class Robot extends TimedRobot {
@@ -29,6 +29,7 @@ public class Robot extends TimedRobot {
   private Elevator elevator;
   private Claw claw;
   private DriverControls driverControls;
+  private ManipulatorControls manipulatorControls;
   private Command m_autonomousCommand;
   private final SendableChooser<Supplier<Command>> autoChooser = new SendableChooser<>();
   // private Vision vision;
@@ -131,6 +132,31 @@ public class Robot extends TimedRobot {
     driverControls.increaseLimit().onTrue(drive.increaseLimitCommand());
     driverControls.decreaseLimit().onTrue(drive.decreaseLimitCommand());
     driverControls.start().onTrue(drive.resetGyroCommand());
+
+    // ------------------------------- Manipulator Controls ---------------------------------------------------------
+    manipulatorControls = new ManipulatorControls(DriverConstants.operatorPort);
+
+    // elevator controls
+    manipulatorControls.moveElevatorBottom().onTrue(elevator.moveToBottom());
+    manipulatorControls.moveElevatorL1().onTrue(elevator.moveToL1());
+    manipulatorControls.moveElevatorL2().onTrue(elevator.moveToL2());
+    manipulatorControls.moveElevatorL3().onTrue(elevator.moveToL3());
+    manipulatorControls.moveElevatorL4().onTrue(elevator.moveToL4());
+
+    // claw controls
+    manipulatorControls.moveClawHorizontal().onTrue(claw.moveClawToHorizontalCommand());
+    manipulatorControls.moveClawL4().onTrue(claw.moveClawToL4Command());
+    manipulatorControls.moveClawIntake().onTrue(claw.moveClawToIntakeCommand());
+    manipulatorControls.runRollersIn().onTrue(claw.runRollersInCommand());
+    manipulatorControls.runRollersOut().onTrue(claw.runRollersOutCommand());
+
+    //overall controls
+    manipulatorControls.resetToIntake().onTrue(new ParallelCommandGroup(claw.moveClawToIntakeCommand(), Commands.waitUntil(() -> claw.isAtTarget()).andThen(elevator.moveToBottom())));
+    manipulatorControls.moveToL1().onTrue(new MoveToL1(elevator, claw));
+    manipulatorControls.moveToL2().onTrue(new MoveToL2(elevator, claw));
+    manipulatorControls.moveToL3().onTrue(new MoveToL3(elevator, claw));
+    manipulatorControls.moveToL4().onTrue(new MoveToL4(elevator, claw));
+    
   }
 
   private void configureSubsystems() {
