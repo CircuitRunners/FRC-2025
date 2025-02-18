@@ -222,7 +222,7 @@ public final class Constants {
     public static final double horizontalEncoderValue = 0; //currently set with Neo Encoder
     public static final double l4EncoderValue = 0; //currently set with Neo Encoder
   }
-
+  
   public static final class Vision{
     public static final AprilTagFieldLayout fieldLayout = AprilTagFields.k2025ReefscapeAndyMark.loadAprilTagLayoutField();
     public static final Transform3d frontLeftCamTransform = new Transform3d();
@@ -232,7 +232,7 @@ public final class Constants {
    public class FieldConstants{
     public static final Distance kFieldLength = Meters.of(16.54);
     public static final Distance kFieldWidth = Meters.of(8.21);
-
+    
     public static final AprilTagFieldLayout kFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
 
    }
@@ -252,6 +252,19 @@ public final class Constants {
     public static final double l2EncoderValue = 0; // tune specifically
     public static final double l3EncoderValue = 0; // tune specifically
     public static final double l4EncoderValue = 0; // tune specifically
-   }
+    public static final double tolerance = 0;
   }
+  
+    public static final class ClawConstants {
+      public static final int moveMotorPort = 23;
+      public static final int rollerMotorPort1 = 24;
+      public static final int rollerMotorPort2 = 25; 
+  
+      public static final double maxEncoderValue = 0; //currently set with Neo Encoder
+      public static final double minEncoderValue = 0; //currently set with Neo Encoder
+      public static final double horizontalEncoderValue = 0; //currently set with Neo Encoder
+      public static final double l4EncoderValue = 0; //currently set with Neo Encoder
+    public static final double tolerance = 0;
+    }
+}
 
