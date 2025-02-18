@@ -1,8 +1,12 @@
+
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.ClawConstants;
+import frc.robot.Constants.ElevatorConstants;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -23,13 +27,15 @@ public class Claw extends SubsystemBase {
 
     private double targetPos;
 
+    private String targetState;
+
     public Claw() {
-        moveMotor = new SparkMax(23, MotorType.kBrushless);
-        roller1Motor = new SparkMax(24, MotorType.kBrushless);
-        roller2Motor = new SparkMax(25, MotorType.kBrushless);
+        moveMotor = new SparkMax(ClawConstants.moveMotorPort, MotorType.kBrushless);
+        roller1Motor = new SparkMax(ClawConstants.rollerMotorPort1, MotorType.kBrushless);
+        roller2Motor = new SparkMax(ClawConstants.rollerMotorPort2, MotorType.kBrushless);
 
         SparkBaseConfig r1mConfig = new SparkMaxConfig().idleMode(IdleMode.kCoast);
-        SparkBaseConfig r2mConfig = new SparkMaxConfig().follow(24,true).idleMode(IdleMode.kCoast);
+        SparkBaseConfig r2mConfig = new SparkMaxConfig().follow(ClawConstants.rollerMotorPort1,true).idleMode(IdleMode.kCoast);
         roller1Motor.configure(r1mConfig, null, null);
         roller2Motor.configure(r2mConfig, null, null);
 
@@ -77,18 +83,61 @@ public class Claw extends SubsystemBase {
     public Command changeRollerSpdCommand(double speed) {
         return run(() -> changeRollerSpd(speed));
     }
+    
+        public Command runRollersInCommand() {
+            SmartDashboard.putString("rollers state", "running in");
+            return changeRollerSpdCommand(0.5);
+        }
+
+    public Command runRollersOutCommand() {
+        SmartDashboard.putString("rollers state", "running out");
+        return changeRollerSpdCommand(-0.8);
+    }
 
     public Command stopClawCommand() {
+        SmartDashboard.putString("claw state", "stopped");
         return run(this::stopClaw);
     }
 
     public Command stopRollerCommand() {
+        SmartDashboard.putString("rollers state", "stopped");
         return run(this::stopRoller);
+    }
+
+    public Command moveClawToPositionCommand(double pos) {
+        return run(() -> setTargetPos(pos));
+    }
+
+    public Command moveClawToIntakeCommand() {
+        targetState = "intake";
+        SmartDashboard.putString("claw state", "moving to " + targetState);
+        return moveClawToPositionCommand(ClawConstants.minEncoderValue);
+    }
+
+    public Command moveClawToHorizontalCommand() {
+        targetState = "horizontal";
+        SmartDashboard.putString("claw state", "moving to " + targetState);
+        return moveClawToPositionCommand(ClawConstants.horizontalEncoderValue);
+    }
+
+    public Command moveClawToL4Command() {
+        targetState = "L4";
+        SmartDashboard.putString("claw state", "moving to " + targetState);
+        return moveClawToPositionCommand(ClawConstants.l4EncoderValue);
     }
 
     @Override
     public void periodic() {
-        moveMotor.setVoltage(pidController.calculate(getClawPos(),getTargetPos()));
+        SmartDashboard.putNumber("Claw position", getClawPos());
+        SmartDashboard.putNumber("Claw target", getTargetPos());
+        if (Math.abs(getClawPos() - getTargetPos()) < ClawConstants.tolerance) {
+            SmartDashboard.putString("claw state", "at target" + targetState);
+            stopClaw();
+        } else {
+            SmartDashboard.putString("claw state", "moving to " + targetState);
+            var output = pidController.calculate(clawEncoder.getPosition(), targetPos);
+            moveMotor.setVoltage(output);
+        }
     }
 
 }

@@ -21,6 +21,7 @@ public class Elevator extends SubsystemBase {
     private final AbsoluteEncoder elevatorEncoder;
     private final PIDController pidController;
     private double targetPos;
+    private String targetState;
 
     public Elevator(){
         //Initialize motors with correct ports
@@ -51,43 +52,61 @@ public class Elevator extends SubsystemBase {
         this.targetPos = targetPos;
     }
 
-    public double getPos () {
+    public double getElevatorPos () {
         return elevatorEncoder.getPosition();
     }    
 
+    public double getTargetPos () {
+        return targetPos;
+    }    
+
     public void stop() {
+        SmartDashboard.putString("elevator state", "stopped");
         elevatorSparkMax1.stopMotor();
     }
 
     public Command moveToL4() {
+        targetState = "L4";
+        SmartDashboard.putString("elevator state", "moving to " + targetState);
         return run(() -> moveToPos(ElevatorConstants.l4EncoderValue));
     }
 
     public Command moveToL3() {
+        targetState = "L3";
+        SmartDashboard.putString("elevator state", "moving to " + targetState);
         return run(() -> moveToPos(ElevatorConstants.l3EncoderValue));
     }
 
     public Command moveToL2() {
+        targetState = "L2";
+        SmartDashboard.putString("elevator state", "moving to " + targetState);
         return run(() -> moveToPos(ElevatorConstants.l2EncoderValue));
     }
 
     public Command moveToL1() {
+        targetState = "L1";
+        SmartDashboard.putString("elevator state", "moving to " + targetState);
         return run(() -> moveToPos(ElevatorConstants.l1EncoderValue));
     }
-
+    
     public Command moveToBottom() {
+        targetState = "bottom";
+        SmartDashboard.putString("elevator state", "moving to " + targetState);
         return run(() -> moveToPos(ElevatorConstants.minEncoderValue));
     }
 
     @Override
     public void periodic(){
-        SmartDashboard.putNumber("elevator position",getPos());
-
-        if(getPos() != targetPos){
+        SmartDashboard.putNumber("elevator position",getElevatorPos());
+        SmartDashboard.putNumber("elevator target",getTargetPos());
+        
+        if (Math.abs(getElevatorPos() - getTargetPos()) < ElevatorConstants.tolerance) {
+            SmartDashboard.putString("elevator state", "at target" + targetState);
+            stop();
+        } else {
+            SmartDashboard.putString("elevator state", "moving to " + targetState);
             var output = pidController.calculate(elevatorEncoder.getPosition(), targetPos);
             elevatorSparkMax1.setVoltage(output);
-        } else {
-            elevatorSparkMax1.stopMotor();
         }
     }
 }

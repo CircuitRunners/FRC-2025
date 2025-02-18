@@ -27,7 +27,7 @@ import frc.robot.subsystems.*;
 public class Robot extends TimedRobot {
   private Drive drive;
   private Elevator elevator;
-  private TestArm testArm;
+  private Claw claw;
   private DriverControls driverControls;
   private Command m_autonomousCommand;
   private final SendableChooser<Supplier<Command>> autoChooser = new SendableChooser<>();
@@ -119,7 +119,7 @@ public class Robot extends TimedRobot {
     });
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
-    NamedCommands.registerCommand("ScoreL4", new ScoreL4(elevator, testArm));
+    NamedCommands.registerCommand("ScoreL4", new ScoreL4(elevator, claw));
   }
 
   private void configureBindings() {
@@ -135,7 +135,7 @@ public class Robot extends TimedRobot {
   private void configureSubsystems() {
     drive = new Drive(TunerConstants.createDrivetrain());
     elevator = new Elevator();
-    testArm = new TestArm();
+    claw = new Claw();
   }
 
 }
