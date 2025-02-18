@@ -56,7 +56,7 @@ public class Claw extends SubsystemBase {
     }
 
     public void stopClaw() {
-        moveMotor.stopMotor();
+        setTargetPos(getClawPos()); // Hold claw position
     }
 
     public void stopRoller() {
