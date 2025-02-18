@@ -81,7 +81,7 @@ public class Claw extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // icl ts pmo sm u bfr rn
+        // abcd efg hijk lmnop qrs tuv wx y and z
         moveMotor.setVoltage(pidController.calculate(getClawPos(),getTargetPos()));
     }
 
