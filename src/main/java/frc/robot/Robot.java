@@ -6,6 +6,8 @@ package frc.robot;
 
 import java.util.function.Supplier;
 
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -17,12 +19,15 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.lib.swerve.SwerveConfig;
 import frc.lib.utils.PathPlannerUtil;
 import frc.robot.Constants.DriverConstants;
+import frc.robot.commands.ScoreL4;
 import frc.robot.generated.TunerConstants;
 import frc.robot.io.DriverControls;
-import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.*;
 
 public class Robot extends TimedRobot {
   private Drive drive;
+  private Elevator elevator;
+  private TestArm testArm;
   private DriverControls driverControls;
   private Command m_autonomousCommand;
   private final SendableChooser<Supplier<Command>> autoChooser = new SendableChooser<>();
@@ -113,6 +118,8 @@ public class Robot extends TimedRobot {
       autoChooser.addOption(path, () -> PathPlannerUtil.getAutoCommand(path));
     });
     SmartDashboard.putData("Auto Chooser", autoChooser);
+
+    NamedCommands.registerCommand("ScoreL4", new ScoreL4(elevator, testArm));
   }
 
   private void configureBindings() {
@@ -123,13 +130,12 @@ public class Robot extends TimedRobot {
     driverControls.increaseLimit().onTrue(drive.increaseLimitCommand());
     driverControls.decreaseLimit().onTrue(drive.decreaseLimitCommand());
     driverControls.start().onTrue(drive.resetGyroCommand());
-    
-
   }
 
   private void configureSubsystems() {
     drive = new Drive(TunerConstants.createDrivetrain());
-  
+    elevator = new Elevator();
+    testArm = new TestArm();
   }
 
 }

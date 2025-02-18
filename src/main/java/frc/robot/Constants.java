@@ -204,10 +204,27 @@ public final class Constants {
     public static final int motor1port = 21;
     public static final int motor2port = 22;
 
+    public static final double maxEncoderValue = 0; // tune specifically
+    public static final double minEncoderValue = 0; // tune specifically
+    public static final double l1EncoderValue = 0; // tune specifically
+    public static final double l2EncoderValue = 0; // tune specifically
+    public static final double l3EncoderValue = 0; // tune specifically
+    public static final double l4EncoderValue = 0; // tune specifically
+
+  }
+
+  public static final class TestArmConstants {
+    public static final int motor1port = 23;
+    public static final int motor2port = 24;
+
+    public static final double maxEncoderValue = 0; //currently set with Neo Encoder
+    public static final double minEncoderValue = 0; //currently set with Neo Encoder
+    public static final double horizontalEncoderValue = 0; //currently set with Neo Encoder
+    public static final double l4EncoderValue = 0; //currently set with Neo Encoder
   }
 
   public static final class Vision{
-    public static final AprilTagFieldLayout fieldLayout = AprilTagFields.k2025Reefscape.loadAprilTagLayoutField();
+    public static final AprilTagFieldLayout fieldLayout = AprilTagFields.k2025ReefscapeAndyMark.loadAprilTagLayoutField();
     public static final Transform3d frontLeftCamTransform = new Transform3d();
     public static final Transform3d frontRightCamTransform = new Transform3d();
   }
@@ -218,6 +235,23 @@ public final class Constants {
 
     public static final AprilTagFieldLayout kFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
 
+   }
+
+   public static class ElevatorConstants{
+    public static final int elevatorPort1 = 21;
+    public static final int elevatorPort2 = 22;
+    
+    public static final double l1Height = 1;
+    public static final double l2Height = 2;
+    public static final double l3Height = 3;
+    public static final double l4Height = 4;
+    
+    public static final double maxEncoderValue = 0; // tune specifically
+    public static final double minEncoderValue = 0; // tune specifically
+    public static final double l1EncoderValue = 0; // tune specifically
+    public static final double l2EncoderValue = 0; // tune specifically
+    public static final double l3EncoderValue = 0; // tune specifically
+    public static final double l4EncoderValue = 0; // tune specifically
    }
   }
 
