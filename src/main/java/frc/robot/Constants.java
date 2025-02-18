@@ -223,17 +223,17 @@ public final class Constants {
     public static final double l4EncoderValue = 0; //currently set with Neo Encoder
   }
 
-  public static final class Vision{
-    public static final AprilTagFieldLayout fieldLayout = AprilTagFields.k2025ReefscapeAndyMark.loadAprilTagLayoutField();
-    public static final Transform3d frontLeftCamTransform = new Transform3d();
-    public static final Transform3d frontRightCamTransform = new Transform3d();
+  public static final class VisionConstants{
+    public static final AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
+    public static final Transform3d frontCamTransform = new Transform3d();
+    public static final Transform3d backCamTransform = new Transform3d();
   }
 
    public class FieldConstants{
     public static final Distance kFieldLength = Meters.of(16.54);
     public static final Distance kFieldWidth = Meters.of(8.21);
 
-    public static final AprilTagFieldLayout kFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+    public static final AprilTagFieldLayout kFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
 
    }
 

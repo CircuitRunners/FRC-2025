@@ -2,7 +2,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Volts;
 
-
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
@@ -26,7 +26,8 @@ import frc.lib.swerve.Swerve;
 import frc.lib.swerve.SwerveConfig;
 import frc.lib.utils.FieldUtil;
 import frc.lib.utils.PathPlannerUtil;
-//import frc.robot.Vision;
+import frc.robot.Vision;
+import frc.robot.Vision.VisionMeasurement;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.io.DriverControls;
 
@@ -35,6 +36,7 @@ public class Drive extends SubsystemBase {
   private Swerve swerve;
   private FieldUtil fieldUtil = FieldUtil.getField();
   private boolean sysIdTranslator = true;
+  private Vision vision;
   // private final SysIdSwerveTranslation translation = new SysIdSwerveTranslation();
   // private final SysIdRoutine sysIdTranslation = new SysIdRoutine(
   //   new SysIdRoutine.Config(
@@ -58,7 +60,6 @@ public class Drive extends SubsystemBase {
   //     (volts) -> swerve.setControl(rotation.withVolts(volts)),
   //     null,
   //     this));
-
   private SlewRateLimiter forwardLimiter, strafeLimiter;
   /** Creates a new Drive */
   public Drive(Swerve swerve) {
@@ -68,11 +69,13 @@ public class Drive extends SubsystemBase {
     forwardLimiter = new SlewRateLimiter(10, -10, 0);
     strafeLimiter = new SlewRateLimiter(10, -10, 0);
     // swerve.setPigeonOffset();
+    addVisionMeasurement();
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    vision.run();
   }
 
   @Override
@@ -186,6 +189,11 @@ public class Drive extends SubsystemBase {
   //   swerve.targetAngleDrive(targetAngle, controls.driveForward(), controls.driveStrafe());
   // }
 
-  //public void addVisionMeasurement(){}
+  public void addVisionMeasurement(){
+    Consumer<VisionMeasurement> visionMeasurementConsumer = (visionMeasurement) -> {
+      swerve.addVisionMeasurement(visionMeasurement.pose(), visionMeasurement.timestamp(), visionMeasurement.stdDev());
+    };
+    vision = new Vision(visionMeasurementConsumer);
+  }
 
 }
