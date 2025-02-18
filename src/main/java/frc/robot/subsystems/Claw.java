@@ -26,14 +26,15 @@ public class Claw extends SubsystemBase {
         roller1Motor = new SparkMax(24, MotorType.kBrushless);
         roller2Motor = new SparkMax(25, MotorType.kBrushless);
 
-        double constP = 1;
-        double constI = 1;
-        double constD = 1;
+        double constP = 1; // proportional coefficient gain
+        double constI = 1; // integral coefficient gain
+        double constD = 1; // derivative coefficient gain
 
         pidController = new PIDController(constP, constI, constD);
         pidController.setTolerance(1);
 
         clawEncoder = moveMotor.getAbsoluteEncoder();
+        targetPos = clawEncoder.getPosition(); // initialize targetPos so PID doesn't try calculating with a null value
 
     }
 
