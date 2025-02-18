@@ -25,7 +25,7 @@ public class Elevate extends Command {
     }
 
     public boolean isFinished () {
-        return false;
+        return elevator.getTargetPos() == elevator.getElevatorPos();
     }
 
 }
