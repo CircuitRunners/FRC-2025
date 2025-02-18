@@ -108,7 +108,7 @@ public final class Constants {
     public static final double angleKA = TunerConstants.steerGains.kA;
 
     /**Drive Motor PID Values */
-    public static final double driveKP = TunerConstants.driveGains.kS;
+    public static final double driveKP = TunerConstants.driveGains.kP;
     public static final double driveKI = TunerConstants.driveGains.kI;
     public static final double driveKD = TunerConstants.driveGains.kD;
     public static final double driveKF = 0;
@@ -192,6 +192,9 @@ public final class Constants {
     }
   
     public static final PathConstraints pathConstraints = new PathConstraints(maxVelocityMPS, maxModuleAccelerationMPSSq, maxAngularVelocityRPS, maxAngularAccelerationRPSSq);
+    public static final double robotMass = 54.431;
+    public static final double MOI = 6.898;
+    public static final double wheelCOF = 1.0;
   }
 
   public static final class DriverConstants{
@@ -241,10 +244,6 @@ public final class Constants {
     public static final int elevatorPort1 = 21;
     public static final int elevatorPort2 = 22;
     
-    public static final double l1Height = 1;
-    public static final double l2Height = 2;
-    public static final double l3Height = 3;
-    public static final double l4Height = 4;
     
     public static final double maxEncoderValue = 0; // tune specifically
     public static final double minEncoderValue = 0; // tune specifically
@@ -264,6 +263,9 @@ public final class Constants {
       public static final double minEncoderValue = 0; //currently set with Neo Encoder
       public static final double horizontalEncoderValue = 0; //currently set with Neo Encoder
       public static final double l4EncoderValue = 0; //currently set with Neo Encoder
+      public static final double l3EncoderValue = 0; //currently set with Neo Encoder
+      public static final double l2EncoderValue = 0; //currently set with Neo Encoder
+      public static final double l1EncoderValue = 0; //currently set with Neo Encoder
     public static final double tolerance = 0;
     }
 }
