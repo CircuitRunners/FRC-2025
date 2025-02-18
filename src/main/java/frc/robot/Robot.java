@@ -38,12 +38,12 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     // DataLogManager.start("logs");
     configureSubsystems();
+    configureAutos();
     // vision = new Vision(drive::addVisionMeasurement);
   }
   
   @Override
   public void driverStationConnected() {
-    configureAutos();
     configureBindings();
     // addPeriodic(vision::run, 0.01);
   }
@@ -114,8 +114,9 @@ public class Robot extends TimedRobot {
 
   private void configureAutos() {
     PathPlannerUtil.configure(drive);
-    PathPlannerUtil.getAutos().forEach(path -> {
-      autoChooser.addOption(path, () -> PathPlannerUtil.getAutoCommand(path));
+    autoChooser.setDefaultOption("do nothing", () -> Commands.none());
+    PathPlannerUtil.getAutos().forEach(autoName -> {
+      autoChooser.addOption(autoName, () -> PathPlannerUtil.getAutoCommand(autoName));
     });
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
