@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.Meters;
 
 //Pathplanner
 import com.pathplanner.lib.path.PathConstraints;
+import com.ctre.phoenix6.StatusSignal;
 import com.pathplanner.lib.config.PIDConstants;
 
 //AprilTag
@@ -108,7 +109,7 @@ public final class Constants {
     public static final double angleKA = TunerConstants.steerGains.kA;
 
     /**Drive Motor PID Values */
-    public static final double driveKP = TunerConstants.driveGains.kS;
+    public static final double driveKP = TunerConstants.driveGains.kP;
     public static final double driveKI = TunerConstants.driveGains.kI;
     public static final double driveKD = TunerConstants.driveGains.kD;
     public static final double driveKF = 0;
@@ -192,6 +193,9 @@ public final class Constants {
     }
   
     public static final PathConstraints pathConstraints = new PathConstraints(maxVelocityMPS, maxModuleAccelerationMPSSq, maxAngularVelocityRPS, maxAngularAccelerationRPSSq);
+    public static final double robotMass = 54.431;
+    public static final double MOI = 6.898;
+    public static final double wheelCOF = 1.0;
   }
 
   public static final class DriverConstants{
@@ -222,7 +226,6 @@ public final class Constants {
     public static final double horizontalEncoderValue = 0; //currently set with Neo Encoder
     public static final double l4EncoderValue = 0; //currently set with Neo Encoder
   }
-
   public static final class VisionConstants{
     public static final AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
     public static final Transform3d frontCamTransform = new Transform3d();
@@ -232,19 +235,13 @@ public final class Constants {
    public class FieldConstants{
     public static final Distance kFieldLength = Meters.of(16.54);
     public static final Distance kFieldWidth = Meters.of(8.21);
-
     public static final AprilTagFieldLayout kFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
-
    }
 
    public static class ElevatorConstants{
     public static final int elevatorPort1 = 21;
     public static final int elevatorPort2 = 22;
     
-    public static final double l1Height = 1;
-    public static final double l2Height = 2;
-    public static final double l3Height = 3;
-    public static final double l4Height = 4;
     
     public static final double maxEncoderValue = 0; // tune specifically
     public static final double minEncoderValue = 0; // tune specifically
@@ -252,6 +249,24 @@ public final class Constants {
     public static final double l2EncoderValue = 0; // tune specifically
     public static final double l3EncoderValue = 0; // tune specifically
     public static final double l4EncoderValue = 0; // tune specifically
-   }
+    public static final double tolerance = 0;
   }
+  
+    public static final class ClawConstants {
+      public static final int moveMotorPort = 23;
+      public static final int rollerMotorPort1 = 24;
+      public static final int rollerMotorPort2 = 25; 
+  
+      public static final double maxEncoderValue = 0; //currently set with Neo Encoder
+      public static final double minEncoderValue = 0; //currently set with Neo Encoder
+      public static final double horizontalEncoderValue = 0; //currently set with Neo Encoder
+      public static final double l4EncoderValue = 0; //currently set with Neo Encoder
+      public static final double l3EncoderValue = 0; //currently set with Neo Encoder
+      public static final double l2EncoderValue = 0; //currently set with Neo Encoder
+      public static final double l1EncoderValue = 0; //currently set with Neo Encoder
+    public static final double tolerance = 0;
+    public static final int canRangePort = 0;
+    public static final double coralSensorRange = 0.5; 
+    }
+}
 

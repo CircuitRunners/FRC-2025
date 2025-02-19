@@ -12,6 +12,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest.FieldCentric;
 import com.ctre.phoenix6.swerve.SwerveRequest.PointWheelsAt;
 import com.ctre.phoenix6.swerve.SwerveRequest.RobotCentric;
 import com.ctre.phoenix6.swerve.SwerveRequest.SwerveDriveBrake;
+import com.pathplanner.lib.config.PIDConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstantsFactory;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.DeviceConstructor;
@@ -36,6 +37,18 @@ public class SwerveConfig {
       kA = SwerveConstants.driveKA;
     }
   };
+
+  public static final PIDConstants translationPID = new PIDConstants(
+    SwerveConstants.driveKP, 
+    SwerveConstants.driveKI, 
+    SwerveConstants.driveKD
+  );
+
+  public static final PIDConstants rotationPID = new PIDConstants(
+    SwerveConstants.angleKP, 
+    SwerveConstants.angleKI, 
+    SwerveConstants.angleKD
+  );
   private static final Slot0Configs turnConfigs = new Slot0Configs() {
     {
       kP = SwerveConstants.angleKP;
