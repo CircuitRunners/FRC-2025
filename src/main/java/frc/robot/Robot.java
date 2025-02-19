@@ -9,26 +9,28 @@ import java.util.function.Supplier;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.lib.swerve.SwerveConfig;
 import frc.lib.utils.PathPlannerUtil;
 import frc.robot.Constants.DriverConstants;
-import frc.robot.commands.ScoreL4;
+import frc.robot.commands.moving.*;
+import frc.robot.commands.scoring.*;
 import frc.robot.generated.TunerConstants;
-import frc.robot.io.DriverControls;
+import frc.robot.io.*;
 import frc.robot.subsystems.*;
 
 public class Robot extends TimedRobot {
   private Drive drive;
   private Elevator elevator;
-  private TestArm testArm;
+  private Claw claw;
   private DriverControls driverControls;
+  private ManipulatorControls manipulatorControls;
   private Command m_autonomousCommand;
   private SendableChooser<Command> autoChooser = new SendableChooser<>();
   // private Vision vision;
@@ -115,10 +117,15 @@ public class Robot extends TimedRobot {
   private void configureAutos() {
     PathPlannerUtil.configure(drive, true);
     NamedCommands.registerCommand("do nothing", Commands.none());
-    NamedCommands.registerCommand("ScoreL4", new ScoreL4(elevator, testArm));
     autoChooser = AutoBuilder.buildAutoChooser("do nothing");
     SmartDashboard.putData("Auto Chooser", autoChooser);
-
+    
+    //register named commands
+    NamedCommands.registerCommand("MoveToIntake", new MoveToIntake(elevator, claw));
+    NamedCommands.registerCommand("ScoreL1", new ScoreL1(elevator, claw));
+    NamedCommands.registerCommand("ScoreL2", new ScoreL2(elevator, claw));
+    NamedCommands.registerCommand("ScoreL3", new ScoreL3(elevator, claw));
+    NamedCommands.registerCommand("ScoreL4", new ScoreL4(elevator, claw));
   }
 
   private void configureBindings() {
@@ -130,12 +137,37 @@ public class Robot extends TimedRobot {
     driverControls.decreaseLimit().onTrue(drive.decreaseLimitCommand());
     driverControls.start().onTrue(drive.resetGyroCommand());
     driverControls.a().whileTrue(PathPlannerUtil.getAutoCommand("Mid Preload to L4"));
+
+    // ------------------------------- Manipulator Controls ---------------------------------------------------------
+    manipulatorControls = new ManipulatorControls(DriverConstants.operatorPort);
+
+    // elevator controls
+    manipulatorControls.moveElevatorBottom().onTrue(elevator.moveToBottom());
+    manipulatorControls.moveElevatorL1().onTrue(elevator.moveToL1());
+    manipulatorControls.moveElevatorL2().onTrue(elevator.moveToL2());
+    manipulatorControls.moveElevatorL3().onTrue(elevator.moveToL3());
+    manipulatorControls.moveElevatorL4().onTrue(elevator.moveToL4());
+
+    // claw controls
+    manipulatorControls.moveClawHorizontal().onTrue(claw.moveClawToHorizontalCommand());
+    manipulatorControls.moveClawL4().onTrue(claw.moveClawToL4Command());
+    manipulatorControls.moveClawIntake().onTrue(claw.moveClawToIntakeCommand());
+    manipulatorControls.runRollersIn().onTrue(claw.runRollersInCommand());
+    manipulatorControls.runRollersOut().onTrue(claw.runRollersOutCommand());
+
+    //overall controls
+    manipulatorControls.resetToIntake().onTrue(new MoveToIntake(elevator, claw));
+    manipulatorControls.moveToL1().onTrue(new MoveToL1(elevator, claw));
+    manipulatorControls.moveToL2().onTrue(new MoveToL2(elevator, claw));
+    manipulatorControls.moveToL3().onTrue(new MoveToL3(elevator, claw));
+    manipulatorControls.moveToL4().onTrue(new MoveToL4(elevator, claw));
+    
   }
 
   private void configureSubsystems() {
     drive = new Drive(TunerConstants.createDrivetrain());
     elevator = new Elevator();
-    testArm = new TestArm();
+    claw = new Claw();
   }
 
 }
