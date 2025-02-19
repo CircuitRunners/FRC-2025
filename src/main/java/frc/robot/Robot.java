@@ -6,6 +6,7 @@ package frc.robot;
 
 import java.util.function.Supplier;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -15,7 +16,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.lib.swerve.SwerveConfig;
 import frc.lib.utils.PathPlannerUtil;
 import frc.robot.Constants.DriverConstants;
@@ -30,7 +30,7 @@ public class Robot extends TimedRobot {
   private TestArm testArm;
   private DriverControls driverControls;
   private Command m_autonomousCommand;
-  private final SendableChooser<Supplier<Command>> autoChooser = new SendableChooser<>();
+  private SendableChooser<Command> autoChooser = new SendableChooser<>();
   // private Vision vision;
 
 
@@ -65,7 +65,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = autoChooser.getSelected().get();
+    m_autonomousCommand = autoChooser.getSelected();
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
@@ -113,14 +113,12 @@ public class Robot extends TimedRobot {
   }
 
   private void configureAutos() {
-    PathPlannerUtil.configure(drive);
-    autoChooser.setDefaultOption("do nothing", () -> Commands.none());
-    PathPlannerUtil.getAutos().forEach(autoName -> {
-      autoChooser.addOption(autoName, () -> PathPlannerUtil.getAutoCommand(autoName));
-    });
+    PathPlannerUtil.configure(drive, true);
+    NamedCommands.registerCommand("do nothing", Commands.none());
+    NamedCommands.registerCommand("ScoreL4", new ScoreL4(elevator, testArm));
+    autoChooser = AutoBuilder.buildAutoChooser("do nothing");
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
-    NamedCommands.registerCommand("ScoreL4", new ScoreL4(elevator, testArm));
   }
 
   private void configureBindings() {
@@ -131,6 +129,7 @@ public class Robot extends TimedRobot {
     driverControls.increaseLimit().onTrue(drive.increaseLimitCommand());
     driverControls.decreaseLimit().onTrue(drive.decreaseLimitCommand());
     driverControls.start().onTrue(drive.resetGyroCommand());
+    driverControls.a().whileTrue(PathPlannerUtil.getAutoCommand("Mid Preload to L4"));
   }
 
   private void configureSubsystems() {
