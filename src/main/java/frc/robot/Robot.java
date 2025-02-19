@@ -6,6 +6,7 @@ package frc.robot;
 
 import java.util.function.Supplier;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -31,7 +32,7 @@ public class Robot extends TimedRobot {
   private DriverControls driverControls;
   private ManipulatorControls manipulatorControls;
   private Command m_autonomousCommand;
-  private final SendableChooser<Supplier<Command>> autoChooser = new SendableChooser<>();
+  private SendableChooser<Command> autoChooser = new SendableChooser<>();
   // private Vision vision;
 
 
@@ -66,7 +67,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = autoChooser.getSelected().get();
+    m_autonomousCommand = autoChooser.getSelected();
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
@@ -114,11 +115,9 @@ public class Robot extends TimedRobot {
   }
 
   private void configureAutos() {
-    PathPlannerUtil.configure(drive);
-    autoChooser.setDefaultOption("do nothing", () -> Commands.none());
-    PathPlannerUtil.getAutos().forEach(autoName -> {
-      autoChooser.addOption(autoName, () -> PathPlannerUtil.getAutoCommand(autoName));
-    });
+    PathPlannerUtil.configure(drive, true);
+    NamedCommands.registerCommand("do nothing", Commands.none());
+    autoChooser = AutoBuilder.buildAutoChooser("do nothing");
     SmartDashboard.putData("Auto Chooser", autoChooser);
     
     //register named commands
@@ -137,6 +136,7 @@ public class Robot extends TimedRobot {
     driverControls.increaseLimit().onTrue(drive.increaseLimitCommand());
     driverControls.decreaseLimit().onTrue(drive.decreaseLimitCommand());
     driverControls.start().onTrue(drive.resetGyroCommand());
+    driverControls.a().whileTrue(PathPlannerUtil.getAutoCommand("Mid Preload to L4"));
 
     // ------------------------------- Manipulator Controls ---------------------------------------------------------
     manipulatorControls = new ManipulatorControls(DriverConstants.operatorPort);
