@@ -122,6 +122,7 @@ public class Robot extends TimedRobot {
     
     //register named commands
     NamedCommands.registerCommand("MoveToIntake", new MoveToIntake(elevator, claw));
+    NamedCommands.registerCommand("AutoIntake", claw.autoIntakeCommand());
     NamedCommands.registerCommand("ScoreL1", new ScoreL1(elevator, claw));
     NamedCommands.registerCommand("ScoreL2", new ScoreL2(elevator, claw));
     NamedCommands.registerCommand("ScoreL3", new ScoreL3(elevator, claw));
