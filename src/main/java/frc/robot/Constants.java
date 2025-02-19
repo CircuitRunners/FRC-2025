@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.Meters;
 
 //Pathplanner
 import com.pathplanner.lib.path.PathConstraints;
+import com.ctre.phoenix6.StatusSignal;
 import com.pathplanner.lib.config.PIDConstants;
 
 //AprilTag
@@ -267,6 +268,8 @@ public final class Constants {
       public static final double l2EncoderValue = 0; //currently set with Neo Encoder
       public static final double l1EncoderValue = 0; //currently set with Neo Encoder
     public static final double tolerance = 0;
+    public static final int canRangePort = 0;
+    public static final double coralSensorRange = 0.5; 
     }
 }
 

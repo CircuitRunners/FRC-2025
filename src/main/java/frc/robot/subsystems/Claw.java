@@ -6,10 +6,13 @@ import frc.robot.Constants.ClawConstants;
 import frc.robot.Constants.ElevatorConstants;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.units.TimeUnit;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.ctre.phoenix6.hardware.CANrange;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -21,6 +24,7 @@ public class Claw extends SubsystemBase {
     private SparkMax moveMotor;
     private SparkMax roller1Motor;
     private SparkMax roller2Motor;
+    private CANrange canRangeSensor;
 
     private PIDController pidController;
     private AbsoluteEncoder clawEncoder;
@@ -38,6 +42,8 @@ public class Claw extends SubsystemBase {
         SparkBaseConfig r2mConfig = new SparkMaxConfig().follow(ClawConstants.rollerMotorPort1,true).idleMode(IdleMode.kCoast);
         roller1Motor.configure(r1mConfig, null, null);
         roller2Motor.configure(r2mConfig, null, null);
+
+        canRangeSensor = new CANrange(ClawConstants.canRangePort);
 
         double constP = 1; // proportional coefficient gain
         double constI = 1; // integral coefficient gain
@@ -67,6 +73,10 @@ public class Claw extends SubsystemBase {
         roller1Motor.set(speed);
     }
 
+    public boolean isCoralInClaw() {
+        return canRangeSensor.getDistance().getValueAsDouble() < ClawConstants.coralSensorRange;
+    }
+
     public void stopClaw() {
         //setTargetPos(getClawPos()); // Hold claw position
         moveMotor.stopMotor();
@@ -94,9 +104,18 @@ public class Claw extends SubsystemBase {
         return changeRollerSpdCommand(-0.8);
     }
 
+    public Command runRollersOutSlowCommand() {
+        SmartDashboard.putString("rollers state", "running out");
+        return changeRollerSpdCommand(-0.5);
+    }
+
     public Command stopClawCommand() {
         SmartDashboard.putString("claw state", "stopped");
         return run(this::stopClaw);
+    }
+
+    public Command autoIntakeCommand() {
+        return runRollersInCommand().until(this::isCoralInClaw).andThen(runRollersOutSlowCommand()).withTimeout(0.2).finallyDo(this::stopRoller);
     }
 
     public Command stopRollerCommand() {
