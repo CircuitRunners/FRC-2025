@@ -41,11 +41,11 @@ public class ManipulatorControls extends CommandXboxController{
 
     // claw controls
     public Trigger moveClawHorizontal() {
-        return y();
+        return x();
     }
 
     public Trigger moveClawL4() {
-        return x();
+        return y();
     }
 
     public Trigger moveClawIntake() {

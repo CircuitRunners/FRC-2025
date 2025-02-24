@@ -105,7 +105,7 @@ public class Claw extends SubsystemBase {
     }
 
     public Command runRollersOutSlowCommand() {
-        SmartDashboard.putString("rollers state", "running out");
+        SmartDashboard.putString("rollers state", "running out slow");
         return changeRollerSpdCommand(-0.5);
     }
 
@@ -129,20 +129,21 @@ public class Claw extends SubsystemBase {
 
     public Command moveClawToIntakeCommand() {
         targetState = "intake";
-        SmartDashboard.putString("claw state", "moving to " + targetState);
-        return moveClawToPositionCommand(ClawConstants.minEncoderValue);
+        // SmartDashboard.putString("claw state", "moving to " + targetState);
+        
+        return runOnce(() -> targetState = "intake").andThen(moveClawToPositionCommand(ClawConstants.minEncoderValue));
     }
 
     public Command moveClawToHorizontalCommand() {
         targetState = "horizontal";
-        SmartDashboard.putString("claw state", "moving to " + targetState);
-        return moveClawToPositionCommand(ClawConstants.horizontalEncoderValue);
+        // SmartDashboard.putString("claw state", "moving to " + targetState);
+        return runOnce(() -> targetState = "horizontal").andThen(moveClawToPositionCommand(ClawConstants.horizontalEncoderValue));
     }
 
     public Command moveClawToL4Command() {
         targetState = "L4";
-        SmartDashboard.putString("claw state", "moving to " + targetState);
-        return moveClawToPositionCommand(ClawConstants.l4EncoderValue);
+        // SmartDashboard.putString("claw state", "moving to " + targetState);
+        return runOnce(() -> targetState = "L4").andThen(moveClawToPositionCommand(ClawConstants.l4EncoderValue));
     }
 
     public boolean isAtTarget(){
@@ -154,10 +155,12 @@ public class Claw extends SubsystemBase {
         SmartDashboard.putNumber("Claw position", getClawPos());
         SmartDashboard.putNumber("Claw target", getTargetPos());
         if (isAtTarget()) {
-            SmartDashboard.putString("claw state", "at target" + targetState);
+            SmartDashboard.putString("claw state", "at target ");
+            SmartDashboard.putString("claw target state", targetState);
             stopClaw();
         } else {
-            SmartDashboard.putString("claw state", "moving to " + targetState);
+            SmartDashboard.putString("claw state", "moving ");
+            SmartDashboard.putString("claw target state", targetState);
             var output = pidController.calculate(clawEncoder.getPosition(), targetPos);
             moveMotor.setVoltage(output);
         }

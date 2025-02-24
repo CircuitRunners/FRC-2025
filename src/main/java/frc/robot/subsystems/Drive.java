@@ -37,6 +37,7 @@ public class Drive extends SubsystemBase {
   private FieldUtil fieldUtil = FieldUtil.getField();
   private boolean sysIdTranslator = true;
   private Vision vision;
+  private boolean isVision;
   // private final SysIdSwerveTranslation translation = new SysIdSwerveTranslation();
   // private final SysIdRoutine sysIdTranslation = new SysIdRoutine(
   //   new SysIdRoutine.Config(
@@ -62,20 +63,25 @@ public class Drive extends SubsystemBase {
   //     this));
   private SlewRateLimiter forwardLimiter, strafeLimiter;
   /** Creates a new Drive */
-  public Drive(Swerve swerve) {
+  public Drive(Swerve swerve, boolean isVision) {
     SignalLogger.setPath("logs/sysid/drive");
     this.swerve = swerve;
 
     forwardLimiter = new SlewRateLimiter(10, -10, 0);
     strafeLimiter = new SlewRateLimiter(10, -10, 0);
     // swerve.setPigeonOffset();
-    addVisionMeasurement();
+    if (isVision) {
+      addVisionMeasurement();
+    }
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    vision.run();
+    if (isVision) {
+      vision.run();
+    }
+    // SmartDashboard.putData("default pigeon value", swerve.getPigeon2().getRotation2d());
   }
 
   @Override

@@ -37,9 +37,9 @@ public class Elevator extends SubsystemBase {
         elevatorEncoder = elevatorSparkMax1.getAbsoluteEncoder();
 
         //Tunes the PID gains- Adjust for better control and movement of elevator
-        double kp = 1.0; //Proportional (Increase the number if moving too slow, decrease if oscillating)  NEEDS TO BE TUNED
+        double kp = 0.05; //Proportional (Increase the number if moving too slow, decrease if oscillating)  NEEDS TO BE TUNED
         double ki = 0.0; //Integral (Stays at 0 unless there's a steady-state error)  NEEDS TO BE TUNED
-        double kd = 0.01; //Derivate (Increase if overshoot target, decrease if sluggish/slow)  NEEDS TO BE TUNED
+        double kd = 0.0; //Derivate (Increase if overshoot target, decrease if sluggish/slow)  NEEDS TO BE TUNED
 
         
         //Initialize PID controller with motion constraints
@@ -60,43 +60,71 @@ public class Elevator extends SubsystemBase {
         return targetPos;
     }    
 
+    public Command stopCommand() {
+        return run(this::stop);
+    }
+
     public void stop() {
         SmartDashboard.putString("elevator state", "stopped");
-        elevatorSparkMax1.stopMotor();
+        elevatorSparkMax1.setVoltage(0);       elevatorSparkMax1.stopMotor();
+        elevatorSparkMax2.stopMotor();
     }
 
     public Command moveToL4() {
         targetState = "L4";
-        SmartDashboard.putString("elevator state", "moving to " + targetState);
-        return run(() -> moveToPos(ElevatorConstants.l4EncoderValue));
+        // SmartDashboard.putString("elevator state", "moving to " + targetState);
+        return run(() -> {
+            targetState = "L4";
+            moveToPos(ElevatorConstants.l4EncoderValue);
+        });
     }
 
     public Command moveToL3() {
         targetState = "L3";
-        SmartDashboard.putString("elevator state", "moving to " + targetState);
-        return run(() -> moveToPos(ElevatorConstants.l3EncoderValue));
+        // SmartDashboard.putString("elevator state", "moving to " + targetState);
+        return run(() ->{
+            targetState = "L3";
+            moveToPos(ElevatorConstants.l3EncoderValue);
+            });
     }
 
     public Command moveToL2() {
         targetState = "L2";
-        SmartDashboard.putString("elevator state", "moving to " + targetState);
-        return run(() -> moveToPos(ElevatorConstants.l2EncoderValue));
+        // SmartDashboard.putString("elevator state", "moving to " + targetState);
+        return run(() -> {
+            targetState = "L2";
+            moveToPos(ElevatorConstants.l2EncoderValue);
+        });
     }
 
     public Command moveToL1() {
         targetState = "L1";
-        SmartDashboard.putString("elevator state", "moving to " + targetState);
-        return run(() -> moveToPos(ElevatorConstants.l1EncoderValue));
+        // SmartDashboard.putString("elevator state", "moving to " + targetState);
+        return run(() -> {
+            targetState = "L1";
+            moveToPos(ElevatorConstants.l1EncoderValue);
+        });
     }
     
     public Command moveToBottom() {
         targetState = "bottom";
-        SmartDashboard.putString("elevator state", "moving to " + targetState);
-        return run(() -> moveToPos(ElevatorConstants.minEncoderValue));
+        // SmartDashboard.putString("elevator state", "moving to " + targetState);
+        return run(() -> {
+            targetState = "bottom";
+            moveToPos(ElevatorConstants.minEncoderValue);
+        });
     }
 
     public boolean isAtTarget(){
         return Math.abs(getElevatorPos() - getTargetPos()) < ElevatorConstants.tolerance;
+    }
+
+    public Command moveElevatorUp() {
+        return run(() -> elevatorSparkMax1.set(-0.5));
+    }
+
+    public Command moveElevatorDown() {
+        return run(() -> elevatorSparkMax1.set(0.5));
     }
 
     @Override
@@ -104,13 +132,15 @@ public class Elevator extends SubsystemBase {
         SmartDashboard.putNumber("elevator position",getElevatorPos());
         SmartDashboard.putNumber("elevator target",getTargetPos());
         
-        if (isAtTarget()) {
-            SmartDashboard.putString("elevator state", "at target" + targetState);
-            stop();
-        } else {
-            SmartDashboard.putString("elevator state", "moving to " + targetState);
-            var output = pidController.calculate(elevatorEncoder.getPosition(), targetPos);
-            elevatorSparkMax1.setVoltage(output);
-        }
+        // if (isAtTarget()) {
+        //     SmartDashboard.putString("elevator state", "at target ");
+        //     SmartDashboard.putString("elevator target state", targetState);
+        //     stop();
+        // } else {
+        //     SmartDashboard.putString("elevator state", "moving ");
+        //     SmartDashboard.putString("elevator target state", targetState);
+        //     var output = pidController.calculate(elevatorEncoder.getPosition(), targetPos);
+        //     elevatorSparkMax1.setVoltage(output);
+        // }
     }
 }
