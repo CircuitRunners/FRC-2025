@@ -35,6 +35,7 @@ public class Elevator extends SubsystemBase {
         elevatorSparkMax2.configure(spark2Config, null, null);
 
         elevatorEncoder = elevatorSparkMax1.getAbsoluteEncoder();
+        targetPos = getElevatorPos();
 
         //Tunes the PID gains- Adjust for better control and movement of elevator
         double kp = 0.05; //Proportional (Increase the number if moving too slow, decrease if oscillating)  NEEDS TO BE TUNED

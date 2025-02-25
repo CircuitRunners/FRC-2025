@@ -136,10 +136,10 @@ public class Robot extends TimedRobot {
     driverControls.start().onTrue(drive.resetGyroCommand());
     // driverControls.a().whileTrue(PathPlannerUtil.getAutoCommand("Mid Preload to L4"));
 
-    // driverControls.y().onTrue(elevator.moveElevatorUp()))).onFalse(elevator.stopCommand());
+    // driverControls.y().onTrue(elevator.moveElevatorUp()).onFalse(elevator.stopCommand());
 
     // ------------------------------- Manipulator Controls ---------------------------------------------------------
-    // manipulatorControls = new ManipulatorControls(DriverConstants.operatorPort);
+    manipulatorControls = new ManipulatorControls(DriverConstants.operatorPort);
 
     // // elevator controls
     // manipulatorControls.moveElevatorBottom().onTrue(elevator.moveToBottom());
@@ -147,13 +147,17 @@ public class Robot extends TimedRobot {
     // manipulatorControls.moveElevatorL2().onTrue(elevator.moveToL2());
     // manipulatorControls.moveElevatorL3().onTrue(elevator.moveToL3());
     // manipulatorControls.moveElevatorL4().onTrue(elevator.moveToL4());
+    manipulatorControls.x().onTrue(claw.runManualCommand(0.5)).onFalse(claw.stopClawCommand());
+    manipulatorControls.b().onTrue(claw.runManualCommand(-0.5)).onFalse(claw.stopClawCommand());
+    manipulatorControls.y().onTrue(elevator.moveElevatorUp()).onFalse(elevator.stopCommand());
+    manipulatorControls.a().onTrue(elevator.moveElevatorDown()).onFalse(elevator.stopCommand());
 
     // // claw controls
     // manipulatorControls.moveClawHorizontal().onTrue(claw.moveClawToHorizontalCommand());
     // manipulatorControls.moveClawL4().onTrue(claw.moveClawToL4Command());
     // manipulatorControls.moveClawIntake().onTrue(claw.moveClawToIntakeCommand());
-    // manipulatorControls.runRollersIn().onTrue(claw.runRollersInCommand()).onFalse(claw.stopRollerCommand());
-    // manipulatorControls.runRollersOut().onTrue(claw.runRollersOutCommand()).onFalse(claw.stopRollerCommand());
+    manipulatorControls.runRollersIn().onTrue(claw.runRollersInCommand()).onFalse(claw.stopRollerCommand());
+    manipulatorControls.runRollersOut().onTrue(claw.runRollersOutCommand()).onFalse(claw.stopRollerCommand());
 
     //overall controls
     // manipulatorControls.resetToIntake().onTrue(new MoveToIntake(elevator, claw));

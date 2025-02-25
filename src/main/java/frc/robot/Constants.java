@@ -257,10 +257,10 @@ public final class Constants {
       public static final int rollerMotorPort1 = 24;
       public static final int rollerMotorPort2 = 25; 
   
-      public static final double maxEncoderValue = 3; //currently set with Neo Encoder
-      public static final double minEncoderValue = -1; //currently set with Neo Encoder
-      public static final double horizontalEncoderValue = 1; //currently set with Neo Encoder
-      public static final double l4EncoderValue = 2; //currently set with Neo Encoder
+      public static final double maxEncoderValue = 95.86046600341797; //currently set with Neo Encoder
+      public static final double minEncoderValue = -95.86046600341797; //currently set with Neo Encoder
+      public static final double horizontalEncoderValue = -95.86046600341797; //currently set with Neo Encoder
+      public static final double l4EncoderValue = 60.81052780151367; //currently set with Neo Encoder
       public static final double tolerance = 0.5;
       public static final int canRangePort = 0;
       public static final double coralSensorRange = 0.5; 

@@ -12,8 +12,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+
+import org.w3c.dom.events.MouseEvent;
+
 import com.ctre.phoenix6.hardware.CANrange;
 import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -27,7 +31,7 @@ public class Claw extends SubsystemBase {
     private CANrange canRangeSensor;
 
     private PIDController pidController;
-    private AbsoluteEncoder clawEncoder;
+    private RelativeEncoder clawEncoder;
 
     private double targetPos;
 
@@ -45,14 +49,14 @@ public class Claw extends SubsystemBase {
 
         canRangeSensor = new CANrange(ClawConstants.canRangePort);
 
-        double constP = 1; // proportional coefficient gain
-        double constI = 1; // integral coefficient gain
-        double constD = 1; // derivative coefficient gain
+        double constP = 0.05; // proportional coefficient gain
+        double constI = 0; // integral coefficient gain
+        double constD = 0; // derivative coefficient gain
 
         pidController = new PIDController(constP, constI, constD);
         pidController.setTolerance(1);
 
-        clawEncoder = moveMotor.getAbsoluteEncoder();
+        clawEncoder = moveMotor.getEncoder();
         targetPos = clawEncoder.getPosition(); // initialize targetPos so PID doesn't try calculating with a null value
 
     }
@@ -110,8 +114,10 @@ public class Claw extends SubsystemBase {
     }
 
     public Command stopClawCommand() {
-        SmartDashboard.putString("claw state", "stopped");
-        return run(this::stopClaw);
+        return run(() -> {
+            SmartDashboard.putString("claw state", "stopped");
+            stopClaw();
+        });
     }
 
     public Command autoIntakeCommand() {
@@ -150,20 +156,30 @@ public class Claw extends SubsystemBase {
         return Math.abs(getClawPos() - getTargetPos()) < ClawConstants.tolerance;
     }
 
+    public Command runManualCommand(double speed){
+        
+        return run(() -> {
+            SmartDashboard.putString("claw state", "moving");
+            moveMotor.set(speed);});
+    }
+
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Claw position", getClawPos());
+        SmartDashboard.putNumber("Claw position", clawEncoder.getPosition());
         SmartDashboard.putNumber("Claw target", getTargetPos());
-        if (isAtTarget()) {
-            SmartDashboard.putString("claw state", "at target ");
-            SmartDashboard.putString("claw target state", targetState);
-            stopClaw();
-        } else {
-            SmartDashboard.putString("claw state", "moving ");
-            SmartDashboard.putString("claw target state", targetState);
-            var output = pidController.calculate(clawEncoder.getPosition(), targetPos);
-            moveMotor.setVoltage(output);
-        }
+        SmartDashboard.updateValues();
+        System.err.println("Claw position " + clawEncoder.getPosition());
+        System.err.println("Claw target " + getTargetPos());
+        // if (isAtTarget()) {
+        //     SmartDashboard.putString("claw state", "at target ");
+        //     SmartDashboard.putString("claw target state", targetState);
+        //     stopClaw();
+        // } else {
+        //     SmartDashboard.putString("claw state", "moving ");
+        //     SmartDashboard.putString("claw target state", targetState);
+        //     var output = pidController.calculate(clawEncoder.getPosition(), targetPos);
+        //     moveMotor.setVoltage(output);
+        // }
     }
 
 }
