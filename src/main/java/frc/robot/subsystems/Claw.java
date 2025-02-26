@@ -31,7 +31,7 @@ public class Claw extends SubsystemBase {
     private CANrange canRangeSensor;
 
     private PIDController pidController;
-    private RelativeEncoder clawEncoder;
+    private AbsoluteEncoder clawEncoder;
 
     private double targetPos;
 
@@ -56,7 +56,7 @@ public class Claw extends SubsystemBase {
         pidController = new PIDController(constP, constI, constD);
         pidController.setTolerance(1);
 
-        clawEncoder = moveMotor.getEncoder();
+        clawEncoder = moveMotor.getAbsoluteEncoder();
         targetPos = clawEncoder.getPosition(); // initialize targetPos so PID doesn't try calculating with a null value
 
     }
