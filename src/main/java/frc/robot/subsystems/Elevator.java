@@ -38,12 +38,13 @@ extends SubsystemBase {
         elevatorSparkMax2.configure(spark2Config, null, null);
 
         elevatorEncoder = elevatorSparkMax1.getEncoder();
+
         targetPos = getElevatorPos();
 
         //Tunes the PID gains- Adjust for better control and movement of elevator
-        double kp = 0.00049; //Proportional (Increase the number if moving too slow, decrease if oscillating)  NEEDS TO BE TUNED
+        double kp = 0.045; //P`roportional (Increase the number if moving too slow, decrease if oscillating)  NEEDS TO BE TUNED
         double ki = 0.0; //Integral (Stays at 0 unless there's a steady-state error)  NEEDS TO BE TUNED
-        double kd = 0.3; //Derivate (Increase if overshoot target, decrease if sluggish/slow)  NEEDS TO BE TUNED
+        double kd = 0; //Derivate (Increase if overshoot target, decrease if sluggish/slow)  NEEDS TO BE TUNED
         kf = 0.001;
         
         //Initialize PID controller with motion constraints
@@ -56,6 +57,10 @@ extends SubsystemBase {
         running = true;
         this.targetPos = targetPos;
         pidController.setSetpoint(targetPos);
+    }
+
+    public Command resetTargetPos() {
+        return runOnce(() -> moveToPos(getElevatorPos()));
     }
 
     public double getElevatorPos () {
@@ -91,7 +96,7 @@ extends SubsystemBase {
         // SmartDashboard.putString("elevator state", "moving to " + targetState);
         return run(() -> {
             targetState = "PID";
-            moveToPos(-50);
+            moveToPos(-80);
         });
     }
 
@@ -157,21 +162,28 @@ extends SubsystemBase {
 
     @Override
     public void periodic(){
-        
+        var output = pidController.calculate(getElevatorPos(), this.targetPos);
+        // if(pidController.atSetpoint() || Math.abs(getElevatorPos()-getTargetPos()) <  10) {
+        //     running = false;
+        //     stop();
+        // } else if (running) {
+        // if (Math.abs(-output) > 0.5) {
+        //     elevatorSparkMax1.set(0.5*Math.signum(-output));
+        // } else {
+        //     elevatorSparkMax1.set(-output);
+        // }
+        // }
+        elevatorSparkMax1.set(output);
+
         SmartDashboard.putNumber("elevator position",getElevatorPos());
         SmartDashboard.putNumber("elevator target",getTargetPos());
         SmartDashboard.putNumber("elevator target setpoint",pidController.getSetpoint());
         SmartDashboard.putBoolean("isAtTarget", isAtTarget());
-        SmartDashboard.updateValues();
-        
         SmartDashboard.putString("elevator state", "moving ");
         SmartDashboard.putString("elevator target state", targetState);
-        var output = pidController.calculate(getElevatorPos(), targetPos);
-        if(pidController.atSetpoint() || Math.abs(getElevatorPos()-getTargetPos()) < 3) {
-            running = false;
-            stop();
-        } else if (running) {
-            elevatorSparkMax1.set(-output);
-        }
+        SmartDashboard.putNumber("motor current", elevatorSparkMax1.getOutputCurrent());
+        SmartDashboard.putNumber("output", output);
+        SmartDashboard.putBoolean("running", running);
+        SmartDashboard.updateValues();
     }
 }

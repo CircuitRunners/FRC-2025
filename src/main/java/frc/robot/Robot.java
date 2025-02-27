@@ -83,6 +83,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    elevator.resetTargetPos().schedule();
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
@@ -142,15 +143,15 @@ public class Robot extends TimedRobot {
     manipulatorControls = new ManipulatorControls(DriverConstants.operatorPort);
 
     // // elevator controls
-    // manipulatorControls.moveElevatorBottom().onTrue(elevator.moveToBottom());
-    // manipulatorControls.moveElevatorL1().onTrue(elevator.moveToL1());
-    // manipulatorControls.moveElevatorL2().onTrue(elevator.moveToL2());
-    // manipulatorControls.moveElevatorL3().onTrue(elevator.moveToL3());
-    manipulatorControls.moveElevatorL4().onTrue(elevator.pidTest());
+    manipulatorControls.moveElevatorBottom().onTrue(elevator.moveToBottom());
+    manipulatorControls.moveElevatorL1().onTrue(elevator.moveToL1());
+    manipulatorControls.moveElevatorL2().onTrue(elevator.moveToL2());
+    manipulatorControls.moveElevatorL3().onTrue(elevator.moveToL3());
+    manipulatorControls.moveElevatorL4().onTrue(elevator.moveToL4());
     // // claw controls
-    // manipulatorControls.moveClawHorizontal().onTrue(claw.moveClawToHorizontalCommand());
-    // manipulatorControls.moveClawL4().onTrue(claw.moveClawToL4Command());
-    // manipulatorControls.moveClawIntake().onTrue(claw.moveClawToIntakeCommand());
+    manipulatorControls.moveClawHorizontal().onTrue(claw.moveClawToHorizontalCommand());
+    manipulatorControls.moveClawL4().onTrue(claw.moveClawToL4Command());
+    manipulatorControls.moveClawIntake().onTrue(claw.moveClawToIntakeCommand());
     manipulatorControls.runRollersIn().onTrue(claw.runRollersInCommand()).onFalse(claw.stopRollerCommand());
     manipulatorControls.runRollersOut().onTrue(claw.runRollersOutCommand()).onFalse(claw.stopRollerCommand());
 

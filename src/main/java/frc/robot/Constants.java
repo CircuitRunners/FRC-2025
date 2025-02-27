@@ -7,6 +7,8 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 
+import java.security.spec.EncodedKeySpec;
+
 //Pathplanner
 import com.pathplanner.lib.path.PathConstraints;
 import com.ctre.phoenix6.StatusSignal;
@@ -243,12 +245,13 @@ public final class Constants {
     public static final int elevatorPort2 = 22;
     
     
-    public static final double maxEncoderValue = -108.14457702636719; // tune specifically
-    public static final double minEncoderValue = -1.261908054351807; // tune specifically
-    public static final double l1EncoderValue = 1; // tune specifically
-    public static final double l2EncoderValue = 2; // tune specifically
-    public static final double l3EncoderValue = 3; // tune specifically
-    public static final double l4EncoderValue = 4; // tune specifically
+    public static final double encoderDifference = 40.571014404296875; // tune specifically
+    public static final double maxEncoderValue = -73.50224304199219 - encoderDifference; // tune specifically
+    public static final double minEncoderValue = 0;
+    public static final double l1EncoderValue = 2.857138395309448 - encoderDifference; // tune specifically
+    public static final double l2EncoderValue = -10.238096714019775 - encoderDifference; // tune specifically
+    public static final double l3EncoderValue = -41.928138732910156 - encoderDifference; // tune specifically
+    public static final double l4EncoderValue = -74.09685516357422 - encoderDifference; // tune specifically
     public static final double tolerance = 0.5;
   }
   
@@ -257,10 +260,11 @@ public final class Constants {
       public static final int rollerMotorPort1 = 24;
       public static final int rollerMotorPort2 = 25; 
   
-      public static final double maxEncoderValue = 95.86046600341797; //currently set with Neo Encoder
-      public static final double minEncoderValue = -95.86046600341797; //currently set with Neo Encoder
-      public static final double horizontalEncoderValue = -95.86046600341797; //currently set with Neo Encoder
-      public static final double l4EncoderValue = 60.81052780151367; //currently set with Neo Encoder
+      public static final double encoderOffset = -95.86046600341797; //currently set with Neo Encoder
+      public static final double maxEncoderValue = 95.86046600341797 - encoderOffset; //currently set with Neo Encoder
+      public static final double minEncoderValue = 0;
+      public static final double horizontalEncoderValue = -95.86046600341797 - encoderOffset; //currently set with Neo Encoder
+      public static final double l4EncoderValue = 50.81052780151367 - encoderOffset; //currently set with Neo Encoder
       public static final double tolerance = 0.5;
       public static final int canRangePort = 0;
       public static final double coralSensorRange = 0.5; 

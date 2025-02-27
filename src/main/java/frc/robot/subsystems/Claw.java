@@ -49,7 +49,7 @@ public class Claw extends SubsystemBase {
 
         canRangeSensor = new CANrange(ClawConstants.canRangePort);
 
-        double constP = 0.05; // proportional coefficient gain
+        double constP = 0.045; // proportional coefficient gain
         double constI = 0; // integral coefficient gain
         double constD = 0; // derivative coefficient gain
 
@@ -168,16 +168,8 @@ public class Claw extends SubsystemBase {
         SmartDashboard.putNumber("Claw position", clawEncoder.getPosition());
         SmartDashboard.putNumber("Claw target", getTargetPos());
         SmartDashboard.updateValues();
-        // if (isAtTarget()) {
-        //     SmartDashboard.putString("claw state", "at target ");
-        //     SmartDashboard.putString("claw target state", targetState);
-        //     stopClaw();
-        // } else {
-        //     SmartDashboard.putString("claw state", "moving ");
-        //     SmartDashboard.putString("claw target state", targetState);
-        //     var output = pidController.calculate(clawEncoder.getPosition(), targetPos);
-        //     moveMotor.setVoltage(output);
-        // }
+        var output = pidController.calculate(getClawPos(), this.targetPos);
+        moveMotor.set(output);
+        SmartDashboard.updateValues();
     }
-
 }
