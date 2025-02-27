@@ -243,8 +243,8 @@ public final class Constants {
     public static final int elevatorPort2 = 22;
     
     
-    public static final double maxEncoderValue = 5; // tune specifically
-    public static final double minEncoderValue = -1; // tune specifically
+    public static final double maxEncoderValue = -108.14457702636719; // tune specifically
+    public static final double minEncoderValue = -1.261908054351807; // tune specifically
     public static final double l1EncoderValue = 1; // tune specifically
     public static final double l2EncoderValue = 2; // tune specifically
     public static final double l3EncoderValue = 3; // tune specifically

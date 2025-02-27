@@ -146,12 +146,7 @@ public class Robot extends TimedRobot {
     // manipulatorControls.moveElevatorL1().onTrue(elevator.moveToL1());
     // manipulatorControls.moveElevatorL2().onTrue(elevator.moveToL2());
     // manipulatorControls.moveElevatorL3().onTrue(elevator.moveToL3());
-    // manipulatorControls.moveElevatorL4().onTrue(elevator.moveToL4());
-    manipulatorControls.x().onTrue(claw.runManualCommand(0.5)).onFalse(claw.stopClawCommand());
-    manipulatorControls.b().onTrue(claw.runManualCommand(-0.5)).onFalse(claw.stopClawCommand());
-    manipulatorControls.y().onTrue(elevator.moveElevatorUp()).onFalse(elevator.stopCommand());
-    manipulatorControls.a().onTrue(elevator.moveElevatorDown()).onFalse(elevator.stopCommand());
-
+    manipulatorControls.moveElevatorL4().onTrue(elevator.pidTest());
     // // claw controls
     // manipulatorControls.moveClawHorizontal().onTrue(claw.moveClawToHorizontalCommand());
     // manipulatorControls.moveClawL4().onTrue(claw.moveClawToL4Command());

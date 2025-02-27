@@ -31,7 +31,7 @@ public class Claw extends SubsystemBase {
     private CANrange canRangeSensor;
 
     private PIDController pidController;
-    private AbsoluteEncoder clawEncoder;
+    private RelativeEncoder clawEncoder;
 
     private double targetPos;
 
@@ -56,7 +56,7 @@ public class Claw extends SubsystemBase {
         pidController = new PIDController(constP, constI, constD);
         pidController.setTolerance(1);
 
-        clawEncoder = moveMotor.getAbsoluteEncoder();
+        clawEncoder = moveMotor.getEncoder();
         targetPos = clawEncoder.getPosition(); // initialize targetPos so PID doesn't try calculating with a null value
 
     }
@@ -168,8 +168,6 @@ public class Claw extends SubsystemBase {
         SmartDashboard.putNumber("Claw position", clawEncoder.getPosition());
         SmartDashboard.putNumber("Claw target", getTargetPos());
         SmartDashboard.updateValues();
-        System.err.println("Claw position " + clawEncoder.getPosition());
-        System.err.println("Claw target " + getTargetPos());
         // if (isAtTarget()) {
         //     SmartDashboard.putString("claw state", "at target ");
         //     SmartDashboard.putString("claw target state", targetState);
