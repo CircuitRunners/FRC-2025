@@ -14,7 +14,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ElevatorConstants;
 
-public class Elevator extends SubsystemBase {
+public class Elevator 
+extends SubsystemBase {
 
     public final SparkMax elevatorSparkMax1;
     public final SparkMax elevatorSparkMax2;
@@ -23,14 +24,15 @@ public class Elevator extends SubsystemBase {
     private double targetPos;
     private double kf;
     private String targetState;
+    private boolean running;
 
     public Elevator(){
         //Initialize motors with correct ports
         elevatorSparkMax1 = new SparkMax(ElevatorConstants.elevatorPort1, MotorType.kBrushless);
         elevatorSparkMax2 = new SparkMax(ElevatorConstants.elevatorPort2, MotorType.kBrushless);
         
-        SparkBaseConfig spark1Config = new SparkMaxConfig().idleMode(IdleMode.kBrake);
-        SparkBaseConfig spark2Config = new SparkMaxConfig().follow(ElevatorConstants.elevatorPort1, true).idleMode(IdleMode.kBrake);
+        SparkBaseConfig spark1Config = new SparkMaxConfig().idleMode(IdleMode.kCoast);
+        SparkBaseConfig spark2Config = new SparkMaxConfig().follow(ElevatorConstants.elevatorPort1, true).idleMode(IdleMode.kCoast);
 
         elevatorSparkMax1.configure(spark1Config, null, null);
         elevatorSparkMax2.configure(spark2Config, null, null);
@@ -39,18 +41,19 @@ public class Elevator extends SubsystemBase {
         targetPos = getElevatorPos();
 
         //Tunes the PID gains- Adjust for better control and movement of elevator
-        double kp = 0.0005; //Proportional (Increase the number if moving too slow, decrease if oscillating)  NEEDS TO BE TUNED
+        double kp = 0.00049; //Proportional (Increase the number if moving too slow, decrease if oscillating)  NEEDS TO BE TUNED
         double ki = 0.0; //Integral (Stays at 0 unless there's a steady-state error)  NEEDS TO BE TUNED
         double kd = 0.3; //Derivate (Increase if overshoot target, decrease if sluggish/slow)  NEEDS TO BE TUNED
         kf = 0.001;
         
         //Initialize PID controller with motion constraints
         pidController = new PIDController(kp, ki, kd);
-        pidController.setTolerance(0.5); //Acceptable error range
+        pidController.setTolerance(1); //Acceptable error range
     }
 
     // Move the elevator to the specified position
     public void moveToPos(double targetPos) {
+        running = true;
         this.targetPos = targetPos;
         pidController.setSetpoint(targetPos);
     }
@@ -69,7 +72,8 @@ public class Elevator extends SubsystemBase {
 
     public void stop() {
         SmartDashboard.putString("elevator state", "stopped");
-        elevatorSparkMax1.setVoltage(0);       elevatorSparkMax1.stopMotor();
+        elevatorSparkMax1.setVoltage(0);       
+        elevatorSparkMax1.stopMotor();
         elevatorSparkMax2.stopMotor();
     }
 
@@ -87,7 +91,7 @@ public class Elevator extends SubsystemBase {
         // SmartDashboard.putString("elevator state", "moving to " + targetState);
         return run(() -> {
             targetState = "PID";
-            moveToPos(-30);
+            moveToPos(-50);
         });
     }
 
@@ -156,14 +160,17 @@ public class Elevator extends SubsystemBase {
         
         SmartDashboard.putNumber("elevator position",getElevatorPos());
         SmartDashboard.putNumber("elevator target",getTargetPos());
+        SmartDashboard.putNumber("elevator target setpoint",pidController.getSetpoint());
+        SmartDashboard.putBoolean("isAtTarget", isAtTarget());
         SmartDashboard.updateValues();
         
         SmartDashboard.putString("elevator state", "moving ");
         SmartDashboard.putString("elevator target state", targetState);
         var output = pidController.calculate(getElevatorPos(), targetPos);
-        if(Math.abs(getElevatorPos() - ElevatorConstants.maxEncoderValue) < 30) {
+        if(pidController.atSetpoint() || Math.abs(getElevatorPos()-getTargetPos()) < 3) {
+            running = false;
             stop();
-        } else {
+        } else if (running) {
             elevatorSparkMax1.set(-output);
         }
     }
