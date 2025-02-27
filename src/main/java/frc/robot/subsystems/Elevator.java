@@ -153,9 +153,7 @@ public class Elevator extends SubsystemBase {
 
     @Override
     public void periodic(){
-        if(Math.abs(getElevatorPos() - ElevatorConstants.maxEncoderValue) < 30) {
-            stop();
-        }
+        
         SmartDashboard.putNumber("elevator position",getElevatorPos());
         SmartDashboard.putNumber("elevator target",getTargetPos());
         SmartDashboard.updateValues();
@@ -163,7 +161,10 @@ public class Elevator extends SubsystemBase {
         SmartDashboard.putString("elevator state", "moving ");
         SmartDashboard.putString("elevator target state", targetState);
         var output = pidController.calculate(getElevatorPos(), targetPos);
-        elevatorSparkMax1.set(-output);
-    
+        if(Math.abs(getElevatorPos() - ElevatorConstants.maxEncoderValue) < 30) {
+            stop();
+        } else {
+            elevatorSparkMax1.set(-output);
+        }
     }
 }
