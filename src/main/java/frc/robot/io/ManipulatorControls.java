@@ -48,7 +48,7 @@ public class ManipulatorControls extends CommandXboxController{
         return y();
     }
 
-    public Trigger moveClawIntake() {
+    public Trigger scoreL4() {
         return a();
     }
 
@@ -70,18 +70,18 @@ public class ManipulatorControls extends CommandXboxController{
     }
     
     public Trigger moveToL4() {
-        return y();
+        return povUp();
     }
 
     public Trigger moveToL3() {
-        return x();
+        return povLeft();
     }
 
     public Trigger moveToL2() {
-        return b();
+        return povRight();
     }
 
     public Trigger moveToL1() {
-        return a();
+        return povDown();
     }
 }

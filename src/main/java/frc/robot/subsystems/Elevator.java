@@ -163,16 +163,6 @@ extends SubsystemBase {
     @Override
     public void periodic(){
         var output = pidController.calculate(getElevatorPos(), this.targetPos);
-        // if(pidController.atSetpoint() || Math.abs(getElevatorPos()-getTargetPos()) <  10) {
-        //     running = false;
-        //     stop();
-        // } else if (running) {
-        // if (Math.abs(-output) > 0.5) {
-        //     elevatorSparkMax1.set(0.5*Math.signum(-output));
-        // } else {
-        //     elevatorSparkMax1.set(-output);
-        // }
-        // }
         elevatorSparkMax1.set(output);
 
         SmartDashboard.putNumber("elevator position",getElevatorPos());

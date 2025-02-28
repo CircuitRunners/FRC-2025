@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClawConstants;
 import frc.robot.Constants.ElevatorConstants;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.units.TimeUnit;
 import edu.wpi.first.units.measure.Time;
@@ -124,7 +125,7 @@ public class Claw extends SubsystemBase {
         return runRollersInCommand().until(this::isCoralInClaw).andThen(runRollersOutSlowCommand()).withTimeout(0.2).finallyDo(this::stopRoller);
     }
 
-    public Command stopRollerCommand() {
+    public Command stopRollersCommand() {
         SmartDashboard.putString("rollers state", "stopped");
         return run(this::stopRoller);
     }
@@ -152,8 +153,12 @@ public class Claw extends SubsystemBase {
         return runOnce(() -> targetState = "L4").andThen(moveClawToPositionCommand(ClawConstants.l4EncoderValue));
     }
 
+    public Command scoreL4() {
+        return moveClawToHorizontalCommand().andThen(runRollersOutCommand().until(this::isAtTarget)); 
+    }
+
     public boolean isAtTarget(){
-        return Math.abs(getClawPos() - getTargetPos()) < ClawConstants.tolerance;
+        return pidController.atSetpoint();
     }
 
     public Command runManualCommand(double speed){

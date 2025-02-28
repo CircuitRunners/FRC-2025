@@ -17,6 +17,6 @@ public class ScoreL2 extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addRequirements(elevator, claw);
-    addCommands(new MoveToL2(elevator, claw), claw.runRollersOutCommand());
+    addCommands(new MoveToL2(elevator, claw), claw.runRollersInCommand());
   }
 }

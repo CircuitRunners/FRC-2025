@@ -155,6 +155,10 @@ public class Drive extends SubsystemBase {
     return run(() -> driveRobotCentric(chassisSpeeds.get()));
   }
 
+  public Command setLimitCommand(double newLimit) {
+    return run(() -> limit = newLimit);
+  }
+
   public ChassisSpeeds getChassisSpeeds(){
     return swerve.getState().Speeds;
   }

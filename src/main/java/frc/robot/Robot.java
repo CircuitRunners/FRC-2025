@@ -143,24 +143,25 @@ public class Robot extends TimedRobot {
     manipulatorControls = new ManipulatorControls(DriverConstants.operatorPort);
 
     // // elevator controls
-    manipulatorControls.moveElevatorBottom().onTrue(elevator.moveToBottom());
-    manipulatorControls.moveElevatorL1().onTrue(elevator.moveToL1());
-    manipulatorControls.moveElevatorL2().onTrue(elevator.moveToL2());
-    manipulatorControls.moveElevatorL3().onTrue(elevator.moveToL3());
-    manipulatorControls.moveElevatorL4().onTrue(elevator.moveToL4());
+    // manipulatorControls.moveElevatorBottom().onTrue(elevator.moveToBottom());
+    // manipulatorControls.moveElevatorL1().onTrue(elevator.moveToL1());
+    // manipulatorControls.moveElevatorL2().onTrue(elevator.moveToL2());
+    // manipulatorControls.moveElevatorL3().onTrue(elevator.moveToL3());
+    // manipulatorControls.moveElevatorL4().onTrue(elevator.moveToL4());
     // // claw controls
     manipulatorControls.moveClawHorizontal().onTrue(claw.moveClawToHorizontalCommand());
     manipulatorControls.moveClawL4().onTrue(claw.moveClawToL4Command());
-    manipulatorControls.moveClawIntake().onTrue(claw.moveClawToIntakeCommand());
-    manipulatorControls.runRollersIn().onTrue(claw.runRollersInCommand()).onFalse(claw.stopRollerCommand());
-    manipulatorControls.runRollersOut().onTrue(claw.runRollersOutCommand()).onFalse(claw.stopRollerCommand());
+    manipulatorControls.scoreL4().onTrue(claw.scoreL4());
+    manipulatorControls.runRollersIn().onTrue(claw.runRollersInCommand()).onFalse(claw.stopRollersCommand());
+    manipulatorControls.runRollersOut().onTrue(claw.runRollersOutCommand()).onFalse(claw.stopRollersCommand());
+    manipulatorControls.b().onTrue(claw.runRollersOutSlowCommand()).onFalse(claw.stopRollersCommand());
 
     //overall controls
-    // manipulatorControls.resetToIntake().onTrue(new MoveToIntake(elevator, claw));
-    // manipulatorControls.moveToL1().onTrue(new MoveToL1(elevator, claw));
-    // manipulatorControls.moveToL2().onTrue(new MoveToL2(elevator, claw));
-    // manipulatorControls.moveToL3().onTrue(new MoveToL3(elevator, claw));
-    // manipulatorControls.moveToL4().onTrue(new MoveToL4(elevator, claw));
+    manipulatorControls.resetToIntake().onTrue(new MoveToIntake(elevator, claw));
+    manipulatorControls.moveToL1().onTrue(new MoveToL1(elevator, claw));
+    manipulatorControls.moveToL2().onTrue(new MoveToL2(elevator, claw));
+    manipulatorControls.moveToL3().onTrue(new MoveToL3(elevator, claw));
+    manipulatorControls.moveToL4().onTrue(new MoveToL4(elevator, claw));
     
   }
 
@@ -168,6 +169,8 @@ public class Robot extends TimedRobot {
     drive = new Drive(TunerConstants.createDrivetrain(), false);
     drive.resetGyroCommand().schedule();
     elevator = new Elevator();
+    double prevLimit = Drive.limit;
+    elevator.isDrivingPrecarious().whileTrue(drive.setLimitCommand(0.2)).onFalse(drive.setLimitCommand(prevLimit)); 
     claw = new Claw();
   }
 
