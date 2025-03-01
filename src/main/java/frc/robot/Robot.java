@@ -157,7 +157,7 @@ public class Robot extends TimedRobot {
     manipulatorControls.b().onTrue(claw.runRollersOutSlowCommand()).onFalse(claw.stopRollersCommand());
 
     //overall controls
-    manipulatorControls.resetToIntake().onTrue(new MoveToIntake(elevator, claw));
+    manipulatorControls.moveElevatorBottom().onTrue(new MoveToIntake(elevator, claw));
     manipulatorControls.moveToL1().onTrue(new MoveToL1(elevator, claw));
     manipulatorControls.moveToL2().onTrue(new MoveToL2(elevator, claw));
     manipulatorControls.moveToL3().onTrue(new MoveToL3(elevator, claw));

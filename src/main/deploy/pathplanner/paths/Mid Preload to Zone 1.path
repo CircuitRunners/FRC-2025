@@ -3,28 +3,28 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.073,
-        "y": 4.05425
+        "x": 8.029,
+        "y": 3.859
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.527,
-        "y": 4.03475
+        "x": 7.779,
+        "y": 3.859
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 6.054749999999999,
-        "y": 3.8592499999999994
+        "x": 6.055,
+        "y": 3.859
       },
       "prevControl": {
-        "x": 6.4935,
-        "y": 3.9177499999999994
+        "x": 6.305,
+        "y": 3.859
       },
       "nextControl": null,
-      "isLocked": true,
+      "isLocked": false,
       "linkedName": "Reef Zone 1"
     }
   ],
@@ -48,7 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 177.9904461869789
+    "rotation": 179.51127578520226
   },
   "useDefaultConstraints": true
 }

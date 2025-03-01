@@ -71,7 +71,7 @@ public class Claw extends SubsystemBase {
     }
 
     public void setTargetPos(double desiredPos) {
-        pidController..setSetpoint(desiredPos);
+        pidController.setSetpoint(desiredPos);
         targetPos = desiredPos;
     }
 
@@ -135,23 +135,40 @@ public class Claw extends SubsystemBase {
         return run(() -> setTargetPos(pos));
     }
 
+    public void moveToPos(double targetPos) {
+        this.targetPos = targetPos;
+        pidController.setSetpoint(targetPos);
+    }
+
     public Command moveClawToIntakeCommand() {
         targetState = "intake";
         // SmartDashboard.putString("claw state", "moving to " + targetState);
         
-        return runOnce(() -> targetState = "intake").andThen(moveClawToPositionCommand(ClawConstants.minEncoderValue));
+        // return runOnce(() -> targetState = "intake").andThen(moveClawToPositionCommand(ClawConstants.minEncoderValue));
+        return run(() -> {
+            targetState = "intake";
+            moveToPos(ClawConstants.minEncoderValue);
+        });
     }
 
     public Command moveClawToHorizontalCommand() {
         targetState = "horizontal";
         // SmartDashboard.putString("claw state", "moving to " + targetState);
-        return runOnce(() -> targetState = "horizontal").andThen(moveClawToPositionCommand(ClawConstants.horizontalEncoderValue));
+        // return runOnce(() -> targetState = "horizontal").andThen(moveClawToPositionCommand(ClawConstants.horizontalEncoderValue));
+        return run(() -> {
+            targetState = "horizontal";
+            moveToPos(ClawConstants.horizontalEncoderValue);
+        });
     }
 
     public Command moveClawToL4Command() {
         targetState = "L4";
         // SmartDashboard.putString("claw state", "moving to " + targetState);
-        return runOnce(() -> targetState = "L4").andThen(moveClawToPositionCommand(ClawConstants.l4EncoderValue));
+        // return runOnce(() -> targetState = "L4").andThen(moveClawToPositionCommand(ClawConstants.l4EncoderValue));
+        return run(() -> {
+            targetState = "L4";
+            moveToPos(ClawConstants.l4EncoderValue);
+        })
     }
 
     public Command scoreL4() {
