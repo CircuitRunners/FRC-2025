@@ -18,7 +18,8 @@ public class MoveToL4 extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addRequirements(elevator, claw);
-    addCommands(new ParallelCommandGroup(elevator.moveToL4(), 
+    addCommands(new ParallelCommandGroup(
+      elevator.moveToL4(), 
       Commands.waitSeconds(0.2)
         .andThen(claw.runRollersInCommand().withDeadline(Commands.waitSeconds(0.1)))
         .andThen(claw.moveClawToL4Command())),

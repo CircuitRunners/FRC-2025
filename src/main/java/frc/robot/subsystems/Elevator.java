@@ -1,15 +1,15 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ElevatorConstants;
@@ -37,7 +37,6 @@ extends SubsystemBase {
         elevatorSparkMax2.configure(spark2Config, null, null);
 
         elevatorEncoder = elevatorSparkMax1.getEncoder();
-
         targetPos = getElevatorPos();
 
         //Tunes the PID gains- Adjust for better control and movement of elevator
@@ -80,13 +79,16 @@ extends SubsystemBase {
         elevatorSparkMax2.stopMotor();
     }
 
+    public boolean isAtTarget(){
+        return pidController.atSetpoint();
+    }
+
+    public Command moveElevatorCommand(double targetPosition, String stateName) {
+        return new MoveElevatorCommand(this, targetPosition, stateName);
+    }
+    
     public Command moveToL4() {
-        targetState = "L4";
-        // SmartDashboard.putString("elevator state", "moving to " + targetState);
-        return run(() -> {
-            targetState = "L4";
-            moveToPos(ElevatorConstants.l4EncoderValue);
-        });
+        return moveElevatorCommand(ElevatorConstants.l4EncoderValue, "L4");
     }
 
     public Command pidTest() {
@@ -99,44 +101,22 @@ extends SubsystemBase {
     }
 
     public Command moveToL3() {
-        targetState = "L3";
-        // SmartDashboard.putString("elevator state", "moving to " + targetState);
-        return run(() ->{
-            targetState = "L3";
-            moveToPos(ElevatorConstants.l3EncoderValue);
-            });
+        return moveElevatorCommand(ElevatorConstants.l3EncoderValue, "L3");
     }
 
     public Command moveToL2() {
-        targetState = "L2";
-        // SmartDashboard.putString("elevator state", "moving to " + targetState);
-        return run(() -> {
-            targetState = "L2";
-            moveToPos(ElevatorConstants.l2EncoderValue);
-        });
+        return moveElevatorCommand(ElevatorConstants.l2EncoderValue, "L2");
     }
 
     public Command moveToL1() {
-        targetState = "L1";
-        // SmartDashboard.putString("elevator state", "moving to " + targetState);
-        return run(() -> {
-            targetState = "L1";
-            moveToPos(ElevatorConstants.l1EncoderValue);
-        });
+        return moveElevatorCommand(ElevatorConstants.l1EncoderValue, "L1");
     }
     
     public Command moveToBottom() {
-        targetState = "bottom";
-        // SmartDashboard.putString("elevator state", "moving to " + targetState);
-        return run(() -> {
-            targetState = "bottom";
-            moveToPos(ElevatorConstants.minEncoderValue);
-        });
+        return moveElevatorCommand(ElevatorConstants.minEncoderValue, "bottom");
     }
 
-    public boolean isAtTarget(){
-        return pidController.atSetpoint();
-    }
+    
 
     public Command moveElevatorUp() {
         return run(() -> {
@@ -173,5 +153,30 @@ extends SubsystemBase {
         SmartDashboard.putNumber("output", output);
         SmartDashboard.putBoolean("running", running);
         SmartDashboard.updateValues();
+    }
+
+    public static class MoveElevatorCommand extends Command {
+        private final Elevator elevator;
+        private final double targetPosition;
+        private final String targetState;
+
+        public MoveElevatorCommand(Elevator elevator, double targetPosition, String targetState) {
+            this.elevator = elevator;
+            this.targetPosition = targetPosition;
+            this.targetState = targetState;
+            addRequirements(elevator);
+        }
+
+        @Override
+        public void initialize() {
+            elevator.targetState = targetState;
+            elevator.moveToPos(targetPosition);
+            SmartDashboard.putString("Elevator command", "Moving to " + targetState);
+        }
+
+        @Override
+        public boolean isFinished() {
+            return elevator.isAtTarget();
+        }
     }
 }

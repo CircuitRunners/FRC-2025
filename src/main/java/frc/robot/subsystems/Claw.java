@@ -1,27 +1,20 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.hardware.CANrange;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
+
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClawConstants;
-import frc.robot.Constants.ElevatorConstants;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.units.TimeUnit;
-import edu.wpi.first.units.measure.Time;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-
-import org.w3c.dom.events.MouseEvent;
-
-import com.ctre.phoenix6.hardware.CANrange;
-import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.config.SparkBaseConfig;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 
 public class Claw extends SubsystemBase {
@@ -35,7 +28,6 @@ public class Claw extends SubsystemBase {
     private RelativeEncoder clawEncoder;
 
     private double targetPos;
-
     private String targetState;
 
     public Claw() {
@@ -75,8 +67,17 @@ public class Claw extends SubsystemBase {
         targetPos = desiredPos;
     }
 
+    public boolean isAtTarget(){
+        return pidController.atSetpoint();
+    }
+
     public void changeRollerSpd(double speed) {
         roller1Motor.set(speed);
+    }
+
+    public void stopRoller() {
+        roller1Motor.stopMotor();
+        roller2Motor.stopMotor();
     }
 
     public boolean isCoralInClaw() {
@@ -88,22 +89,30 @@ public class Claw extends SubsystemBase {
         moveMotor.stopMotor();
     }
 
-    public void stopRoller() {
-        roller1Motor.stopMotor();
-        roller2Motor.stopMotor();
-    }
 
 
     // Commands
 
     public Command changeRollerSpdCommand(double speed) {
-        return run(() -> changeRollerSpd(speed));
+        return new FunctionalCommand(
+            // onInitialize: set the rollers to the desired speed
+            () -> changeRollerSpd(speed),
+            // onExecute: keep the rollers running at the desired speed
+            () -> changeRollerSpd(speed),
+            // onEnd: when the command ends, stop the rollers
+            interrupted -> changeRollerSpd(0),
+            // isFinished: never finish on its own (so a deadline can end it)
+            () -> false,
+            // this subsystem is required
+            this
+        );
     }
     
-        public Command runRollersInCommand() {
-            SmartDashboard.putString("rollers state", "running in");
-            return changeRollerSpdCommand(0.5);
-        }
+    
+    public Command runRollersInCommand() {
+        SmartDashboard.putString("rollers state", "running in");
+        return changeRollerSpdCommand(0.5);
+    }
 
     public Command runRollersOutCommand() {
         SmartDashboard.putString("rollers state", "running out");
@@ -140,44 +149,28 @@ public class Claw extends SubsystemBase {
         pidController.setSetpoint(targetPos);
     }
 
+    public Command moveWristCommand(double targetPosition) {
+        return new MoveWristCommand(this, targetPosition);
+    }
+
     public Command moveClawToIntakeCommand() {
-        targetState = "intake";
-        // SmartDashboard.putString("claw state", "moving to " + targetState);
-        
-        // return runOnce(() -> targetState = "intake").andThen(moveClawToPositionCommand(ClawConstants.minEncoderValue));
-        return run(() -> {
-            targetState = "intake";
-            moveToPos(ClawConstants.minEncoderValue);
-        });
+        return moveWristCommand(ClawConstants.minEncoderValue);
     }
 
     public Command moveClawToHorizontalCommand() {
-        targetState = "horizontal";
-        // SmartDashboard.putString("claw state", "moving to " + targetState);
-        // return runOnce(() -> targetState = "horizontal").andThen(moveClawToPositionCommand(ClawConstants.horizontalEncoderValue));
-        return run(() -> {
-            targetState = "horizontal";
-            moveToPos(ClawConstants.horizontalEncoderValue);
-        });
+        return moveWristCommand(ClawConstants.horizontalEncoderValue);
     }
 
     public Command moveClawToL4Command() {
-        targetState = "L4";
-        // SmartDashboard.putString("claw state", "moving to " + targetState);
-        // return runOnce(() -> targetState = "L4").andThen(moveClawToPositionCommand(ClawConstants.l4EncoderValue));
-        return run(() -> {
-            targetState = "L4";
-            moveToPos(ClawConstants.l4EncoderValue);
-        })
+        return moveWristCommand(ClawConstants.l4EncoderValue);
     }
+
 
     public Command scoreL4() {
         return moveClawToHorizontalCommand().andThen(runRollersOutCommand().until(this::isAtTarget)); 
     }
 
-    public boolean isAtTarget(){
-        return pidController.atSetpoint();
-    }
+    
 
     public Command runManualCommand(double speed){
         
@@ -191,8 +184,30 @@ public class Claw extends SubsystemBase {
         SmartDashboard.putNumber("Claw position", clawEncoder.getPosition());
         SmartDashboard.putNumber("Claw target", getTargetPos());
         SmartDashboard.updateValues();
-        var output = pidController.calculate(getClawPos(), this.targetPos);
+        double output = pidController.calculate(getClawPos(), this.targetPos);
         moveMotor.set(output);
         SmartDashboard.updateValues();
+    }
+
+
+    public static class MoveWristCommand extends Command {
+        private final Claw claw;
+        private final double targetPosition;
+
+        public MoveWristCommand(Claw claw, double targetPosition) {
+            this.claw = claw;
+            this.targetPosition = targetPosition;
+            addRequirements(claw);
+        }
+
+        @Override
+        public void initialize() {
+            claw.setTargetPos(targetPosition);
+        }
+
+        @Override
+        public boolean isFinished() {
+            return claw.isAtTarget();
+        }
     }
 }

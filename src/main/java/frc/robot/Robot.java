@@ -169,8 +169,8 @@ public class Robot extends TimedRobot {
     drive = new Drive(TunerConstants.createDrivetrain(), false);
     drive.resetGyroCommand().schedule();
     elevator = new Elevator();
-    double prevLimit = Drive.limit;
-    elevator.isDrivingPrecarious().whileTrue(drive.setLimitCommand(0.2)).onFalse(drive.setLimitCommand(prevLimit)); 
+    // double prevLimit = Drive.limit;
+    // elevator.isDrivingPrecarious().whileTrue(drive.setLimitCommand(0.2)).onFalse(drive.setLimitCommand(prevLimit)); 
     claw = new Claw();
   }
 
