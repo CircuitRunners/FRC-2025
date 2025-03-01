@@ -71,6 +71,7 @@ public class Claw extends SubsystemBase {
     }
 
     public void setTargetPos(double desiredPos) {
+        pidController..setSetpoint(desiredPos);
         targetPos = desiredPos;
     }
 
