@@ -148,7 +148,7 @@ extends SubsystemBase {
         SmartDashboard.putNumber("elevator target setpoint",pidController.getSetpoint());
         SmartDashboard.putBoolean("isAtTarget", isAtTarget());
         SmartDashboard.putString("elevator state", "moving ");
-        SmartDashboard.putString("elevator target state", targetState);
+        // SmartDashboard.putString("elevator target state", targetState);
         SmartDashboard.putNumber("motor current", elevatorSparkMax1.getOutputCurrent());
         SmartDashboard.putNumber("output", output);
         SmartDashboard.putBoolean("running", running);

@@ -13,6 +13,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClawConstants;
 
@@ -167,7 +168,10 @@ public class Claw extends SubsystemBase {
 
 
     public Command scoreL4() {
-        return moveClawToHorizontalCommand().andThen(runRollersOutCommand().until(this::isAtTarget)); 
+        return new ParallelCommandGroup(
+            moveClawToHorizontalCommand(),
+            runRollersOutCommand().until(this::isAtTarget)
+        );
     }
 
     
@@ -197,7 +201,6 @@ public class Claw extends SubsystemBase {
         public MoveWristCommand(Claw claw, double targetPosition) {
             this.claw = claw;
             this.targetPosition = targetPosition;
-            addRequirements(claw);
         }
 
         @Override

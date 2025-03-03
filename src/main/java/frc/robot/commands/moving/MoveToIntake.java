@@ -5,6 +5,7 @@
 package frc.robot.commands.moving;
 
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.*;
 
@@ -20,11 +21,18 @@ public class MoveToIntake extends SequentialCommandGroup {
     // addCommands(
     //   claw.moveClawToIntakeCommand(), Commands.waitUntil(() -> claw.isAtTarget()).andThen(elevator.moveToBottom())
     // );
-    addCommands(
-      new ParallelCommandGroup(
-        claw.moveClawToIntakeCommand,
-        Commands.waitUntil(() -> claw.isAtTarget).andThen(elevator.moveToBottom);
-      )
-    )
+
+    // addCommands(
+    //   new ParallelCommandGroup(
+    //     claw.moveClawToIntakeCommand(),
+    //     Commands.waitUntil(() -> claw.isAtTarget().andThen(elevator.moveToBottom())
+    //   )
+    // )
+    // )
+    addCommands(new SequentialCommandGroup(
+      claw.moveClawToIntakeCommand(),
+      elevator.moveToBottom()
+    ));
+
   }
 }
