@@ -112,7 +112,7 @@ public class Claw extends SubsystemBase {
     
     public Command runRollersInCommand() {
         SmartDashboard.putString("rollers state", "running in");
-        return changeRollerSpdCommand(0.5);
+        return changeRollerSpdCommand(1);
     }
 
     public Command runRollersOutCommand() {
@@ -162,6 +162,10 @@ public class Claw extends SubsystemBase {
         return moveWristCommand(ClawConstants.horizontalEncoderValue);
     }
 
+    public Command moveClawToAlgae() {
+        return moveWristCommand(ClawConstants.algaeValue);
+    }
+
     public Command moveClawToL4Command() {
         return moveWristCommand(ClawConstants.l4EncoderValue);
     }
@@ -187,6 +191,7 @@ public class Claw extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber("Claw position", clawEncoder.getPosition());
         SmartDashboard.putNumber("Claw target", getTargetPos());
+        SmartDashboard.putNumber("Rollers voltage", roller1Motor.getBusVoltage());
         SmartDashboard.updateValues();
         double output = pidController.calculate(getClawPos(), this.targetPos);
         moveMotor.set(output);

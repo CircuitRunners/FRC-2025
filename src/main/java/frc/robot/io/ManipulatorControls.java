@@ -44,12 +44,20 @@ public class ManipulatorControls extends CommandXboxController{
         return x();
     }
 
-    public Trigger moveClawL4() {
-        return y();
-    }
+    // public Trigger moveClawL4() {
+    //     return y();
+    // }
 
-    public Trigger scoreL4() {
+    public Trigger scoreL4Algae2() {
         return a();
+    }
+    
+    public Trigger scoreL4() {
+        return b();
+    }
+    
+    public Trigger Algae1() {
+        return y();
     }
 
     public Trigger runRollersOut() {
@@ -78,10 +86,10 @@ public class ManipulatorControls extends CommandXboxController{
     }
 
     public Trigger moveToL2() {
-        return povRight();
+        return povDown();
     }
 
     public Trigger moveToL1() {
-        return povDown();
+        return povRight();
     }
 }

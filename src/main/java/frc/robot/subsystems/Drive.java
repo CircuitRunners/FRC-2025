@@ -32,10 +32,11 @@ import frc.robot.Constants.SwerveConstants;
 import frc.robot.io.DriverControls;
 
 public class Drive extends SubsystemBase {
-  public static double limit = 1;
+  public static double limit = 0.8;
   private Swerve swerve;
   private FieldUtil fieldUtil = FieldUtil.getField();
   private boolean sysIdTranslator = true;
+  
   private Vision vision;
   private boolean isVision;
   // private final SysIdSwerveTranslation translation = new SysIdSwerveTranslation();
@@ -81,6 +82,8 @@ public class Drive extends SubsystemBase {
     if (isVision) {
       vision.run();
     }
+    SmartDashboard.putNumber("pigeon angle", swerve.getPigeon2().getYaw().getValueAsDouble() % 60);
+    SmartDashboard.putNumber("drive limit", limit);
     // SmartDashboard.putData("default pigeon value", swerve.getPigeon2().getRotation2d());
   }
 
@@ -104,7 +107,7 @@ public class Drive extends SubsystemBase {
       .withVelocityY(strafeLimiter.calculate(speeds.vyMetersPerSecond))
       // .withVelocityX(speeds.vxMetersPerSecond)
       // .withVelocityY(speeds.vyMetersPerSecond)
-      .withRotationalRate(speeds.omegaRadiansPerSecond)
+      .withRotationalRate(speeds.omegaRadiansPerSecond * 0.5)
       );
     }
     
@@ -115,7 +118,7 @@ public class Drive extends SubsystemBase {
         .withVelocityY(strafeLimiter.calculate(speeds.vyMetersPerSecond))
         // .withVelocityX(speeds.vxMetersPerSecond)
         // .withVelocityY(speeds.vyMetersPerSecond)
-      .withRotationalRate(speeds.omegaRadiansPerSecond)
+      .withRotationalRate(speeds.omegaRadiansPerSecond * 0.5)
     );
   }
 
@@ -156,7 +159,7 @@ public class Drive extends SubsystemBase {
   }
 
   public Command setLimitCommand(double newLimit) {
-    return run(() -> limit = newLimit);
+    return runOnce(() -> limit = newLimit);
   }
 
   public ChassisSpeeds getChassisSpeeds(){

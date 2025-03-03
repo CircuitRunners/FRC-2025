@@ -9,12 +9,6 @@
           "data": {
             "pathName": "Mid Preload to Zone 1"
           }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ScoreL4"
-          }
         }
       ]
     }

@@ -88,7 +88,37 @@ extends SubsystemBase {
     }
     
     public Command moveToL4() {
+        // Drive.limit = 0.3;
         return moveElevatorCommand(ElevatorConstants.l4EncoderValue, "L4");
+    }
+
+    public Command moveElevatorToAlgae2() {
+        // Drive.limit = 0.3;
+        return moveElevatorCommand(ElevatorConstants.Algae2, "Algae 2");
+    }
+
+    public Command moveElevatorToAlgae1() {
+        // Drive.limit = 0.3;
+        return moveElevatorCommand(ElevatorConstants.Algae1, "Algae 1");
+    }
+    public Command moveToL3() {
+        // Drive.limit = 0.3;
+        return moveElevatorCommand(ElevatorConstants.l3EncoderValue, "L3");
+    }
+
+    public Command moveToL2() {
+        // Drive.limit = 0.3;
+        return moveElevatorCommand(ElevatorConstants.l2EncoderValue, "L2");
+    }
+
+    public Command moveToL1() {
+        // Drive.limit = 0.3;
+        return moveElevatorCommand(ElevatorConstants.l1EncoderValue, "L1");
+    }
+    
+    public Command moveToBottom() {
+        // Drive.limit = 1;
+        return moveElevatorCommand(ElevatorConstants.minEncoderValue, "bottom");
     }
 
     public Command pidTest() {
@@ -99,23 +129,6 @@ extends SubsystemBase {
             moveToPos(-80);
         });
     }
-
-    public Command moveToL3() {
-        return moveElevatorCommand(ElevatorConstants.l3EncoderValue, "L3");
-    }
-
-    public Command moveToL2() {
-        return moveElevatorCommand(ElevatorConstants.l2EncoderValue, "L2");
-    }
-
-    public Command moveToL1() {
-        return moveElevatorCommand(ElevatorConstants.l1EncoderValue, "L1");
-    }
-    
-    public Command moveToBottom() {
-        return moveElevatorCommand(ElevatorConstants.minEncoderValue, "bottom");
-    }
-
     
 
     public Command moveElevatorUp() {
@@ -134,9 +147,9 @@ extends SubsystemBase {
         return (getElevatorPos() - ElevatorConstants.minEncoderValue < 5);
     }
 
-    public Trigger isDrivingPrecarious() {
-        return new Trigger(() -> !isElevatorAtBottom() || elevatorSparkMax1.get() > 0.5);
-    }
+    // public Trigger isDrivingPrecarious() {
+    //     return new Trigger(() -> !isElevatorAtBottom() || elevatorSparkMax1.get() > 0.5);
+    // }
 
     @Override
     public void periodic(){

@@ -249,9 +249,11 @@ public final class Constants {
     public static final double maxEncoderValue = -73.50224304199219 - encoderDifference; // tune specifically
     public static final double minEncoderValue = 0;
     public static final double l1EncoderValue = 2.857138395309448 - encoderDifference; // tune specifically
-    public static final double l2EncoderValue = -10.238096714019775 - encoderDifference; // tune specifically
-    public static final double l3EncoderValue = -41.928138732910156 - encoderDifference; // tune specifically
+    public static final double l2EncoderValue = -15.238096714019775 - encoderDifference; // tune specifically
+    public static final double l3EncoderValue = -47.928138732910156 - encoderDifference; // tune specifically
     public static final double l4EncoderValue = -74.09685516357422 - encoderDifference; // tune specifically
+    public static final double Algae2 = -50 - encoderDifference;
+    public static final double Algae1 = -20 - encoderDifference;
     public static final double tolerance = 0.5;
   }
   
@@ -267,6 +269,7 @@ public final class Constants {
       public static final double l4EncoderValue = 50.81052780151367 / 5 - encoderOffset; //currently set with Neo Encoder
       public static final double tolerance = 0.5;
       public static final int canRangePort = 0;
+      public static final double algaeValue = 40 / 5 - encoderOffset;
       public static final double coralSensorRange = 0.5; 
     }
 }

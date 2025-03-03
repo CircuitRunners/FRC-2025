@@ -52,19 +52,19 @@ public class DriverControls extends CommandXboxController{
         return rightTrigger();
     }
 
-    public Trigger sysIdDynamicForward(){
+    public Trigger robotMoveForward(){
         return povUp();
     }
 
-    public Trigger sysIdDynamicReverse(){
+    public Trigger robotMoveBack(){
         return povDown();
     }
 
-    public Trigger sysIdQuasistaticForward(){
+    public Trigger robotMoveLeft(){
         return povLeft();
     }
 
-    public Trigger sysIdQuasistaticReverse(){
+    public Trigger robotMoveRight(){
         return povRight();
     }
 
