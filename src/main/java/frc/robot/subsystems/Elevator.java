@@ -117,7 +117,7 @@ extends SubsystemBase {
     }
     
     public Command moveToBottom() {
-        // Drive.limit = 1;
+        // Drive.limit = 0.8;
         return moveElevatorCommand(ElevatorConstants.minEncoderValue, "bottom");
     }
 

@@ -121,11 +121,11 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData("Auto Chooser", autoChooser);
     
     //register named commands
-    NamedCommands.registerCommand("MoveToIntake", new MoveToIntake(elevator, claw));
+    NamedCommands.registerCommand("MoveToIntake", new MoveToIntake(elevator, claw, drive));
     NamedCommands.registerCommand("AutoIntake", claw.autoIntakeCommand());
-    NamedCommands.registerCommand("ScoreL1", new ScoreL1(elevator, claw));
-    NamedCommands.registerCommand("ScoreL2", new ScoreL2(elevator, claw));
-    NamedCommands.registerCommand("ScoreL3", new ScoreL3(elevator, claw));
+    NamedCommands.registerCommand("ScoreL1", new ScoreL1(elevator, claw,  drive));
+    NamedCommands.registerCommand("ScoreL2", new ScoreL2(elevator, claw, drive));
+    NamedCommands.registerCommand("ScoreL3", new ScoreL3(elevator, claw, drive));
     NamedCommands.registerCommand("ScoreL4", new ScoreL4Algae(elevator, claw));
   }
 
@@ -134,13 +134,13 @@ public class Robot extends TimedRobot {
     // ------------------------------- DRIVER CONTROLS ---------------------------------------------------------
     driverControls = new DriverControls(DriverConstants.driverPort);
     drive.setDefaultCommand(drive.driveFieldCentricCommand(() -> SwerveConfig.toChassisSpeeds(driverControls)));
-    driverControls.increaseLimit().onTrue(drive.increaseLimitCommand());
-    driverControls.decreaseLimit().onTrue(drive.decreaseLimitCommand());
+    // driverControls.increaseLimit().onTrue(drive.increaseLimitCommand());
+    // driverControls.decreaseLimit().onTrue(drive.decreaseLimitCommand());
     driverControls.start().onTrue(drive.resetGyroCommand());
-    driverControls.robotMoveRight().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, -0.3, 0)));
-    driverControls.robotMoveLeft().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0.3, 0)));
-    driverControls.robotMoveForward().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.3, 0, 0)));
-    driverControls.robotMoveBack().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(-0.3, 0, 0)));
+    driverControls.robotMoveRight().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, -0.5, 0)));
+    driverControls.robotMoveLeft().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0.5, 0)));
+    driverControls.robotMoveForward().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.7, 0, 0)));
+    driverControls.robotMoveBack().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(-0.7, 0, 0)));
     
 
     // driverControls.a().whileTrue(PathPlannerUtil.getAutoCommand("Mid Preload to L4"));
@@ -160,18 +160,18 @@ public class Robot extends TimedRobot {
     manipulatorControls.moveClawHorizontal().onTrue(claw.moveClawToHorizontalCommand());
     // manipulatorControls.moveClawL4().onTrue(claw.moveClawToL4Command());
     manipulatorControls.scoreL4Algae2().onTrue(new ScoreL4Algae(elevator, claw));
-    manipulatorControls.Algae1().onTrue(new Algae1(elevator, claw));
-    manipulatorControls.scoreL4().onTrue(new ScoreL4(elevator, claw));
+    manipulatorControls.Algae1().onTrue(new Algae1(elevator, claw, drive));
+    manipulatorControls.scoreL4().onTrue(new ScoreL4Auto(elevator, claw, drive));
     manipulatorControls.runRollersIn().onTrue(claw.runRollersInCommand()).onFalse(claw.stopRollersCommand());
     // manipulatorControls.runRollersOut().onTrue(claw.runRollersOutCommand()).onFalse(claw.stopRollersCommand());
     // manipulatorControls.b().onTrue(claw.runRollersOutSlowCommand()).onFalse(claw.stopRollersCommand());
 
     //overall controls
-    manipulatorControls.moveElevatorBottom().onTrue(new MoveToIntake(elevator, claw));
-    manipulatorControls.moveToL1().onTrue(new MoveToL1(elevator, claw));
-    manipulatorControls.moveToL2().onTrue(new MoveToL2(elevator, claw));
-    manipulatorControls.moveToL3().onTrue(new MoveToL3(elevator, claw));
-    manipulatorControls.moveToL4().onTrue(new MoveToL4(elevator, claw));
+    manipulatorControls.moveElevatorBottom().onTrue(new MoveToIntake(elevator, claw, drive));
+    manipulatorControls.moveToL1().onTrue(new MoveToL1(elevator, claw, drive));
+    manipulatorControls.moveToL2().onTrue(new MoveToL2(elevator, claw, drive));
+    manipulatorControls.moveToL3().onTrue(new MoveToL3(elevator, claw, drive));
+    manipulatorControls.moveToL4().onTrue(new MoveToL4(elevator, claw, drive));
     
   }
 

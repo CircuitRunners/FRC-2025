@@ -25,7 +25,7 @@ public class DriverControls extends CommandXboxController{
     }
 
     public double driveRotation(){
-        return MathUtil.applyDeadband(-getRightX(), DriverConstants.stickDeadband) * Drive.limit * SwerveConstants.maxModuleVelocityMPS;
+        return MathUtil.applyDeadband(-getRightX(), DriverConstants.stickDeadband) * SwerveConstants.maxModuleVelocityMPS;
     }
 
     public Trigger resetGyro(){

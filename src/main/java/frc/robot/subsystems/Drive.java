@@ -84,6 +84,7 @@ public class Drive extends SubsystemBase {
     }
     SmartDashboard.putNumber("pigeon angle", swerve.getPigeon2().getYaw().getValueAsDouble() % 60);
     SmartDashboard.putNumber("drive limit", limit);
+    fieldUtil.setSwerveRobotPose(swerve.getPose2d(), swerve.getModuleStates(), SwerveConstants.modulePositions);
     // SmartDashboard.putData("default pigeon value", swerve.getPigeon2().getRotation2d());
   }
 
@@ -128,26 +129,6 @@ public class Drive extends SubsystemBase {
 
   public Rotation2d geRotation2d(){
     return swerve.getPose2d().getRotation();
-  }
-
-  public void increaseLimit(){
-    if(limit < 1){
-      limit += 0.2;
-    }
-  }
-
-  public void decreaseLimit(){
-    if (limit > 0.2){
-      limit -= 0.2;
-    }
-  }
-
-  public Command increaseLimitCommand(){
-    return Commands.runOnce(this::increaseLimit);
-  }
-
-  public Command decreaseLimitCommand(){
-    return Commands.runOnce(this::decreaseLimit);
   }
 
   public Command driveFieldCentricCommand(Supplier<ChassisSpeeds> chassisSpeeds){
