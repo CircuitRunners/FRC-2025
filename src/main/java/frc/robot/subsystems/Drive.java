@@ -80,7 +80,7 @@ public class Drive extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     if (isVision) {
-      vision.run();
+      vision.run(swerve.getPigeon2().getYaw().getValueAsDouble());
     }
     SmartDashboard.putNumber("pigeon angle", swerve.getPigeon2().getYaw().getValueAsDouble() % 60);
     SmartDashboard.putNumber("drive limit", limit);
