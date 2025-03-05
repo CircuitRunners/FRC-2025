@@ -136,12 +136,13 @@ public class Robot extends TimedRobot {
     drive.setDefaultCommand(drive.driveFieldCentricCommand(() -> SwerveConfig.toChassisSpeeds(driverControls)));
     // driverControls.increaseLimit().onTrue(drive.increaseLimitCommand());
     // driverControls.decreaseLimit().onTrue(drive.decreaseLimitCommand());
-    driverControls.start().onTrue(drive.resetGyroCommand());
+    driverControls.start().onTrue(Commands.runOnce(() -> drive.resetToVisionPos()));
     driverControls.robotMoveRight().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, -0.4, 0)));
     driverControls.robotMoveLeft().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0.4, 0)));
     driverControls.robotMoveForward().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.4, 0, 0)));
     driverControls.robotMoveBack().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(-0.4, 0, 0)));
     
+    driverControls.a().whileTrue(drive.returnFollowCommand());
 
     // driverControls.a().whileTrue(PathPlannerUtil.getAutoCommand("Mid Preload to L4"));
 
@@ -161,7 +162,7 @@ public class Robot extends TimedRobot {
     // manipulatorControls.moveClawL4().onTrue(claw.moveClawToL4Command());
     manipulatorControls.scoreL4Algae2().onTrue(new ScoreL4Algae(elevator, claw));
     manipulatorControls.Algae1().onTrue(new Algae1(elevator, claw, drive));
-    manipulatorControls.scoreL4().onTrue(new ScoreL4(elevator, claw));
+    manipulatorControls.scoreL4().onTrue(new ScoreL4Auto(elevator, claw, drive));
     manipulatorControls.runRollersIn().onTrue(claw.runRollersInCommand()).onFalse(claw.stopRollersCommand());
     manipulatorControls.runRollersOut().onTrue(claw.runRollersOutCommand()).onFalse(claw.stopRollersCommand());
     // manipulatorControls.b().onTrue(claw.runRollersOutSlowCommand()).onFalse(claw.stopRollersCommand());
@@ -176,8 +177,7 @@ public class Robot extends TimedRobot {
   }
 
   private void configureSubsystems() {
-    drive = new Drive(TunerConstants.createDrivetrain(), false);
-    drive.resetGyroCommand().schedule();
+    drive = new Drive(TunerConstants.createDrivetrain(), true);
     elevator = new Elevator();
     // elevator.isDrivingPrecarious().whileTrue(drive.setLimitCommand(0.2)).onFalse(drive.setLimitCommand(1)); 
     claw = new Claw();

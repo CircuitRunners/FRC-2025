@@ -24,11 +24,11 @@ public class ScoreL4Auto extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     addRequirements(elevator, claw, drive);
     addCommands(
-      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(-0.75, 0, 0)).withTimeout(1),
+      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(-0.75, 0, 0)).withTimeout(1).andThen(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, 0))),
       new MoveToL4(elevator, claw, drive),
-      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.75, 0, 0)).withTimeout(1),
+      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.75, 0, 0)).withTimeout(1).andThen(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, 0))),
       claw.scoreL4(),
-      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(-0.75, 0, 0)).withTimeout(1),
+      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(-0.75, 0, 0)).withTimeout(1).andThen(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, 0))),
       elevator.moveToBottom()
       );
     //

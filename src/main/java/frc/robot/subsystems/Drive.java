@@ -9,6 +9,8 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveRequest.SysIdSwerveRotation;
 import com.ctre.phoenix6.swerve.SwerveRequest.SysIdSwerveTranslation;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -22,7 +24,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-
+import frc.lib.LimelightHelpers.PoseEstimate;
 import frc.lib.swerve.Swerve;
 import frc.lib.swerve.SwerveConfig;
 import frc.lib.utils.FieldUtil;
@@ -40,6 +42,16 @@ public class Drive extends SubsystemBase {
   private FieldUtil fieldUtil = FieldUtil.getField();
   private boolean sysIdTranslator = true;
   public long setTime;
+
+
+  public static Pose2d reef1 = new Pose2d(6.113, 3.986, Rotation2d.fromDegrees(180)); 
+  public static Pose2d reef2 = new Pose2d(5.304, 2.631, Rotation2d.fromDegrees(210)); 
+  public static Pose2d reef3 = new Pose2d(3.646, 2.582, Rotation2d.fromDegrees(240)); 
+  public static Pose2d reef4 = new Pose2d(2.195, 4.015, Rotation2d.fromDegrees(0)); 
+  public static Pose2d reef5 = new Pose2d(3.686, 5.429, Rotation2d.fromDegrees(30)); 
+  public static Pose2d reef6 = new Pose2d(5.353, 5.429, Rotation2d.fromDegrees(60)); 
+
+  public static Pose2d[] poses = {reef1, reef2, reef3, reef4, reef5, reef6};
   
   private Vision vision;
   private boolean isVision;
@@ -75,17 +87,25 @@ public class Drive extends SubsystemBase {
     forwardLimiter = new SlewRateLimiter(10, -10, 0);
     strafeLimiter = new SlewRateLimiter(10, -10, 0);
     // swerve.setPigeonOffset();
-    if (isVision) {
-      addVisionMeasurement();
-    }
+    // if (isVision) {
+    //   // addVisionMeasurement();
+    // }
+    vision = new Vision((visionMeasurement) -> {});
+    resetToVisionPos();
+  }
+  
+  public void resetToVisionPos() {
+    PoseEstimate poseEstimate = vision.run(swerve.getPigeon2().getRotation2d());
+    swerve.resetPose(poseEstimate.pose);
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    if (isVision) {
-      vision.run(swerve.getPigeon2().getYaw().getValueAsDouble());
-    }
+    PoseEstimate poseEstimate = vision.run(swerve.getPigeon2().getRotation2d());
+    // swerve.addVisionMeasurement(visionMeasurement.pose(), visionMeasurement.timestamp(), visionMeasurement.stdDev());
+    swerve.addVisionMeasurement(poseEstimate.pose, poseEstimate.timestampSeconds);  
+    // addVisionMeasurement();
     SmartDashboard.putNumber("pigeon angle", swerve.getPigeon2().getYaw().getValueAsDouble() % 60);
     SmartDashboard.putNumber("drive limit", limit);
     fieldUtil.setSwerveRobotPose(swerve.getPose2d(), swerve.getModuleStates(), SwerveConstants.modulePositions);
@@ -193,6 +213,28 @@ public class Drive extends SubsystemBase {
       swerve.addVisionMeasurement(visionMeasurement.pose(), visionMeasurement.timestamp(), visionMeasurement.stdDev());
     };
     vision = new Vision(visionMeasurementConsumer);
+  }
+
+  public Command returnFollowCommand() {
+
+    var currentPose = this.getPose();
+    double closestDistance = reef1.getTranslation().getDistance(currentPose.getTranslation());
+    Pose2d closestPose = reef1;
+    for (int i = 1; i < 6; i++) {
+        if (currentPose.getTranslation().getDistance(poses[i].getTranslation()) < closestDistance) {
+          closestDistance = currentPose.getTranslation().getDistance(poses[i].getTranslation());
+          closestPose = poses[i];
+        }
+    }
+    //  "globalConstraints": 
+  //   "maxVelocity": 3.0,
+  //   "maxAcceleration": 3.0,
+  //   "maxAngularVelocity": 540.0,
+  //   "maxAngularAcceleration": 720.0,
+  //   "nominalVoltage": 12.0,
+  //   "unlimited": false
+  //
+    return AutoBuilder.pathfindToPose(closestPose, new PathConstraints(3.0, 3.0, 540.0,720,12.0,false));
   }
 
 }
