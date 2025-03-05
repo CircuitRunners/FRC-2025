@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Volts;
 
+import java.util.Date;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -31,11 +32,14 @@ import frc.robot.Vision.VisionMeasurement;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.io.DriverControls;
 
+import java.time.LocalDate;
+
 public class Drive extends SubsystemBase {
   public static double limit = 0.8;
   private Swerve swerve;
   private FieldUtil fieldUtil = FieldUtil.getField();
   private boolean sysIdTranslator = true;
+  public long setTime;
   
   private Vision vision;
   private boolean isVision;
@@ -113,6 +117,7 @@ public class Drive extends SubsystemBase {
     }
     
     public void driveRobotCentric(ChassisSpeeds speeds){
+      setTime = (new Date()).getTime();
       swerve.setControl(
         SwerveConfig.robotCentric
         .withVelocityX(forwardLimiter.calculate(speeds.vxMetersPerSecond))

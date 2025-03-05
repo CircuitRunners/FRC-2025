@@ -4,10 +4,13 @@
 
 package frc.robot.commands.scoring;
 
+import java.util.Date;
+
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.moving.MoveToL4;
 import frc.robot.subsystems.*;
 
@@ -21,9 +24,11 @@ public class ScoreL4Auto extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     addRequirements(elevator, claw, drive);
     addCommands(
-      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.25, 0, 0)).until(() -> drive.getChassisSpeeds().vxMetersPerSecond <= 0.05),
+      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(-0.75, 0, 0)).withTimeout(1),
+      new MoveToL4(elevator, claw, drive),
+      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.75, 0, 0)).withTimeout(1),
       claw.scoreL4(),
-      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(-0.255, 0, 0)).withTimeout(0.2),
+      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(-0.75, 0, 0)).withTimeout(1),
       elevator.moveToBottom()
       );
     //

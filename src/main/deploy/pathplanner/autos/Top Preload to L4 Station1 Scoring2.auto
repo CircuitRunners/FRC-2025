@@ -7,31 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Top Preload to Zone 2T1"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ScoreL4"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Zone 2T1 to Station 2"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "AutoIntake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Station 2 to Zone 2T2"
+            "pathName": "Top Preload to Zone 3T1"
           }
         },
         {
