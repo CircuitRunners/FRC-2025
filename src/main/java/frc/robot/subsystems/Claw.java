@@ -48,7 +48,7 @@ public class Claw extends SubsystemBase {
         double constD = 0; // derivative coefficient gain
 
         pidController = new PIDController(constP, constI, constD);
-        pidController.setTolerance(2);
+        pidController.setTolerance(5);
 
         clawEncoder = moveMotor.getEncoder();
         targetPos = clawEncoder.getPosition(); // initialize targetPos so PID doesn't try calculating with a null value
@@ -69,7 +69,7 @@ public class Claw extends SubsystemBase {
     }
 
     public boolean isAtTarget(){
-        return pidController.atSetpoint();
+        return (Math.abs(getClawPos() - getTargetPos()) < 5);
     }
 
     public void changeRollerSpd(double speed) {
@@ -115,6 +115,10 @@ public class Claw extends SubsystemBase {
         return changeRollerSpdCommand(1);
     }
 
+    public Command runRollersInCommandAlt() {
+        SmartDashboard.putString("rollers state", "running in");
+        return changeRollerSpdCommand(0.5);
+    }
     public Command runRollersOutCommand() {
         SmartDashboard.putString("rollers state", "running out");
         return changeRollerSpdCommand(-0.5);
@@ -194,6 +198,7 @@ public class Claw extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber("Claw position", clawEncoder.getPosition());
         SmartDashboard.putNumber("Claw target", getTargetPos());
+        SmartDashboard.putBoolean("clawIsAtTarget", isAtTarget());
         SmartDashboard.putNumber("Rollers voltage", roller1Motor.getBusVoltage());
         SmartDashboard.updateValues();
         double output = pidController.calculate(getClawPos(), this.targetPos);

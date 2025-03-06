@@ -176,7 +176,7 @@ public class Drive extends SubsystemBase {
   }
 
   public void zeroGyro() {
-    swerve.getPigeon2().setYaw(0);
+    swerve.getPigeon2().reset();
   }
 
   public Command zeroGyroCommand(){

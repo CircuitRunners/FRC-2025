@@ -44,39 +44,11 @@ public class Robot extends TimedRobot {
   private ManipulatorControls manipulatorControls;
   private Command m_autonomousCommand;
   private SendableChooser<Command> autoChooser = new SendableChooser<>();
-  Thread m_visionThread;
 
 
-  public Robot() {
-    m_visionThread =
-        new Thread(
-            () -> {
-              UsbCamera camera = CameraServer.startAutomaticCapture();
-              camera.setResolution(640, 480);
-
-              CvSink cvSink = CameraServer.getVideo();
-              CvSource outputStream = CameraServer.putVideo("Bumper Stream", 640, 480);
-
-              Mat mat = new Mat();
-
-
-              while (!Thread.interrupted()) {
-
-                if (cvSink.grabFrame(mat) == 0) {
-                  outputStream.notifyError(cvSink.getError());
-                  continue;
-                }
-
-                int imageWidth = mat.cols();
-                int yPosition = mat.rows() / 2; 
-                Imgproc.line(mat, new Point(0, yPosition), new Point(imageWidth, yPosition), new Scalar(0, 255, 0), 5);
-                outputStream.putFrame(mat);
-              }
-            });
-
-    m_visionThread.setDaemon(true);
-    m_visionThread.start();
-  }
+  // public Robot() {
+  //   configureAutos();
+  // }
 
   @Override
   public void robotInit() {
@@ -185,7 +157,7 @@ public class Robot extends TimedRobot {
     driverControls.robotMoveRight().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, -0.4, 0)));
     driverControls.robotMoveLeft().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0.4, 0)));
     driverControls.robotMoveForward().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.7, 0, 0)));
-    driverControls.robotMoveBack().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(-0.4, 0, 0)));
+    driverControls.robotMoveBack().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(-0.7, 0, 0)));
     driverControls.leftTrigger().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, Math.toRadians(2))));
     driverControls.rightTrigger().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, Math.toRadians(2))));
 
@@ -207,11 +179,11 @@ public class Robot extends TimedRobot {
     // manipulatorControls.moveClawL4().onTrue(claw.moveClawToL4Command());
     manipulatorControls.scoreL4Algae2().onTrue(new ScoreL4Algae(elevator, claw));
     manipulatorControls.Algae1().onTrue(new Algae1(elevator, claw, drive));
-    manipulatorControls.scoreL4().onTrue(new ScoreL4Auto(elevator, claw, drive));
+    manipulatorControls.scoreL4().whileTrue(new ScoreL4Auto(elevator, claw, drive));
     manipulatorControls.runRollersIn().onTrue(claw.runRollersInCommand()).onFalse(claw.stopRollersCommand());
     manipulatorControls.runRollersOut().onTrue(claw.runRollersOutCommand()).onFalse(claw.stopRollersCommand());
 
-    manipulatorControls.start().onTrue(elevator.resetTargetPos().alongWith(claw.resetTargetPos()));
+    // manipulatorControls.start().onTrue(new ParallelCommandGroup(elevator.resetTargetPos(), claw.resetTargetPos()));
     // manipulatorControls.b().onTrue(claw.runRollersOutSlowCommand()).onFalse(claw.stopRollersCommand());
 
     //overall controls

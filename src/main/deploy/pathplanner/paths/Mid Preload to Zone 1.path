@@ -16,11 +16,11 @@
     },
     {
       "anchor": {
-        "x": 5.5672500000000005,
+        "x": 5.68425,
         "y": 3.859
       },
       "prevControl": {
-        "x": 5.8172500000000005,
+        "x": 5.93425,
         "y": 3.859
       },
       "nextControl": null,
@@ -28,12 +28,7 @@
       "linkedName": "Reef Zone 1"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.28314960629921254,
-      "rotationDegrees": 178.71083813607626
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -53,7 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 179.9680625565336
   },
   "useDefaultConstraints": true
 }

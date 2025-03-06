@@ -46,7 +46,7 @@ extends SubsystemBase {
         
         //Initialize PID controller with motion constraints
         pidController = new PIDController(kp, ki, kd);
-        pidController.setTolerance(2); //Acceptable error range
+        pidController.setTolerance(5); //Acceptable error range
     }
 
     // Move the elevator to the specified position
@@ -80,7 +80,7 @@ extends SubsystemBase {
     }
 
     public boolean isAtTarget(){
-        return pidController.atSetpoint();
+        return (Math.abs(getElevatorPos() - getTargetPos()) < 5);
     }
 
     public Command moveElevatorCommand(double targetPosition, String stateName) {
@@ -188,8 +188,10 @@ extends SubsystemBase {
         }
 
         @Override
-        public boolean isFinished() {
-            return elevator.isAtTarget();
+        public void end(boolean interrupted) {
+            if (interrupted) {
+                elevator.stop();
+            }
         }
     }
 }

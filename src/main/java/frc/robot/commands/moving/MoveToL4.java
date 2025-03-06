@@ -22,8 +22,8 @@ public class MoveToL4 extends SequentialCommandGroup {
       drive.setLimitCommand(0),
       elevator.moveToL4(), 
       Commands.waitSeconds(0.2)
-        .andThen(claw.runRollersInCommand().withDeadline(Commands.waitSeconds(0.025)))
-        .andThen(claw.moveClawToL4Command())),
-      Commands.waitUntil(() -> claw.isAtTarget() && elevator.isAtTarget()));
+        .andThen(claw.runRollersInCommandAlt().withDeadline(Commands.waitSeconds(0.025)))
+        .andThen(claw.moveClawToL4Command())).withTimeout(1.75)
+      );
   }
 }
