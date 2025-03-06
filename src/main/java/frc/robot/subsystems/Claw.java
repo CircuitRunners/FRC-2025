@@ -48,7 +48,7 @@ public class Claw extends SubsystemBase {
         double constD = 0; // derivative coefficient gain
 
         pidController = new PIDController(constP, constI, constD);
-        pidController.setTolerance(1);
+        pidController.setTolerance(2);
 
         clawEncoder = moveMotor.getEncoder();
         targetPos = clawEncoder.getPosition(); // initialize targetPos so PID doesn't try calculating with a null value
@@ -122,7 +122,7 @@ public class Claw extends SubsystemBase {
 
     public Command runRollersOutSlowCommand() {
         SmartDashboard.putString("rollers state", "running out slow");
-        return changeRollerSpdCommand(-0.5);
+        return changeRollerSpdCommand(-0.3);
     }
 
     public Command stopClawCommand() {
@@ -170,11 +170,14 @@ public class Claw extends SubsystemBase {
         return moveWristCommand(ClawConstants.l4EncoderValue);
     }
 
+    public Command resetTargetPos() {
+        return moveClawToPositionCommand(getClawPos());
+    }
 
     public Command scoreL4() {
         return new ParallelCommandGroup(
             moveClawToHorizontalCommand(),
-            runRollersOutCommand().until(this::isAtTarget)
+            runRollersOutSlowCommand().until(this::isAtTarget)
         );
     }
 

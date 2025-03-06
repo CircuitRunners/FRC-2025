@@ -20,17 +20,16 @@ import frc.robot.subsystems.*;
 public class ScoreL4Auto extends SequentialCommandGroup {
   /** Creates a new ScoreL4. */
   public ScoreL4Auto(Elevator elevator, Claw claw, Drive drive) {
-    // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addRequirements(elevator, claw, drive);
     addCommands(
-      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(-0.75, 0, 0)).withTimeout(1),
+      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(-0.75, 0, 0)).withTimeout(0.75).andThen(drive.brakeCommand()),
       new MoveToL4(elevator, claw, drive),
-      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.75, 0, 0)).withTimeout(1),
+      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.75, 0, 0)).withTimeout(0.75).andThen(drive.brakeCommand()),
       claw.scoreL4(),
-      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(-0.75, 0, 0)).withTimeout(1),
-      elevator.moveToBottom()
+      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(-0.75, 0, 0)).withTimeout(0.75).andThen(drive.brakeCommand()),
+      elevator.moveToL1(),
+      drive.driveFieldCentricCommand(() -> new ChassisSpeeds())
       );
-    //
   }
 }

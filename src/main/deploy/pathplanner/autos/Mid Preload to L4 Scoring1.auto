@@ -5,15 +5,34 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "deadline",
           "data": {
-            "pathName": "Mid Preload to Zone 1"
+            "commands": [
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 1.8
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Mid Preload to Zone 1"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ScoreL4Auto"
           }
         }
       ]
     }
   },
-  "resetOdom": false,
+  "resetOdom": true,
   "folder": null,
   "choreoAuto": false
 }

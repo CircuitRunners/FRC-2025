@@ -15,35 +15,11 @@
           "data": {
             "name": "ScoreL4"
           }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Zone 6T1 to Station 1"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "AutoIntake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Station 1 to Zone 5T2"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ScoreL4"
-          }
         }
       ]
     }
   },
-  "resetOdom": false,
+  "resetOdom": true,
   "folder": null,
   "choreoAuto": false
 }

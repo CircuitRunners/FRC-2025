@@ -7,6 +7,8 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.configs.MountPoseConfigs;
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.swerve.SwerveRequest.SysIdSwerveRotation;
 import com.ctre.phoenix6.swerve.SwerveRequest.SysIdSwerveTranslation;
 
@@ -78,6 +80,7 @@ public class Drive extends SubsystemBase {
     if (isVision) {
       addVisionMeasurement();
     }
+    // resetGyroCommand().execute();
   }
 
   @Override
@@ -148,12 +151,20 @@ public class Drive extends SubsystemBase {
     return runOnce(() -> limit = newLimit);
   }
 
+  public Command increaseLimitCommand() {
+    return setLimitCommand(limit+0.2);
+  }
+
+  public Command decreaseLimitCommand() {
+    return setLimitCommand(limit-0.2);
+  }
+
   public ChassisSpeeds getChassisSpeeds(){
     return swerve.getState().Speeds;
   }
 
   public Command brakeCommand(){
-    return run(this::brake);
+    return runOnce(this::brake);
   }
 
   public Pose2d getPose(){
@@ -165,7 +176,12 @@ public class Drive extends SubsystemBase {
   }
 
   public Command resetGyroCommand(){
-    return run(()->swerve.getPigeon2().reset());
+    return run(()->{
+      var pigeon2 = swerve.getPigeon2();
+      swerve.getPigeon2().getConfigurator().apply(
+        new MountPoseConfigs().withMountPosePitch(pigeon2.getPitch().getValueAsDouble()).withMountPoseRoll(pigeon2.getRoll().getValueAsDouble()).withMountPoseYaw(pigeon2.getYaw().getValueAsDouble())
+      );
+    });
   }
 
   // public Command sysIdDynamic(Direction direction){

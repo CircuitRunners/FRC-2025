@@ -41,6 +41,7 @@ public class Robot extends TimedRobot {
     // DataLogManager.start("logs");
     configureSubsystems();
     configureAutos();
+
   }
   
   @Override
@@ -84,7 +85,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    elevator.resetTargetPos().schedule();
+    elevator.resetTargetPos().execute();;
+    // drive.resetGyroCommand().execute();
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
@@ -127,6 +129,7 @@ public class Robot extends TimedRobot {
     NamedCommands.registerCommand("ScoreL2", new ScoreL2(elevator, claw, drive));
     NamedCommands.registerCommand("ScoreL3", new ScoreL3(elevator, claw, drive));
     NamedCommands.registerCommand("ScoreL4", new ScoreL4Algae(elevator, claw));
+    NamedCommands.registerCommand("ScoreL4Auto", new ScoreL4Auto(elevator, claw, drive));
   }
 
   private void configureBindings() {
@@ -134,12 +137,12 @@ public class Robot extends TimedRobot {
     // ------------------------------- DRIVER CONTROLS ---------------------------------------------------------
     driverControls = new DriverControls(DriverConstants.driverPort);
     drive.setDefaultCommand(drive.driveFieldCentricCommand(() -> SwerveConfig.toChassisSpeeds(driverControls)));
-    // driverControls.increaseLimit().onTrue(drive.increaseLimitCommand());
-    // driverControls.decreaseLimit().onTrue(drive.decreaseLimitCommand());
-    driverControls.start().onTrue(drive.resetGyroCommand());
+    driverControls.increaseLimit().onTrue(drive.increaseLimitCommand());
+    driverControls.decreaseLimit().onTrue(drive.decreaseLimitCommand());
+    // driverControls.start().onTrue(drive.resetGyroCommand());
     driverControls.robotMoveRight().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, -0.4, 0)));
     driverControls.robotMoveLeft().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0.4, 0)));
-    driverControls.robotMoveForward().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.4, 0, 0)));
+    driverControls.robotMoveForward().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.7, 0, 0)));
     driverControls.robotMoveBack().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(-0.4, 0, 0)));
     
 
@@ -161,9 +164,11 @@ public class Robot extends TimedRobot {
     // manipulatorControls.moveClawL4().onTrue(claw.moveClawToL4Command());
     manipulatorControls.scoreL4Algae2().onTrue(new ScoreL4Algae(elevator, claw));
     manipulatorControls.Algae1().onTrue(new Algae1(elevator, claw, drive));
-    manipulatorControls.scoreL4().onTrue(new ScoreL4(elevator, claw));
+    manipulatorControls.scoreL4().onTrue(new ScoreL4Auto(elevator, claw, drive));
     manipulatorControls.runRollersIn().onTrue(claw.runRollersInCommand()).onFalse(claw.stopRollersCommand());
     manipulatorControls.runRollersOut().onTrue(claw.runRollersOutCommand()).onFalse(claw.stopRollersCommand());
+
+    manipulatorControls.start().onTrue(elevator.resetTargetPos().alongWith(claw.resetTargetPos()));
     // manipulatorControls.b().onTrue(claw.runRollersOutSlowCommand()).onFalse(claw.stopRollersCommand());
 
     //overall controls
