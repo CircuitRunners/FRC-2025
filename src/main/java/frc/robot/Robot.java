@@ -26,6 +26,16 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.io.*;
 import frc.robot.subsystems.*;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.CvSink;
+import edu.wpi.first.cscore.CvSource;
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.wpilibj.TimedRobot;
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
+
 public class Robot extends TimedRobot {
   private Drive drive;
   private Elevator elevator;
@@ -34,7 +44,39 @@ public class Robot extends TimedRobot {
   private ManipulatorControls manipulatorControls;
   private Command m_autonomousCommand;
   private SendableChooser<Command> autoChooser = new SendableChooser<>();
+  Thread m_visionThread;
 
+
+  public Robot() {
+    m_visionThread =
+        new Thread(
+            () -> {
+              UsbCamera camera = CameraServer.startAutomaticCapture();
+              camera.setResolution(640, 480);
+
+              CvSink cvSink = CameraServer.getVideo();
+              CvSource outputStream = CameraServer.putVideo("Bumper Stream", 640, 480);
+
+              Mat mat = new Mat();
+
+
+              while (!Thread.interrupted()) {
+
+                if (cvSink.grabFrame(mat) == 0) {
+                  outputStream.notifyError(cvSink.getError());
+                  continue;
+                }
+
+                int imageWidth = mat.cols();
+                int yPosition = mat.rows() / 2; 
+                Imgproc.line(mat, new Point(0, yPosition), new Point(imageWidth, yPosition), new Scalar(0, 255, 0), 5);
+                outputStream.putFrame(mat);
+              }
+            });
+
+    m_visionThread.setDaemon(true);
+    m_visionThread.start();
+  }
 
   @Override
   public void robotInit() {
@@ -144,7 +186,8 @@ public class Robot extends TimedRobot {
     driverControls.robotMoveLeft().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0.4, 0)));
     driverControls.robotMoveForward().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.7, 0, 0)));
     driverControls.robotMoveBack().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(-0.4, 0, 0)));
-    
+    driverControls.leftTrigger().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, Math.toRadians(2))));
+    driverControls.rightTrigger().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, Math.toRadians(2))));
 
     // driverControls.a().whileTrue(PathPlannerUtil.getAutoCommand("Mid Preload to L4"));
 
