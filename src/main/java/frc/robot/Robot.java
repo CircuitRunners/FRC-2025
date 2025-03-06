@@ -139,7 +139,7 @@ public class Robot extends TimedRobot {
     drive.setDefaultCommand(drive.driveFieldCentricCommand(() -> SwerveConfig.toChassisSpeeds(driverControls)));
     driverControls.increaseLimit().onTrue(drive.increaseLimitCommand());
     driverControls.decreaseLimit().onTrue(drive.decreaseLimitCommand());
-    // driverControls.start().onTrue(drive.resetGyroCommand());
+    driverControls.start().onTrue(drive.zeroGyroCommand());
     driverControls.robotMoveRight().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, -0.4, 0)));
     driverControls.robotMoveLeft().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0.4, 0)));
     driverControls.robotMoveForward().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.7, 0, 0)));
@@ -182,7 +182,7 @@ public class Robot extends TimedRobot {
 
   private void configureSubsystems() {
     drive = new Drive(TunerConstants.createDrivetrain(), false);
-    drive.resetGyroCommand().schedule();
+    drive.zeroGyro();
     elevator = new Elevator();
     // elevator.isDrivingPrecarious().whileTrue(drive.setLimitCommand(0.2)).onFalse(drive.setLimitCommand(1)); 
     claw = new Claw();

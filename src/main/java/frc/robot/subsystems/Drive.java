@@ -175,13 +175,12 @@ public class Drive extends SubsystemBase {
     swerve.resetPose(pose);
   }
 
-  public Command resetGyroCommand(){
-    return run(()->{
-      var pigeon2 = swerve.getPigeon2();
-      swerve.getPigeon2().getConfigurator().apply(
-        new MountPoseConfigs().withMountPosePitch(pigeon2.getPitch().getValueAsDouble()).withMountPoseRoll(pigeon2.getRoll().getValueAsDouble()).withMountPoseYaw(pigeon2.getYaw().getValueAsDouble())
-      );
-    });
+  public void zeroGyro() {
+    swerve.getPigeon2().setYaw(0);
+  }
+
+  public Command zeroGyroCommand(){
+    return runOnce(this::zeroGyro);
   }
 
   // public Command sysIdDynamic(Direction direction){
