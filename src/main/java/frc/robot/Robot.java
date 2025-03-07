@@ -132,6 +132,10 @@ public class Robot extends TimedRobot {
 
   private void configureAutos() {
     PathPlannerUtil.configure(drive, true);
+    NamedCommands.registerCommand("do nothing", Commands.none());
+    autoChooser = AutoBuilder.buildAutoChooser("do nothing");
+    SmartDashboard.putData("Auto Chooser", autoChooser);
+    
     NamedCommands.registerCommand("MoveToIntake", new MoveToIntake(elevator, claw, drive));
     NamedCommands.registerCommand("AutoIntake", claw.autoIntakeCommand());
     NamedCommands.registerCommand("ScoreL1", new ScoreL1(elevator, claw,  drive));
@@ -139,10 +143,6 @@ public class Robot extends TimedRobot {
     NamedCommands.registerCommand("ScoreL3", new ScoreL3(elevator, claw, drive));
     NamedCommands.registerCommand("ScoreL4", new ScoreL4Algae(elevator, claw));
     NamedCommands.registerCommand("ScoreL4Auto", new ScoreL4Auto(elevator, claw, drive));
-    NamedCommands.registerCommand("do nothing", Commands.none());
-    autoChooser = AutoBuilder.buildAutoChooser("do nothing");
-    SmartDashboard.putData("Auto Chooser", autoChooser);
-    
     //register named commands
   }
 

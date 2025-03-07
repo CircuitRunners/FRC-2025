@@ -8,23 +8,23 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.855270015191996,
-        "y": 7.170412812598079
+        "x": 6.7544407894736835,
+        "y": 7.941036184210526
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.783,
-        "y": 5.565499999999999
+        "x": 4.031496710526316,
+        "y": 5.169983552631579
       },
       "prevControl": {
-        "x": 3.2352299419899087,
-        "y": 5.342115605918955
+        "x": 3.1913169588819734,
+        "y": 6.62521756997018
       },
       "nextControl": null,
-      "isLocked": true,
+      "isLocked": false,
       "linkedName": "Reef Zone 3T1"
     }
   ],
