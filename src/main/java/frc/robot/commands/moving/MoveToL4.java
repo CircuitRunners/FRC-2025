@@ -19,7 +19,6 @@ public class MoveToL4 extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     addRequirements(elevator, claw);
     addCommands(new ParallelCommandGroup(
-      drive.setLimitCommand(0),
       elevator.moveToL4(), 
       Commands.waitSeconds(0.2)
         .andThen(claw.runRollersInCommandAlt().withDeadline(Commands.waitSeconds(0.025)))

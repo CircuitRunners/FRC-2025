@@ -18,6 +18,6 @@ public class MoveToL1 extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addRequirements(elevator, claw, drive);
-    addCommands(new ParallelCommandGroup(drive.setLimitCommand(0.7), elevator.moveToL1(), Commands.waitSeconds(0.2).andThen(claw.moveClawToHorizontalCommand())), Commands.waitUntil(() -> claw.isAtTarget() && elevator.isAtTarget()));
+    addCommands(new ParallelCommandGroup(elevator.moveToL1(), Commands.waitSeconds(0.2).andThen(claw.moveClawToHorizontalCommand())), Commands.waitUntil(() -> claw.isAtTarget() && elevator.isAtTarget()));
   }
 }
