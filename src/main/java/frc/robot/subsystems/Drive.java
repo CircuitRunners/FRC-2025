@@ -37,7 +37,7 @@ import frc.robot.io.DriverControls;
 import java.time.LocalDate;
 
 public class Drive extends SubsystemBase {
-  public static double limit = 0.8;
+  public static double limit = 0.7;
   private Swerve swerve;
   private FieldUtil fieldUtil = FieldUtil.getField();
   private boolean sysIdTranslator = true;

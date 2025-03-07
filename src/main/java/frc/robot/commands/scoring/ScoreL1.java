@@ -16,7 +16,7 @@ public class ScoreL1 extends SequentialCommandGroup {
   public ScoreL1(Elevator elevator, Claw claw, Drive drive) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addRequirements(elevator, claw);
+    addRequirements(elevator, claw, drive);
     addCommands(new MoveToL1(elevator, claw, drive), claw.runRollersInCommand());
   }
 }

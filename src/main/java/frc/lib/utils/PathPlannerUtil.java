@@ -51,8 +51,8 @@ public class PathPlannerUtil {
         //     new ReplanningConfig(true, true)
         // );
         PathFollowingController controller = simulation ? new PPHolonomicDriveController(
-            new PIDConstants(5, 0, 0),
-            new PIDConstants(5, 0, 0)) : new PPHolonomicDriveController(SwerveConfig.translationPID,SwerveConfig.rotationPID); 
+            new PIDConstants(4, 0, 0),
+            new PIDConstants(4, 0, 0)) : new PPHolonomicDriveController(SwerveConfig.translationPID,SwerveConfig.rotationPID); 
         // ModuleConfig moduleConfig = new ModuleConfig(TunerConstants.kWheelRadius, TunerConstants.kSpeedAt12Volts, SwerveConstants.wheelCOF, DCMotor.getKrakenX60(1), TunerConstants.kSlipCurrent, 1); 
         // RobotConfig robotConfig = new RobotConfig(SwerveConstants.robotMass, SwerveConstants.MOI,moduleConfig, Meters.convertFrom(28, Inches));
 

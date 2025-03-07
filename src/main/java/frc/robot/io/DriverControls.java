@@ -21,7 +21,7 @@ public class DriverControls extends CommandXboxController{
 
     public double driveStrafe(){
         double input = MathUtil.applyDeadband(-getLeftX(), DriverConstants.stickDeadband);
-        return input * Drive.limit * SwerveConstants.maxModuleVelocityMPS;
+        return input * Drive.limit * SwerveConstants.maxVelocityMPS;
     }
 
     public double driveRotation(){
