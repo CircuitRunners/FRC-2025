@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.lib.swerve.SwerveConfig;
 import frc.lib.utils.PathPlannerUtil;
+import frc.robot.Constants.ClawConstants;
 import frc.robot.Constants.DriverConstants;
 import frc.robot.commands.moving.*;
 import frc.robot.commands.scoring.*;
@@ -131,10 +132,6 @@ public class Robot extends TimedRobot {
   }
 
   private void configureAutos() {
-    PathPlannerUtil.configure(drive, true);
-    NamedCommands.registerCommand("do nothing", Commands.none());
-    autoChooser = AutoBuilder.buildAutoChooser("do nothing");
-    SmartDashboard.putData("Auto Chooser", autoChooser);
     
     NamedCommands.registerCommand("MoveToIntake", new MoveToIntake(elevator, claw, drive));
     NamedCommands.registerCommand("AutoIntake", claw.autoIntakeCommand());
@@ -143,7 +140,13 @@ public class Robot extends TimedRobot {
     NamedCommands.registerCommand("ScoreL3", new ScoreL3(elevator, claw, drive));
     NamedCommands.registerCommand("ScoreL4", new ScoreL4Algae(elevator, claw));
     NamedCommands.registerCommand("ScoreL4Auto", new ScoreL4Auto(elevator, claw, drive));
-    //register named commands
+    NamedCommands.registerCommand("do nothing", Commands.none());
+    NamedCommands.registerCommand("brake", drive.brakeCommand());
+    PathPlannerUtil.configure(drive, false);
+
+    autoChooser = AutoBuilder.buildAutoChooser("do nothing" );
+    SmartDashboard.putData("Auto Chooser", autoChooser);
+
   }
 
   private void configureBindings() {
@@ -182,6 +185,9 @@ public class Robot extends TimedRobot {
     manipulatorControls.scoreL4().whileTrue(new ScoreL4Auto(elevator, claw, drive));
     manipulatorControls.runRollersIn().onTrue(claw.runRollersInCommand()).onFalse(claw.stopRollersCommand());
     manipulatorControls.runRollersOut().onTrue(claw.runRollersOutCommand()).onFalse(claw.stopRollersCommand());
+    manipulatorControls.rightTrigger().onTrue(claw.runManualCommand(0.1)).onFalse(claw.stopClawCommand());
+    manipulatorControls.leftTrigger().onTrue(claw.runManualCommand(-0.1)).onFalse(claw.stopClawCommand());
+    manipulatorControls.start().onTrue(Commands.runOnce(() -> ClawConstants.encoderOffset = claw.getClawPos()));
 
     // manipulatorControls.start().onTrue(new ParallelCommandGroup(elevator.resetTargetPos(), claw.resetTargetPos()));
     // manipulatorControls.b().onTrue(claw.runRollersOutSlowCommand()).onFalse(claw.stopRollersCommand());

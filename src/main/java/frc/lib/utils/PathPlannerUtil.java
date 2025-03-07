@@ -86,7 +86,6 @@ public class PathPlannerUtil {
             drive
         );
 
-        NamedCommands.registerCommand("brake", drive.brakeCommand());
     }
 
     public static Command getAutoCommand(String name){

@@ -30,6 +30,7 @@ public class Claw extends SubsystemBase {
 
     private double targetPos;
     private String targetState;
+    private boolean manual;
 
     public Claw() {
         moveMotor = new SparkMax(ClawConstants.moveMotorPort, MotorType.kBrushless);
@@ -150,6 +151,7 @@ public class Claw extends SubsystemBase {
     }
 
     public void moveToPos(double targetPos) {
+        this.manual = false;
         this.targetPos = targetPos;
         pidController.setSetpoint(targetPos);
     }
@@ -190,6 +192,7 @@ public class Claw extends SubsystemBase {
     public Command runManualCommand(double speed){
         
         return run(() -> {
+            this.manual = true;
             SmartDashboard.putString("claw state", "moving");
             moveMotor.set(speed);});
     }
@@ -201,8 +204,10 @@ public class Claw extends SubsystemBase {
         SmartDashboard.putBoolean("clawIsAtTarget", isAtTarget());
         SmartDashboard.putNumber("Rollers voltage", roller1Motor.getBusVoltage());
         SmartDashboard.updateValues();
-        double output = pidController.calculate(getClawPos(), this.targetPos);
-        moveMotor.set(output);
+        if(this.manual == false) {
+            double output = pidController.calculate(getClawPos(), this.targetPos);
+            moveMotor.set(output);
+        }
         SmartDashboard.updateValues();
     }
 
