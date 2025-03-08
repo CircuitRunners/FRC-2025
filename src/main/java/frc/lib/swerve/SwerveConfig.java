@@ -98,7 +98,7 @@ public class SwerveConfig {
   //   return new Swerve(null, null, null, null, frontLeft, frontRight, backLeft, backRight);
   // }
 
-  public static final FieldCentric drive = new FieldCentric().withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+  // public static final FieldCentric drive = new FieldCentric().withDriveRequestType(DriveRequestType.OpenLoopVoltage);
   public static final RobotCentric robotCentric = new RobotCentric();
   public static final SwerveDriveBrake brake = new SwerveDriveBrake();
   public static final PointWheelsAt pointWheelsAt = new PointWheelsAt();

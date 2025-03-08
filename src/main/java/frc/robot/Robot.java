@@ -6,6 +6,10 @@ package frc.robot;
 
 import java.util.function.Supplier;
 
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+// import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveModule.DriveRequestType;
+// import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveRequest.FieldCentric;
+import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
@@ -156,8 +160,16 @@ public class Robot extends TimedRobot {
   private void configureBindings() {
     
     // ------------------------------- DRIVER CONTROLS ---------------------------------------------------------
+    
+    SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
+    .withDriveRequestType(DriveRequestType.OpenLoopVoltage).withDeadband(DriverConstants.stickDeadband);
     driverControls = new DriverControls(DriverConstants.driverPort);
-    drive.setDefaultCommand(drive.driveFieldCentricCommand(() -> SwerveConfig.toChassisSpeeds(driverControls)));
+    drive.setDefaultCommand(drive.driveFieldCentricCommand(() -> 
+      driveRequest
+        .withVelocityX(driverControls.driveForward())
+        .withVelocityY(driverControls.driveStrafe())
+        .withRotationalRate(driverControls.driveRotation())  
+    ));
     driverControls.increaseLimit().onTrue(drive.increaseLimitCommand());
     driverControls.decreaseLimit().onTrue(drive.decreaseLimitCommand());
     driverControls.start().onTrue(drive.zeroGyroCommand());
