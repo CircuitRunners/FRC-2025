@@ -24,6 +24,7 @@ extends SubsystemBase {
     private double targetPos;
     private String targetState;
     private boolean running;
+    public boolean manual;
 
     public Elevator(){
         //Initialize motors with correct ports
@@ -57,7 +58,7 @@ extends SubsystemBase {
     }
 
     public Command resetTargetPos() {
-        return moveElevatorCommand(getElevatorPos(), "current");
+        return runOnce(() -> targetPos = getElevatorPos());
     }
 
     public double getElevatorPos () {
@@ -74,9 +75,11 @@ extends SubsystemBase {
 
     public void stop() {
         SmartDashboard.putString("elevator state", "stopped");
-        elevatorSparkMax1.setVoltage(0);       
-        elevatorSparkMax1.stopMotor();
-        elevatorSparkMax2.stopMotor();
+        // elevatorSparkMax1.stopMotor();
+        elevatorSparkMax1.setVoltage(0);
+        elevatorSparkMax2.setVoltage(0);
+        resetTargetPos();
+        manual = false;
     }
 
     public boolean isAtTarget(){
@@ -139,8 +142,14 @@ extends SubsystemBase {
 
     public Command moveElevatorDown() {
         return run(() -> {
+            this.manual=true;
             SmartDashboard.putString("state", "moving");
-            elevatorSparkMax1.set(0.5);});
+            elevatorSparkMax1.setVoltage(3);});
+    }
+
+    public Command resetPos(){
+        return runOnce(
+            () -> elevatorEncoder.setPosition(ElevatorConstants.minEncoderValue));
     }
 
     public boolean isElevatorAtBottom() {
@@ -153,8 +162,10 @@ extends SubsystemBase {
 
     @Override
     public void periodic(){
-        var output = pidController.calculate(getElevatorPos(), this.targetPos);
-        elevatorSparkMax1.set(output);
+        if (manual == false) {
+            var output = pidController.calculate(getElevatorPos(), this.targetPos);
+            elevatorSparkMax1.set(output);
+        }
 
         SmartDashboard.putNumber("elevator position",getElevatorPos());
         SmartDashboard.putNumber("elevator target",getTargetPos());
@@ -163,7 +174,7 @@ extends SubsystemBase {
         SmartDashboard.putString("elevator state", "moving ");
         // SmartDashboard.putString("elevator target state", targetState);
         SmartDashboard.putNumber("motor current", elevatorSparkMax1.getOutputCurrent());
-        SmartDashboard.putNumber("output", output);
+        // SmartDashboard.putNumber("output", output);
         SmartDashboard.putBoolean("running", running);
         SmartDashboard.updateValues();
     }

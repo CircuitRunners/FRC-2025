@@ -6,6 +6,10 @@ package frc.robot;
 
 import java.util.function.Supplier;
 
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+// import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveModule.DriveRequestType;
+// import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveRequest.FieldCentric;
+import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
@@ -21,6 +25,7 @@ import frc.lib.swerve.SwerveConfig;
 import frc.lib.utils.PathPlannerUtil;
 import frc.robot.Constants.ClawConstants;
 import frc.robot.Constants.DriverConstants;
+import frc.robot.Constants.SwerveConstants;
 import frc.robot.commands.moving.*;
 import frc.robot.commands.scoring.*;
 import frc.robot.generated.TunerConstants;
@@ -144,7 +149,10 @@ public class Robot extends TimedRobot {
     NamedCommands.registerCommand("brake", drive.brakeCommand());
     PathPlannerUtil.configure(drive, true);
 
-    autoChooser = AutoBuilder.buildAutoChooser("do nothing" );
+    autoChooser = AutoBuilder.buildAutoChooser("taxi");
+    autoChooser.addOption("long taxi", drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.6 * SwerveConstants.maxVelocityMPS, 0, 0)).withTimeout(7));
+    autoChooser.setDefaultOption("scoreL4 auto no pathplanner", drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.75, 0, 0)).withTimeout(3).andThen(new ScoreL4Auto(elevator, claw, drive)));
+    
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
   }
@@ -152,8 +160,16 @@ public class Robot extends TimedRobot {
   private void configureBindings() {
     
     // ------------------------------- DRIVER CONTROLS ---------------------------------------------------------
+    
+    SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
+    .withDriveRequestType(DriveRequestType.OpenLoopVoltage).withDeadband(DriverConstants.stickDeadband);
     driverControls = new DriverControls(DriverConstants.driverPort);
-    drive.setDefaultCommand(drive.driveFieldCentricCommand(() -> SwerveConfig.toChassisSpeeds(driverControls)));
+    drive.setDefaultCommand(drive.driveFieldCentricCommand(() -> 
+      driveRequest
+        .withVelocityX(driverControls.driveForward())
+        .withVelocityY(driverControls.driveStrafe())
+        .withRotationalRate(driverControls.driveRotation())  
+    ));
     driverControls.increaseLimit().onTrue(drive.increaseLimitCommand());
     driverControls.decreaseLimit().onTrue(drive.decreaseLimitCommand());
     driverControls.start().onTrue(drive.zeroGyroCommand());
@@ -187,7 +203,7 @@ public class Robot extends TimedRobot {
     manipulatorControls.runRollersOut().onTrue(claw.runRollersOutCommand()).onFalse(claw.stopRollersCommand());
     manipulatorControls.rightTrigger().onTrue(claw.runManualCommand(0.1)).onFalse(claw.stopClawCommand());
     manipulatorControls.leftTrigger().onTrue(claw.runManualCommand(-0.1)).onFalse(claw.stopClawCommand());
-    manipulatorControls.start().onTrue(Commands.runOnce(() -> ClawConstants.encoderOffset = claw.getClawPos()));
+    manipulatorControls.start().whileTrue(elevator.moveElevatorDown()).onFalse(elevator.stopCommand().andThen(elevator.resetPos()));
 
     // manipulatorControls.start().onTrue(new ParallelCommandGroup(elevator.resetTargetPos(), claw.resetTargetPos()));
     // manipulatorControls.b().onTrue(claw.runRollersOutSlowCommand()).onFalse(claw.stopRollersCommand());

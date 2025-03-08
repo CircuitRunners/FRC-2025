@@ -14,6 +14,10 @@ public class ManipulatorControls extends CommandXboxController{
         super(port);
     }
 
+    // public Trigger elevatorManualUp() {
+    //     return new Trigger()
+    // }
+
     //elevator controls
     public Trigger moveElevatorL4(){
         return povUp();

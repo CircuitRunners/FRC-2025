@@ -9,6 +9,8 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.ctre.phoenix6.hardware.Pigeon2;
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.SysIdSwerveRotation;
 import com.ctre.phoenix6.swerve.SwerveRequest.SysIdSwerveTranslation;
 
@@ -31,6 +33,7 @@ import frc.lib.utils.FieldUtil;
 import frc.lib.utils.PathPlannerUtil;
 import frc.robot.Vision;
 import frc.robot.Vision.VisionMeasurement;
+import frc.robot.Constants.DriverConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.io.DriverControls;
 
@@ -45,6 +48,7 @@ public class Drive extends SubsystemBase {
   
   private Vision vision;
   private boolean isVision;
+  private SwerveRequest.FieldCentric driveRequest;
   // private final SysIdSwerveTranslation translation = new SysIdSwerveTranslation();
   // private final SysIdRoutine sysIdTranslation = new SysIdRoutine(
   //   new SysIdRoutine.Config(
@@ -71,6 +75,7 @@ public class Drive extends SubsystemBase {
   private SlewRateLimiter forwardLimiter, strafeLimiter;
   /** Creates a new Drive */
   public Drive(Swerve swerve, boolean isVision) {
+    
     SignalLogger.setPath("logs/sysid/drive");
     this.swerve = swerve;
 
@@ -108,16 +113,9 @@ public class Drive extends SubsystemBase {
   /** 
    * @param speeds
    */
-  public void driveFieldCentric(ChassisSpeeds speeds){
-    swerve.setControl(
-      SwerveConfig.drive
-      .withVelocityX(forwardLimiter.calculate(speeds.vxMetersPerSecond))
-      .withVelocityY(strafeLimiter.calculate(speeds.vyMetersPerSecond))
-      // .withVelocityX(speeds.vxMetersPerSecond)
-      // .withVelocityY(speeds.vyMetersPerSecond)
-      .withRotationalRate(speeds.omegaRadiansPerSecond * 0.5)
-      );
-    }
+  public void driveFieldCentric(SwerveRequest.FieldCentric driveRequest){
+      swerve.setControl(driveRequest);
+  }
     
     public void driveRobotCentric(ChassisSpeeds speeds){
       setTime = (new Date()).getTime();
@@ -139,8 +137,8 @@ public class Drive extends SubsystemBase {
     return swerve.getPose2d().getRotation();
   }
 
-  public Command driveFieldCentricCommand(Supplier<ChassisSpeeds> chassisSpeeds){
-    return run(() -> driveFieldCentric(chassisSpeeds.get()));
+  public Command driveFieldCentricCommand(Supplier<SwerveRequest.FieldCentric> driverRequest){
+    return run(() -> driveFieldCentric(driverRequest.get()));
   }
 
   public Command driveRobotCentricCommand(Supplier<ChassisSpeeds> chassisSpeeds){
