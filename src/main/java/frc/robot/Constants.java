@@ -132,9 +132,9 @@ public final class Constants {
 
     /**Radians per Second */
     public static final double maxAngularVelocityRPS = 10.0;//Must be tuned to specific robot
-    public static final double maxAngularAccelerationRPSSq = 5.0;//Must be tuned to specific robot
+    public static final double maxAngularAccelerationRPSSq = 3.0;//Must be tuned to specific robot
 
-    public static final double slipCurrent = 300;
+    public static final double slipCurrent = TunerConstants.kSlipCurrent.magnitude();
     public static final double steerInertia = TunerConstants.kSteerInertia.baseUnitMagnitude();
     public static final double driveInertia = TunerConstants.kDriveInertia.baseUnitMagnitude();
     public static final double couplingGearRatio = TunerConstants.kCoupleRatio;
