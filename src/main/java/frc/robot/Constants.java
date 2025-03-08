@@ -229,7 +229,7 @@ public final class Constants {
     public static final double l4EncoderValue = 0; //currently set with Neo Encoder
   }
   public static final class VisionConstants{
-    public static final AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
+    public static final AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
     public static final Transform3d frontCamTransform = new Transform3d();
     public static final Transform3d backCamTransform = new Transform3d();
   }
@@ -237,7 +237,7 @@ public final class Constants {
    public class FieldConstants{
     public static final Distance kFieldLength = Meters.of(16.54);
     public static final Distance kFieldWidth = Meters.of(8.21);
-    public static final AprilTagFieldLayout kFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
+    public static final AprilTagFieldLayout kFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
    }
 
    public static class ElevatorConstants{
@@ -245,7 +245,7 @@ public final class Constants {
     public static final int elevatorPort2 = 22;
     
     
-    public static final double encoderDifference = 40.571014404296875; // tune specifically
+    public static double encoderDifference = 40.571014404296875; // tune specifically
     public static final double maxEncoderValue = -73.50224304199219 - encoderDifference; // tune specifically
     public static final double minEncoderValue = 0;
     public static final double l1EncoderValue = 2.857138395309448 - encoderDifference; // tune specifically
