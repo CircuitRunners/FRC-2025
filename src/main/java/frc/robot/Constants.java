@@ -36,10 +36,8 @@ import edu.wpi.first.units.DistanceUnit;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.measure.Distance;
 //Swerves and utils
-import frc.lib.swerve.SwerveModuleConstants;
-import frc.lib.swerve.COTSFalconSwerveConstants;
-import frc.lib.utils.AllianceFlipUtil;
 import frc.robot.generated.TunerConstants;
+import swervelib.math.Matter;
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -52,15 +50,12 @@ public final class Constants {
   public static class SwerveConstants{
     public static final int pigeonId = 1;
     public static final boolean inverGyro = true;
-    
-    public static final COTSFalconSwerveConstants chosenModule = COTSFalconSwerveConstants.SDSMK4i(COTSFalconSwerveConstants.driveGearRatios.SDSMK4i_L2);
 
     /**
      * Drivetrain constants: must be tuned to specific robot
      */
     public final static double trackWidth = Units.inchesToMeters(28);
     public final static double wheelBase = Units.inchesToMeters(28);
-    public static final double wheelCircumference = chosenModule.wheelCircumference;
 
     /**Swerve kinematics
      * Don't change unless you're not doing a 4 module drive
@@ -72,15 +67,6 @@ public final class Constants {
       Mod3.position);
     
     /** Module Gear Ratios */
-    public static final double driveGearRatio = chosenModule.driveGearRatio;
-    public static final double angleGearRatio = chosenModule.angleGearRatio;
-
-    /**Motor Inverts*/
-    public static final boolean angleMotorInvert = chosenModule.angleMotorInvert;
-    public static final boolean driveMotorInvert = chosenModule.driveMotorInvert;
-
-    /** Angle encoder invert */
-    public static final boolean canCoderInvert = chosenModule.canCoderInvert;
 
     /**Swerve Current Limiting */
     public static final int angleContinuousCurrentLimit = 25;
@@ -155,7 +141,6 @@ public final class Constants {
       public static final int canCoderID = 0;
 
       public static final Rotation2d angleOffset = Rotation2d.fromDegrees(TunerConstants.kFrontLeftEncoderOffset.baseUnitMagnitude());
-      public static final SwerveModuleConstants constants = new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
       public static final Translation2d position = new Translation2d(driveBaseRadiusMeter/2.0,wheelBase/2.0);//front left +x,+y
     }
 
@@ -166,7 +151,6 @@ public final class Constants {
       public static final int angleMotorID = 3;
       public static final int canCoderID = 1;
       public static final Rotation2d angleOffset = Rotation2d.fromDegrees(TunerConstants.kFrontRightEncoderOffset.baseUnitMagnitude());
-      public static final SwerveModuleConstants constants = new SwerveModuleConstants(driveMotorID, angleMotorID,canCoderID, angleOffset);
       public static final Translation2d position = new Translation2d(driveBaseRadiusMeter / 2.0, -wheelBase / 2.0); //front right is +x, -y
     }
   
@@ -178,7 +162,6 @@ public final class Constants {
       public static final int canCoderID = 2;
 
       public static final Rotation2d angleOffset = Rotation2d.fromDegrees(TunerConstants.kBackLeftEncoderOffset.baseUnitMagnitude());
-      public static final SwerveModuleConstants constants = new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID,angleOffset);
       public static final Translation2d position = new Translation2d(driveBaseRadiusMeter/-2.0, wheelBase/2.0);//Back left -x,+y
     }
   
@@ -190,7 +173,6 @@ public final class Constants {
       public static final int canCoderID = 3;
 
       public static final Rotation2d angleOffset = Rotation2d.fromDegrees(TunerConstants.kBackRightEncoderOffset.baseUnitMagnitude());
-      public static final SwerveModuleConstants constants = new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
       public static final Translation2d position = new Translation2d(-driveBaseRadiusMeter/2.0,-wheelBase/2.0);// -x,-y
     }
   
@@ -272,5 +254,38 @@ public final class Constants {
       public static double algaeValue = 40 / 5 - encoderOffset;
       public static double coralSensorRange = 0.5; 
     }
+
+
+// STUFF FOR YAGSL
+  public static final double ROBOT_MASS = (148 - 20.3) * 0.453592; // 32lbs * kg per pound
+  public static final Matter CHASSIS    = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
+  public static final double LOOP_TIME  = 0.13; //s, 20ms + 110ms sprk max velocity lag
+  public static final double MAX_SPEED  = Units.feetToMeters(14.5);
+  // Maximum speed of the robot in meters per second, used to limit acceleration.
+
+//  public static final class AutonConstants
+//  {
+//
+//    public static final PIDConstants TRANSLATION_PID = new PIDConstants(0.7, 0, 0);
+//    public static final PIDConstants ANGLE_PID       = new PIDConstants(0.4, 0, 0.01);
+//  }
+
+  public static final class DrivebaseConstants
+  {
+
+    // Hold time on motor brakes when disabled
+    public static final double WHEEL_LOCK_TIME = 10; // seconds
+  }
+
+  public static class OperatorConstants
+  {
+
+    // Joystick Deadband
+    public static final double DEADBAND        = 0.1;
+    public static final double LEFT_Y_DEADBAND = 0.1;
+    public static final double RIGHT_X_DEADBAND = 0.1;
+    public static final double TURN_CONSTANT    = 6;
+  }
+
 }
 

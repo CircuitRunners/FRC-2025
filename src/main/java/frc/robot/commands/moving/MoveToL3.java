@@ -14,7 +14,7 @@ import frc.robot.subsystems.*;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class MoveToL3 extends SequentialCommandGroup {
   /** Creates a new MoveToL3. */
-  public MoveToL3(Elevator elevator, Claw claw, Drive drive) {
+  public MoveToL3(Elevator elevator, Claw claw) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addRequirements(elevator, claw);

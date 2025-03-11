@@ -14,10 +14,10 @@ import frc.robot.subsystems.*;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class MoveToIntake extends SequentialCommandGroup {
   /** Creates a new MoveToIntake. */
-  public MoveToIntake(Elevator elevator, Claw claw, Drive drive) {
+  public MoveToIntake(Elevator elevator, Claw claw) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addRequirements(elevator, claw, drive);
+    addRequirements(elevator, claw);
     // addCommands(
     //   claw.moveClawToIntakeCommand(), Commands.waitUntil(() -> claw.isAtTarget()).andThen(elevator.moveToBottom())
     // );
@@ -30,7 +30,6 @@ public class MoveToIntake extends SequentialCommandGroup {
     // )
     // )
     addCommands(new SequentialCommandGroup(
-      drive.setLimitCommand(0.8),
       claw.moveClawToIntakeCommand(),
       elevator.moveToBottom()
     ));

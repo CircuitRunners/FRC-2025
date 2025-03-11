@@ -14,10 +14,10 @@ import frc.robot.subsystems.*;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class MoveToL1 extends SequentialCommandGroup {
   /** Creates a new MoveToL1. */
-  public MoveToL1(Elevator elevator, Claw claw, Drive drive) {
+  public MoveToL1(Elevator elevator, Claw claw) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addRequirements(elevator, claw, drive);
+    addRequirements(elevator, claw);
     addCommands(new ParallelCommandGroup(elevator.moveToL1(), Commands.waitSeconds(0.2).andThen(claw.moveClawToHorizontalCommand())), Commands.waitUntil(() -> claw.isAtTarget() && elevator.isAtTarget()));
   }
 }

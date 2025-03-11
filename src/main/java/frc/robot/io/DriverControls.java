@@ -5,7 +5,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriverConstants;
 import frc.robot.Constants.SwerveConstants;
-import frc.robot.subsystems.Drive;
 
 
 public class DriverControls extends CommandXboxController{
@@ -16,16 +15,16 @@ public class DriverControls extends CommandXboxController{
 
     public double driveForward(){
         double input = MathUtil.applyDeadband(-getLeftY(), DriverConstants.stickDeadband);
-        return input * Drive.limit * SwerveConstants.maxVelocityMPS; 
+        return input; 
     }
 
     public double driveStrafe(){
         double input = MathUtil.applyDeadband(-getLeftX(), DriverConstants.stickDeadband);
-        return input * Drive.limit * SwerveConstants.maxVelocityMPS;
+        return input;
     }
 
     public double driveRotation(){
-        return MathUtil.applyDeadband(-getRightX(), DriverConstants.stickDeadband) * SwerveConstants.maxModuleVelocityMPS;
+        return MathUtil.applyDeadband(-getRightX(), DriverConstants.stickDeadband);
     }
 
     public Trigger resetGyro(){

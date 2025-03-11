@@ -13,10 +13,10 @@ import frc.robot.subsystems.*;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class ScoreL2 extends SequentialCommandGroup {
   /** Creates a new ScoreL2. */
-  public ScoreL2(Elevator elevator, Claw claw, Drive drive) {
+  public ScoreL2(Elevator elevator, Claw claw) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addRequirements(elevator, claw, drive);
-    addCommands(new MoveToL2(elevator, claw, drive), claw.runRollersInCommand());
+    addRequirements(elevator, claw);
+    addCommands(new MoveToL2(elevator, claw), claw.runRollersInCommand());
   }
 }
