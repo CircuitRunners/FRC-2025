@@ -13,6 +13,7 @@ import java.io.File;
 // import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -66,15 +67,9 @@ public class Robot extends TimedRobot {
   private SendableChooser<Command> autoChooser = new SendableChooser<>();
 
 
-  public static Pose2d reef1 = new Pose2d(6.113, 3.986, Rotation2d.fromDegrees(180)); 
-  public static Pose2d reef2 = new Pose2d(5.304, 2.631, Rotation2d.fromDegrees(30)); 
-  public static Pose2d reef3 = new Pose2d(3.646, 2.582, Rotation2d.fromDegrees(60)); 
-  public static Pose2d reef4 = new Pose2d(2.195, 4.015, Rotation2d.fromDegrees(0)); 
-  public static Pose2d reef5 = new Pose2d(3.686, 5.429, Rotation2d.fromDegrees(210)); 
-  public static Pose2d reef6 = new Pose2d(5.353, 5.429, Rotation2d.fromDegrees(240)); 
-  public static Pose2d[] poses = new Pose2d[] {reef1, reef2, reef3, reef4, reef5, reef6};
   
   private final SwerveSubsystem drivebase  = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
+
 
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
       () -> driverControls.driveForward(),
@@ -301,9 +296,19 @@ public class Robot extends TimedRobot {
       // driverControls.button(2).whileTrue(Commands.runEnd(() -> driveDirectAngleKeyboard.driveToPoseEnabled(true),
       //                                               () -> driveDirectAngleKeyboard.driveToPoseEnabled(false)));
 
-    driverControls.b().onTrue(
-      drivebase.driveToPose(() -> getClosestReefPose(drivebase.getPose()))
-    );
+
+      driveAngularVelocity.driveToPose(drivebase::getClosestReefPose, 
+                            new ProfiledPIDController(5,
+                                                      0,
+                                                      0,
+                                                      new Constraints(5, 2)),
+                            new ProfiledPIDController(5,
+                                                      0,
+                                                      0,
+                                                      new Constraints(Units.degreesToRadians(360),
+                                                                      Units.degreesToRadians(180))));
+
+    driverControls.b().whileTrue(Commands.runEnd(() -> driveAngularVelocity.driveToPoseEnabled(true), () -> driveAngularVelocity.driveToPoseEnabled(false)));
 
     }
     if (DriverStation.isTest())
@@ -331,22 +336,7 @@ public class Robot extends TimedRobot {
     return Math.sqrt(Math.pow(pose.getX() - otherPose.getX(), 2) + Math.pow(pose.getY() - otherPose.getY(), 2));
   }
 
-  public Pose2d getClosestReefPose(Pose2d currentPose) {
 
-    
-    // Pose2d currentPose = drivebase.getPose();    
-    double closestDistance = 100;
-    Pose2d closestPose = currentPose;
-    for (int i = 0; i < poses.length; i++) {
-        // currentPose = drivebase.getPose();
-        Translation2d translation = poses[i].getTranslation();
-        if (currentPose.getTranslation().getDistance(translation) < closestDistance) {
-          closestDistance = currentPose.getTranslation().getDistance(translation);
-          closestPose = poses[i];
-        }
-    }
-    return closestPose;
-  }
 
   private void configureSubsystems() {
     // drive = new Drive(TunerConstants.createDrivetrain(), false);

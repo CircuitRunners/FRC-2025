@@ -20,6 +20,7 @@ import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -56,6 +57,23 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 public class SwerveSubsystem extends SubsystemBase
 {
 
+  
+  public static Pose2d blueReef1 = new Pose2d(6.113, 3.986, Rotation2d.fromDegrees(180)); 
+  public static Pose2d blueReef2 = new Pose2d(5.304, 2.631, Rotation2d.fromDegrees(120)); 
+  public static Pose2d blueReef3 = new Pose2d(3.646, 2.582, Rotation2d.fromDegrees(60)); 
+  public static Pose2d blueReef4 = new Pose2d(2.895, 4.015, Rotation2d.fromDegrees(0)); 
+  public static Pose2d blueReef5 = new Pose2d(3.786, 5.529, Rotation2d.fromDegrees(-60));  
+  public static Pose2d blueReef6 = new Pose2d(5.353, 5.429, Rotation2d.fromDegrees(-120)); 
+  public static Pose2d[] blueReefPoses = new Pose2d[] {blueReef1, blueReef2, blueReef3, blueReef4, blueReef5, blueReef6};
+  
+  public static Pose2d redReef1 = new Pose2d((new Pose2d(8.3, 0, new Rotation2d())).plus(new Transform2d(blueReef1.getX(), blueReef1.getY(), new Rotation2d())).getTranslation(),Rotation2d.fromDegrees(180)); 
+  public static Pose2d redReef2 = new Pose2d((new Pose2d(8.3, 0, new Rotation2d())).plus(new Transform2d(blueReef2.getX(), blueReef2.getY(), new Rotation2d())).getTranslation(),Rotation2d.fromDegrees(120)); 
+  public static Pose2d redReef3 = new Pose2d((new Pose2d(8.3, 0, new Rotation2d())).plus(new Transform2d(blueReef3.getX(), blueReef3.getY(), new Rotation2d())).getTranslation(),Rotation2d.fromDegrees(60)); 
+  public static Pose2d redReef4 = new Pose2d((new Pose2d(8.3, 0, new Rotation2d())).plus(new Transform2d(blueReef4.getX(), blueReef4.getY(), new Rotation2d())).getTranslation(),Rotation2d.fromDegrees(0)); 
+  public static Pose2d redReef5 = new Pose2d((new Pose2d(8.3, 0, new Rotation2d())).plus(new Transform2d(blueReef5.getX(), blueReef5.getY(), new Rotation2d())).getTranslation(),Rotation2d.fromDegrees(-60)); 
+  public static Pose2d redReef6 = new Pose2d((new Pose2d(8.3, 0, new Rotation2d())).plus(new Transform2d(blueReef6.getX(), blueReef6.getY(), new Rotation2d())).getTranslation(),Rotation2d.fromDegrees(-120)); 
+  public static Pose2d[] redReefPoses = new Pose2d[] {redReef1, redReef2, redReef3, redReef4, redReef5, redReef6};
+
   /**
    * Swerve drive object.
    */
@@ -75,7 +93,7 @@ public class SwerveSubsystem extends SubsystemBase
    * @param directory Directory of swerve drive config files.
    */
   public SwerveSubsystem(File directory)
-  {
+  { 
     boolean blueAlliance = false;
     Pose2d startingPose = blueAlliance ? new Pose2d(new Translation2d(Meter.of(1),
                                                                       Meter.of(4)),
@@ -264,7 +282,7 @@ public class SwerveSubsystem extends SubsystemBase
    * @param pose Target {@link Pose2d} to go to.
    * @return PathFinding command
    */
-  public Command driveToPose(Supplier<Pose2d> poseSupplier)
+  public Command driveToPose(Pose2d pose)
   {
 // Create the constraints to use while pathfinding
     PathConstraints constraints = new PathConstraints(
@@ -273,10 +291,40 @@ public class SwerveSubsystem extends SubsystemBase
 
 // Since AutoBuilder is configured, we can use it to build pathfinding commands
     return AutoBuilder.pathfindToPose(
-        poseSupplier.get(),
+        pose,
         constraints,
         edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec
-                                     );
+                                      );
+  }
+
+  public Pose2d getClosestReefPose() {
+
+    
+    Pose2d currentPose = getPose();    
+    double closestDistance = 100;
+    Pose2d closestPose = currentPose;
+    if(DriverStation.getAlliance().isPresent()){
+      if(DriverStation.getAlliance().get() == DriverStation.Alliance.Red){
+        for (int i = 0; i < redReefPoses.length; i++) {
+            // currentPose = getPose();
+            Translation2d translation = redReefPoses[i].getTranslation();
+            if (currentPose.getTranslation().getDistance(translation) < closestDistance) {
+              closestDistance = currentPose.getTranslation().getDistance(translation);
+              closestPose = redReefPoses[i];
+            }
+        }
+        return closestPose;
+      }
+    }
+    for (int i = 0; i < blueReefPoses.length; i++) {
+        // currentPose = getPose();
+        Translation2d translation = blueReefPoses[i].getTranslation();
+        if (currentPose.getTranslation().getDistance(translation) < closestDistance) {
+          closestDistance = currentPose.getTranslation().getDistance(translation);
+          closestPose = blueReefPoses[i];
+        }
+    }
+    return closestPose;
   }
 
   /**
