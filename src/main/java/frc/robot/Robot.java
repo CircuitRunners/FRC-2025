@@ -5,12 +5,12 @@
 package frc.robot;
 
 import java.io.File;
-import java.util.function.Supplier;
+// import java.util.function.Supplier;
 
-import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+// import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 // import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveModule.DriveRequestType;
 // import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveRequest.FieldCentric;
-import com.ctre.phoenix6.swerve.SwerveRequest;
+// import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
@@ -18,41 +18,44 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
+// import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.RobotBase;
+// import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+// import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.Constants.DriverConstants;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.Constants.SwerveConstants;
-import frc.robot.commands.moving.*;
+// import frc.robot.Constants.SwerveConstants;
+// import frc.robot.commands.moving.*;
 import frc.robot.commands.scoring.*;
-import frc.robot.generated.TunerConstants;
+// import frc.robot.generated.TunerConstants;
 import frc.robot.io.*;
 import frc.robot.subsystems.*;
 
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.CvSink;
-import edu.wpi.first.cscore.CvSource;
-import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.wpilibj.TimedRobot;
-import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
+// import edu.wpi.first.cameraserver.CameraServer;
+// import edu.wpi.first.cscore.CvSink;
+// import edu.wpi.first.cscore.CvSource;
+// import edu.wpi.first.cscore.UsbCamera;
+// import edu.wpi.first.wpilibj.TimedRobot;
+// import org.opencv.core.Mat;
+// import org.opencv.core.Point;
+// import org.opencv.core.Scalar;
+// import org.opencv.imgproc.Imgproc;
 // import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
-import java.io.File;
+// import java.io.File;
 import swervelib.SwerveInputStream;
+
+// import com.pathplanner.lib.path.PathConstraints;
+
 public class Robot extends TimedRobot {
   // private Drive drive;
   private Elevator elevator;
@@ -61,6 +64,15 @@ public class Robot extends TimedRobot {
   private ManipulatorControls manipulatorControls;
   private Command m_autonomousCommand;
   private SendableChooser<Command> autoChooser = new SendableChooser<>();
+
+
+  public static Pose2d reef1 = new Pose2d(6.113, 3.986, Rotation2d.fromDegrees(180)); 
+  public static Pose2d reef2 = new Pose2d(5.304, 2.631, Rotation2d.fromDegrees(30)); 
+  public static Pose2d reef3 = new Pose2d(3.646, 2.582, Rotation2d.fromDegrees(60)); 
+  public static Pose2d reef4 = new Pose2d(2.195, 4.015, Rotation2d.fromDegrees(0)); 
+  public static Pose2d reef5 = new Pose2d(3.686, 5.429, Rotation2d.fromDegrees(210)); 
+  public static Pose2d reef6 = new Pose2d(5.353, 5.429, Rotation2d.fromDegrees(240)); 
+  public static Pose2d[] poses = new Pose2d[] {reef1, reef2, reef3, reef4, reef5, reef6};
   
   private final SwerveSubsystem drivebase  = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
 
@@ -270,29 +282,28 @@ public class Robot extends TimedRobot {
 
     if (Robot.isSimulation())
     {
-      Pose2d target = new Pose2d(new Translation2d(1, 4),
-                                  Rotation2d.fromDegrees(90));
-      //drivebase.getSwerveDrive().field.getObject("targetPose").setPose(target);
-      driveDirectAngleKeyboard.driveToPose(() -> target,
-                                            new ProfiledPIDController(5,
-                                                                      0,
-                                                                      0,
-                                                                      new Constraints(5, 2)),
-                                            new ProfiledPIDController(5,
-                                                                      0,
-                                                                      0,
-                                                                      new Constraints(Units.degreesToRadians(360),
-                                                                                      Units.degreesToRadians(180))
-                                            ));
+      // Pose2d target = new Pose2d(new Translation2d(1, 4),
+      //                             Rotation2d.fromDegrees(90));
+      // //drivebase.getSwerveDrive().field.getObject("targetPose").setPose(target);
+      // driveDirectAngleKeyboard.driveToPose(() -> target,
+      //                                       new ProfiledPIDController(5,
+      //                                                                 0,
+      //                                                                 0,
+      //                                                                 new Constraints(5, 2)),
+      //                                       new ProfiledPIDController(5,
+      //                                                                 0,
+      //                                                                 0,
+      //                                                                 new Constraints(Units.degreesToRadians(360),
+      //                                                                                 Units.degreesToRadians(180))
+                                            // ));
       driverControls.start().onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
       driverControls.button(1).whileTrue(drivebase.sysIdDriveMotorCommand());
-      driverControls.button(2).whileTrue(Commands.runEnd(() -> driveDirectAngleKeyboard.driveToPoseEnabled(true),
-                                                    () -> driveDirectAngleKeyboard.driveToPoseEnabled(false)));
+      // driverControls.button(2).whileTrue(Commands.runEnd(() -> driveDirectAngleKeyboard.driveToPoseEnabled(true),
+      //                                               () -> driveDirectAngleKeyboard.driveToPoseEnabled(false)));
 
-    driverControls.b().whileTrue(
-        drivebase.driveToPose(
-            new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))
-                            );
+    driverControls.b().onTrue(
+      drivebase.driveToPose(() -> getClosestReefPose(drivebase.getPose()))
+    );
 
     }
     if (DriverStation.isTest())
@@ -314,6 +325,27 @@ public class Robot extends TimedRobot {
       driverControls.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
       driverControls.rightBumper().onTrue(Commands.none());
     }
+  }
+  
+  double getDistance(Pose2d pose, Pose2d otherPose) {
+    return Math.sqrt(Math.pow(pose.getX() - otherPose.getX(), 2) + Math.pow(pose.getY() - otherPose.getY(), 2));
+  }
+
+  public Pose2d getClosestReefPose(Pose2d currentPose) {
+
+    
+    // Pose2d currentPose = drivebase.getPose();    
+    double closestDistance = 100;
+    Pose2d closestPose = currentPose;
+    for (int i = 0; i < poses.length; i++) {
+        // currentPose = drivebase.getPose();
+        Translation2d translation = poses[i].getTranslation();
+        if (currentPose.getTranslation().getDistance(translation) < closestDistance) {
+          closestDistance = currentPose.getTranslation().getDistance(translation);
+          closestPose = poses[i];
+        }
+    }
+    return closestPose;
   }
 
   private void configureSubsystems() {
