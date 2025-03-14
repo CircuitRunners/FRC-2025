@@ -316,7 +316,7 @@ public class Robot extends TimedRobot {
       drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity); // Overrides drive command above!
 
       driverControls.x().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
-      driverControls.y().whileTrue(drivebase.driveToDistanceCommand(1.0, 0.2));
+      driverControls.y().whileTrue(drivebase.driveToForwardDistanceCommand(1.0, 0.2));
       driverControls.start().onTrue((Commands.runOnce(drivebase::zeroGyro)));
       driverControls.back().whileTrue(drivebase.centerModulesCommand());
       driverControls.leftBumper().onTrue(Commands.none());
