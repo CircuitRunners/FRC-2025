@@ -100,7 +100,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousExit() {
-  
+    drive.zeroGyro(180);
   }
 
   @Override
@@ -219,7 +219,6 @@ public class Robot extends TimedRobot {
 
   private void configureSubsystems() {
     drive = new Drive(TunerConstants.createDrivetrain(), false);
-    drive.zeroGyro();
     elevator = new Elevator();
     // elevator.isDrivingPrecarious().whileTrue(drive.setLimitCommand(0.2)).onFalse(drive.setLimitCommand(1)); 
     claw = new Claw();

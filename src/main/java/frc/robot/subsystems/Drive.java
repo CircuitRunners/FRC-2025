@@ -173,12 +173,12 @@ public class Drive extends SubsystemBase {
     swerve.resetPose(pose);
   }
 
-  public void zeroGyro() {
-    swerve.getPigeon2().reset();
+  public void zeroGyro(double newYaw) {
+    swerve.getPigeon2().setYaw(newYaw);
   }
 
   public Command zeroGyroCommand(){
-    return runOnce(this::zeroGyro);
+    return runOnce(() -> zeroGyro(0));
   }
 
   // public Command sysIdDynamic(Direction direction){

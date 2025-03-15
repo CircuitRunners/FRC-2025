@@ -24,7 +24,7 @@ public class TunerConstants {
     // The steer motor uses any SwerveModule.SteerRequestType control request with the
     // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
     public static final Slot0Configs steerGains = new Slot0Configs()
-        .withKP(100).withKI(0).withKD(0.5)
+        .withKP(50).withKI(0).withKD(0.5)
         .withKS(0.1).withKV(2.66).withKA(0)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     // When using closed-loop control, the drive motor uses the control
@@ -55,13 +55,19 @@ public class TunerConstants {
 
     // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
     // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
-    public static final TalonFXConfiguration driveInitialConfigs = new TalonFXConfiguration();
+    public static final TalonFXConfiguration driveInitialConfigs = new TalonFXConfiguration()
+        .withCurrentLimits(
+            new CurrentLimitsConfigs()
+                .withStatorCurrentLimit(Amps.of(40))
+                .withStatorCurrentLimitEnable(true)
+        )
+    ;
     public static final TalonFXConfiguration steerInitialConfigs = new TalonFXConfiguration()
         .withCurrentLimits(
             new CurrentLimitsConfigs()
                 // Swerve azimuth does not require much torque output, so we can set a relatively low
                 // stator current limit to help avoid brownouts without impacting performance.
-                .withStatorCurrentLimit(Amps.of(60))
+                .withStatorCurrentLimit(Amps.of(40))
                 .withStatorCurrentLimitEnable(true)
         );
     public static final CANcoderConfiguration encoderInitialConfigs = new CANcoderConfiguration();
@@ -207,7 +213,7 @@ public class TunerConstants {
      */
     public static class TunerSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> {
         /**
-         * Constructs a CTRE SwerveDrivetrain using the specified constants.
+         * Constructs a CTRESwerveDrivetrain using the specified constants.
          * <p>
          * This constructs the underlying hardware devices, so users should not construct
          * the devices themselves. If they need the devices, they can access them through
