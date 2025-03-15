@@ -275,8 +275,8 @@ public class Robot extends TimedRobot {
       drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
     }
 
-    if (Robot.isSimulation())
-    {
+    // if (Robot.isSimulation())
+    // {
       // Pose2d target = new Pose2d(new Translation2d(1, 4),
       //                             Rotation2d.fromDegrees(90));
       // //drivebase.getSwerveDrive().field.getObject("targetPose").setPose(target);
@@ -310,7 +310,7 @@ public class Robot extends TimedRobot {
 
     driverControls.b().whileTrue(Commands.runEnd(() -> driveAngularVelocity.driveToPoseEnabled(true), () -> driveAngularVelocity.driveToPoseEnabled(false)));
 
-    }
+    // }
     if (DriverStation.isTest())
     {
       drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity); // Overrides drive command above!

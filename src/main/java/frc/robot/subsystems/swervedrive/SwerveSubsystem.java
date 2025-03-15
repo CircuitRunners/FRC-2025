@@ -99,6 +99,7 @@ public class SwerveSubsystem extends SubsystemBase
    */
   public SwerveSubsystem(File directory)
   { 
+    SwerveDriveTelemetry.verbosity = TelemetryVerbosity.NONE;
     distSensor1 = new CANrange(SwerveConstants.distanceSensor1);
     distSensor2 = new CANrange(SwerveConstants.distanceSensor2);
     
