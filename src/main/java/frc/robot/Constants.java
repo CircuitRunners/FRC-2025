@@ -198,6 +198,11 @@ public final class Constants {
     public static final double robotMass = 54.431;
     public static final double MOI = 6.898;
     public static final double wheelCOF = 1.0;
+    public static final int distanceSensor1Port = 0;
+    public static final int distanceSensor2Port = 0;
+    public static final double distanceCoeff = 0;
+    public static final double distanceFromReef = 0;
+    public static double distanceThreshold;
   }
 
   public static final class DriverConstants{
@@ -230,8 +235,8 @@ public final class Constants {
   }
   public static final class VisionConstants{
     public static final AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark); //IGNORE THE ERROR
-    public static final Transform3d frontCamTransform = new Transform3d();
-    public static final Transform3d backCamTransform = new Transform3d();
+    public static final Transform3d frontLeftCamTransform = new Transform3d();
+    public static final Transform3d frontRightCamTransform = new Transform3d();
   }
 
    public class FieldConstants{

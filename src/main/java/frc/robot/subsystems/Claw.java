@@ -138,7 +138,7 @@ public class Claw extends SubsystemBase {
     }
 
     public Command autoIntakeCommand() {
-        return runRollersInCommand().until(this::isCoralInClaw).andThen(runRollersOutSlowCommand()).withTimeout(0.2).finallyDo(this::stopRoller);
+        return runRollersInCommand().until(this::isCoralInClaw).andThen(runRollersInCommand()).withTimeout(0.4).finallyDo(this::stopRoller);
     }
 
     public Command stopRollersCommand() {
@@ -203,6 +203,7 @@ public class Claw extends SubsystemBase {
         SmartDashboard.putNumber("Claw target", getTargetPos());
         SmartDashboard.putBoolean("clawIsAtTarget", isAtTarget());
         SmartDashboard.putNumber("Rollers voltage", roller1Motor.getBusVoltage());
+        SmartDashboard.putNumber("Coral Distance Sensor", canRangeSensor.getDistance().getValueAsDouble());
         SmartDashboard.updateValues();
         if(this.manual == false) {
             double output = pidController.calculate(getClawPos(), this.targetPos);

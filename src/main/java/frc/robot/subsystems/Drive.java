@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.MountPoseConfigs;
+import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -49,6 +50,10 @@ public class Drive extends SubsystemBase {
   private Vision vision;
   private boolean isVision;
   private SwerveRequest.FieldCentric driveRequest;
+
+  public CANrange distSensor1 = new CANrange(SwerveConstants.distanceSensor1Port);
+  public CANrange distSensor2 = new CANrange(SwerveConstants.distanceSensor2Port);
+
   // private final SysIdSwerveTranslation translation = new SysIdSwerveTranslation();
   // private final SysIdRoutine sysIdTranslation = new SysIdRoutine(
   //   new SysIdRoutine.Config(
@@ -96,6 +101,10 @@ public class Drive extends SubsystemBase {
     }
     SmartDashboard.putNumber("pigeon angle", swerve.getPigeon2().getYaw().getValueAsDouble() % 60);
     SmartDashboard.putNumber("drive limit", limit);
+
+    SmartDashboard.putNumber("dist1", distSensor1.getDistance().getValueAsDouble());
+    SmartDashboard.putNumber("dist2", distSensor2.getDistance().getValueAsDouble());
+
     fieldUtil.setSwerveRobotPose(swerve.getPose2d(), swerve.getModuleStates(), SwerveConstants.modulePositions);
     // SmartDashboard.putData("default pigeon value", swerve.getPigeon2().getRotation2d());
   }
@@ -179,6 +188,18 @@ public class Drive extends SubsystemBase {
 
   public Command zeroGyroCommand(){
     return runOnce(() -> zeroGyro(0));
+  }
+
+  public Command driveToStrafeDistanceCommand(double dist, double speed) {
+    return run(() -> driveRobotCentric(new ChassisSpeeds(0, speed, 0)))
+        .until(() -> getPose().getTranslation().getDistance(new Translation2d(0, 0)) >
+                     dist);
+  }
+
+  public Command driveToForwardDistanceCommand(double dist, double speed) {
+    return run(() -> driveRobotCentric(new ChassisSpeeds(speed, 0, 0)))
+        .until(() -> getPose().getTranslation().getDistance(new Translation2d(0, 0)) >
+                     dist);
   }
 
   // public Command sysIdDynamic(Direction direction){

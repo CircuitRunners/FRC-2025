@@ -2,9 +2,9 @@ package frc.robot;
 
 import java.util.function.Consumer;
 
-// import org.photonvision.PhotonCamera;
-// import org.photonvision.PhotonPoseEstimator;
-// import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -16,11 +16,11 @@ import frc.robot.Constants.VisionConstants;
 
 public class Vision {
     public static final record VisionMeasurement (Pose2d pose, double timestamp, Matrix<N3, N1> stdDev) {}
-    // private final PhotonCamera frontCam = new PhotonCamera("front");
-    // private final PhotonCamera backCam = new PhotonCamera("back");
+    private final PhotonCamera frontLeftCam = new PhotonCamera("frontLeft");
+    private final PhotonCamera frontRightCam = new PhotonCamera("frontRight");
 
-    // private final PhotonPoseEstimator frontPoseEstimator = new PhotonPoseEstimator(VisionConstants.fieldLayout, PoseStrategy.AVERAGE_BEST_TARGETS, VisionConstants.frontCamTransform);
-    // private final PhotonPoseEstimator backPoseEstimator = new PhotonPoseEstimator(VisionConstants.fieldLayout,PoseStrategy.AVERAGE_BEST_TARGETS, VisionConstants.backCamTransform);
+    private final PhotonPoseEstimator frontLeftPoseEstimator = new PhotonPoseEstimator(VisionConstants.fieldLayout, PoseStrategy.AVERAGE_BEST_TARGETS, VisionConstants.frontLeftCamTransform);
+    private final PhotonPoseEstimator frontRightPoseEstimator = new PhotonPoseEstimator(VisionConstants.fieldLayout,PoseStrategy.AVERAGE_BEST_TARGETS, VisionConstants.frontRightCamTransform);
 
     private final Consumer<VisionMeasurement> visionMeasurementConsumer;
     
@@ -46,21 +46,21 @@ public class Vision {
             new VisionMeasurement(limeLightEstimate.pose, limeLightEstimate.timestampSeconds,VecBuilder.fill(.5, .5, 9999999))
         );
 
-        // var frontUpdate = frontPoseEstimator.update(frontCam.getAllUnreadResults().get(frontCam.getAllUnreadResults().size()-1));
-        // var backUpdate = backPoseEstimator.update(backCam.getAllUnreadResults().get(backCam.getAllUnreadResults().size()-1));
+        var frontLeftUpdate = frontLeftPoseEstimator.update(frontLeftCam.getAllUnreadResults().get(frontLeftCam.getAllUnreadResults().size()-1));
+        var frontRightUpdate = frontRightPoseEstimator.update(frontRightCam.getAllUnreadResults().get(frontRightCam.getAllUnreadResults().size()-1));
     
-        // if(frontUpdate.isPresent()) {
-        //     var estimate = frontUpdate.get();
-        //     visionMeasurementConsumer.accept( 
-        //         new VisionMeasurement(estimate.estimatedPose.toPose2d(), estimate.timestampSeconds, VecBuilder.fill(.9, .9, .9))
-        //     );
-        // }
+        if(frontLeftUpdate.isPresent()) {
+            var estimate = frontLeftUpdate.get();
+            visionMeasurementConsumer.accept( 
+                new VisionMeasurement(estimate.estimatedPose.toPose2d(), estimate.timestampSeconds, VecBuilder.fill(.9, .9, .9))
+            );
+        }
     
-        // if(backUpdate.isPresent()) {
-        //     var estimate = backUpdate.get();
-        //     visionMeasurementConsumer.accept( 
-        //         new VisionMeasurement(estimate.estimatedPose.toPose2d(), estimate.timestampSeconds, VecBuilder.fill(.9, .9, .9))
-        //     );
-        // }
+        if(frontRightUpdate.isPresent()) {
+            var estimate = frontRightUpdate.get();
+            visionMeasurementConsumer.accept( 
+                new VisionMeasurement(estimate.estimatedPose.toPose2d(), estimate.timestampSeconds, VecBuilder.fill(.9, .9, .9))
+            );
+        }
     }
 }

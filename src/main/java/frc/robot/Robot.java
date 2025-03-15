@@ -147,6 +147,7 @@ public class Robot extends TimedRobot {
     NamedCommands.registerCommand("ScoreL4Auto", new ScoreL4Auto(elevator, claw, drive));
     NamedCommands.registerCommand("do nothing", Commands.none());
     NamedCommands.registerCommand("brake", drive.brakeCommand());
+
     PathPlannerUtil.configure(drive, true);
 
     autoChooser = AutoBuilder.buildAutoChooser("taxi");
