@@ -2,7 +2,7 @@
 	"imu": {
 		"type": "pigeon",
 		"id": 0,
-		"canbus": ""
+		"canbus": "Drivebase"
 	},
 	"invertedIMU": false,
 	"modules": [
