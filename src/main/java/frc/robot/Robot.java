@@ -144,7 +144,7 @@ public class Robot extends TimedRobot {
     NamedCommands.registerCommand("ScoreL2", new ScoreL2(elevator, claw, drive));
     NamedCommands.registerCommand("ScoreL3", new ScoreL3(elevator, claw, drive));
     NamedCommands.registerCommand("ScoreL4", new ScoreL4Algae(elevator, claw));
-    NamedCommands.registerCommand("ScoreL4Auto", new ScoreL4Auto(elevator, claw, drive));
+    NamedCommands.registerCommand("ScoreL4Auto", new ScoreL4Teleop(elevator, claw, drive));
     NamedCommands.registerCommand("do nothing", Commands.none());
     NamedCommands.registerCommand("brake", drive.brakeCommand());
 
@@ -152,7 +152,7 @@ public class Robot extends TimedRobot {
 
     autoChooser = AutoBuilder.buildAutoChooser("taxi");
     autoChooser.addOption("long taxi", drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.6 * SwerveConstants.maxVelocityMPS, 0, 0)).withTimeout(7));
-    autoChooser.setDefaultOption("scoreL4 auto no pathplanner", drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.75, 0, 0)).withTimeout(3).andThen(new ScoreL4Auto(elevator, claw, drive)));
+    autoChooser.setDefaultOption("scoreL4 auto no pathplanner", drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.75, 0, 0)).withTimeout(3).andThen(new ScoreL4Teleop(elevator, claw, drive)));
     
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
@@ -199,7 +199,7 @@ public class Robot extends TimedRobot {
     // manipulatorControls.moveClawL4().onTrue(claw.moveClawToL4Command());
     manipulatorControls.scoreL4Algae2().onTrue(new ScoreL4Algae(elevator, claw));
     manipulatorControls.Algae1().onTrue(new Algae1(elevator, claw, drive));
-    manipulatorControls.scoreL4().whileTrue(new ScoreL4Auto(elevator, claw, drive));
+    manipulatorControls.scoreL4().whileTrue(new ScoreL4Teleop(elevator, claw, drive));
     manipulatorControls.runRollersIn().onTrue(claw.runRollersInCommand()).onFalse(claw.stopRollersCommand());
     manipulatorControls.runRollersOut().onTrue(claw.runRollersOutCommand()).onFalse(claw.stopRollersCommand());
     manipulatorControls.rightTrigger().onTrue(claw.runManualCommand(0.1)).onFalse(claw.stopClawCommand());

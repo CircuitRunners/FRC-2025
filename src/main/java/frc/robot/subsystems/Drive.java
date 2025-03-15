@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import org.photonvision.EstimatedRobotPose;
+
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.ctre.phoenix6.hardware.CANrange;
@@ -47,8 +49,8 @@ public class Drive extends SubsystemBase {
   private boolean sysIdTranslator = true;
   public long setTime;
   
-  private Vision vision;
-  private boolean isVision;
+  public Vision vision;
+  public boolean visionRunning;
   private SwerveRequest.FieldCentric driveRequest;
 
   public CANrange distSensor1 = new CANrange(SwerveConstants.distanceSensor1Port);
@@ -79,25 +81,26 @@ public class Drive extends SubsystemBase {
   //     this));
   private SlewRateLimiter forwardLimiter, strafeLimiter;
   /** Creates a new Drive */
-  public Drive(Swerve swerve, boolean isVision) {
+  public Drive(Swerve swerve, boolean visionRunning) {
     
     SignalLogger.setPath("logs/sysid/drive");
     this.swerve = swerve;
 
     forwardLimiter = new SlewRateLimiter(10, -10, 0);
     strafeLimiter = new SlewRateLimiter(10, -10, 0);
+
+    this.visionRunning = visionRunning;
     // swerve.setPigeonOffset();
-    if (isVision) {
-      addVisionMeasurement();
-    }
     // resetGyroCommand().execute();
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    if (isVision) {
-      vision.run(swerve.getPigeon2().getYaw().getValueAsDouble());
+    if (visionRunning) {
+      EstimatedRobotPose[] poses = vision.run(swerve.getPigeon2().getYaw().getValueAsDouble());
+      swerve.addVisionMeasurement(poses[0].estimatedPose.toPose2d(), poses[0].timestampSeconds);
+      swerve.addVisionMeasurement(poses[1].estimatedPose.toPose2d(), poses[1].timestampSeconds);
     }
     SmartDashboard.putNumber("pigeon angle", swerve.getPigeon2().getYaw().getValueAsDouble() % 60);
     SmartDashboard.putNumber("drive limit", limit);
@@ -222,11 +225,11 @@ public class Drive extends SubsystemBase {
   //   swerve.targetAngleDrive(targetAngle, controls.driveForward(), controls.driveStrafe());
   // }
 
-  public void addVisionMeasurement(){
-    Consumer<VisionMeasurement> visionMeasurementConsumer = (visionMeasurement) -> {
-      swerve.addVisionMeasurement(visionMeasurement.pose(), visionMeasurement.timestamp(), visionMeasurement.stdDev());
-    };
-    vision = new Vision(visionMeasurementConsumer);
-  }
+  // public void addVisionMeasurement(){
+  //   Consumer<VisionMeasurement> visionMeasurementConsumer = (visionMeasurement) -> {
+  //     swerve.addVisionMeasurement(visionMeasurement.pose(), visionMeasurement.timestamp(), visionMeasurement.stdDev());
+  //   };
+  //   vision = new Vision(visionMeasurementConsumer);
+  // }
 
 }

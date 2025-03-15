@@ -202,7 +202,10 @@ public final class Constants {
     public static final int distanceSensor2Port = 0;
     public static final double distanceCoeff = 0;
     public static final double distanceFromReef = 0;
-    public static double distanceThreshold;
+    public static double distanceThreshold = 0;
+
+    public static Transform3d aprilTagToLeftCam;
+    public static Transform3d aprilTagToRightCam;
   }
 
   public static final class DriverConstants{

@@ -2,6 +2,7 @@ package frc.robot;
 
 import java.util.function.Consumer;
 
+import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
@@ -16,19 +17,19 @@ import frc.robot.Constants.VisionConstants;
 
 public class Vision {
     public static final record VisionMeasurement (Pose2d pose, double timestamp, Matrix<N3, N1> stdDev) {}
-    private final PhotonCamera frontLeftCam = new PhotonCamera("frontLeft");
-    private final PhotonCamera frontRightCam = new PhotonCamera("frontRight");
+    public final PhotonCamera frontLeftCam = new PhotonCamera("frontLeft");
+    public final PhotonCamera frontRightCam = new PhotonCamera("frontRight");
 
-    private final PhotonPoseEstimator frontLeftPoseEstimator = new PhotonPoseEstimator(VisionConstants.fieldLayout, PoseStrategy.AVERAGE_BEST_TARGETS, VisionConstants.frontLeftCamTransform);
-    private final PhotonPoseEstimator frontRightPoseEstimator = new PhotonPoseEstimator(VisionConstants.fieldLayout,PoseStrategy.AVERAGE_BEST_TARGETS, VisionConstants.frontRightCamTransform);
+    public final PhotonPoseEstimator frontLeftPoseEstimator = new PhotonPoseEstimator(VisionConstants.fieldLayout, PoseStrategy.AVERAGE_BEST_TARGETS, VisionConstants.frontLeftCamTransform);
+    public final PhotonPoseEstimator frontRightPoseEstimator = new PhotonPoseEstimator(VisionConstants.fieldLayout,PoseStrategy.AVERAGE_BEST_TARGETS, VisionConstants.frontRightCamTransform);
 
-    private final Consumer<VisionMeasurement> visionMeasurementConsumer;
+    public final Consumer<VisionMeasurement> visionMeasurementConsumer;
     
     public Vision(Consumer<VisionMeasurement> visionMeasurementConsumer){
         this.visionMeasurementConsumer = visionMeasurementConsumer;
     }
     
-    public void run(double robotYaw){
+    public EstimatedRobotPose[] run(double robotYaw){
             LimelightHelpers.setCameraPose_RobotSpace("limelight", 
             0.5,    // Forward offset (meters) GET CORRECT VALUES
             0.0,    // Side offset (meters) GET CORRECT VALUES
@@ -42,25 +43,28 @@ public class Vision {
         LimelightHelpers.SetRobotOrientation("limelight", robotYaw, 0.0, 0.0, 0.0, 0.0, 0.0);
         LimelightHelpers.PoseEstimate limeLightEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
 
-        visionMeasurementConsumer.accept(
-            new VisionMeasurement(limeLightEstimate.pose, limeLightEstimate.timestampSeconds,VecBuilder.fill(.5, .5, 9999999))
-        );
+        // visionMeasurementConsumer.accept(
+        //     new VisionMeasurement(limeLightEstimate.pose, limeLightEstimate.timestampSeconds,VecBuilder.fill(.5, .5, 9999999))
+        // );
 
         var frontLeftUpdate = frontLeftPoseEstimator.update(frontLeftCam.getAllUnreadResults().get(frontLeftCam.getAllUnreadResults().size()-1));
         var frontRightUpdate = frontRightPoseEstimator.update(frontRightCam.getAllUnreadResults().get(frontRightCam.getAllUnreadResults().size()-1));
-    
+        EstimatedRobotPose frontLeftEstimate = new EstimatedRobotPose(null, robotYaw, null, null);
+        EstimatedRobotPose frontRightEstimate = new EstimatedRobotPose(null, robotYaw, null, null);
         if(frontLeftUpdate.isPresent()) {
-            var estimate = frontLeftUpdate.get();
-            visionMeasurementConsumer.accept( 
-                new VisionMeasurement(estimate.estimatedPose.toPose2d(), estimate.timestampSeconds, VecBuilder.fill(.9, .9, .9))
-            );
+            frontLeftEstimate = frontLeftUpdate.get();
+            // visionMeasurementConsumer.accept( 
+            //     new VisionMeasurement(estimate.estimatedPose.toPose2d(), estimate.timestampSeconds, VecBuilder.fill(.9, .9, .9))
+            // );
         }
     
         if(frontRightUpdate.isPresent()) {
-            var estimate = frontRightUpdate.get();
-            visionMeasurementConsumer.accept( 
-                new VisionMeasurement(estimate.estimatedPose.toPose2d(), estimate.timestampSeconds, VecBuilder.fill(.9, .9, .9))
-            );
+            frontRightEstimate = frontRightUpdate.get();
+            // visionMeasurementConsumer.accept( 
+            //     new VisionMeasurement(estimate.estimatedPose.toPose2d(), estimate.timestampSeconds, VecBuilder.fill(.9, .9, .9))
+            // );
         }
+
+        return new EstimatedRobotPose[] { frontLeftEstimate, frontRightEstimate};
     }
 }
