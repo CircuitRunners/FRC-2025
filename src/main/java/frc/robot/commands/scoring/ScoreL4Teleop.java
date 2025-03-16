@@ -17,6 +17,7 @@ public class ScoreL4Teleop extends SequentialCommandGroup {
     addRequirements(elevator, claw, drive);
     addCommands(
       claw.scoreL4(),
+      drive.driveToForwardDistanceCommand(-0.25, -0.5),
       elevator.moveToBottom()
       );
     //

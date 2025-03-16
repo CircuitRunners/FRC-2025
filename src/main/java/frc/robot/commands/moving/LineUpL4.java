@@ -51,15 +51,17 @@ public class LineUpL4 extends Command {
     while (!finished) { 
       double dist1 = drive.distSensor1.getDistance().getValueAsDouble();
       double dist2 = drive.distSensor2.getDistance().getValueAsDouble();
+
+      double error = ((dist1 + dist2) / 2) - SwerveConstants.distanceFromReef;
   
       if(Math.abs(dist1-dist2)>SwerveConstants.distanceThreshold){
         drive.driveRobotCentric(new ChassisSpeeds(0, 0, (dist1-dist2)*SwerveConstants.distanceCoeff));
       }
-      else if((dist1 - SwerveConstants.distanceFromReef) > SwerveConstants.distanceThreshold){
-        drive.driveToForwardDistanceCommand(dist1-SwerveConstants.distanceFromReef, 0.5).execute();
+      else if(error > 0){
+        drive.driveToForwardDistanceCommand(error, 0.5).execute();
       }
-      else if((SwerveConstants.distanceFromReef - dist1) > SwerveConstants.distanceThreshold){ 
-        drive.driveToForwardDistanceCommand(dist1-SwerveConstants.distanceFromReef, 0.5).execute();
+      else if(error < 0){ 
+        drive.driveToForwardDistanceCommand(error, -0.5).execute();
       }
       else {
         drive.brake();
