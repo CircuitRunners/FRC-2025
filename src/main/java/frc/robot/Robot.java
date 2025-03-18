@@ -14,6 +14,8 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -62,6 +64,8 @@ public class Robot extends TimedRobot {
     configureSubsystems();
     configureAutos();
 
+    DataLogManager.logNetworkTables(false);
+    
   }
   
   @Override
@@ -173,7 +177,7 @@ public class Robot extends TimedRobot {
     ));
     driverControls.increaseLimit().onTrue(drive.increaseLimitCommand());
     driverControls.decreaseLimit().onTrue(drive.decreaseLimitCommand());
-    driverControls.start().onTrue(drive.zeroGyroCommand());
+    driverControls.start().onTrue(Commands.runOnce(() -> drive.zeroGyro(45), drive));
     driverControls.robotMoveRight().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, -0.4, 0)));
     driverControls.robotMoveLeft().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0.4, 0)));
     driverControls.robotMoveForward().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.7, 0, 0)));
@@ -195,12 +199,13 @@ public class Robot extends TimedRobot {
     // manipulatorControls.moveElevatorL3().onTrue(elevator.moveToL3());
     // manipulatorControls.moveElevatorL4().onTrue(elevator.moveToL4());
     // // claw controls
-    manipulatorControls.moveClawHorizontal().onTrue(claw.moveClawToHorizontalCommand());
+    manipulatorControls.a().onTrue(claw.moveClawToHorizontalCommand());
     // manipulatorControls.moveClawL4().onTrue(claw.moveClawToL4Command());
-    manipulatorControls.scoreL4Algae2().onTrue(new ScoreL4Algae(elevator, claw));
-    manipulatorControls.Algae1().onTrue(new Algae1(elevator, claw, drive));
+    // manipulatorControls.scoreL4Algae2().onTrue(new ScoreL4Algae(elevator, claw));
+    // manipulatorControls.Algae1().onTrue(new Algae1(elevator, claw, drive));
     manipulatorControls.scoreL4().whileTrue(new ScoreL4Teleop(elevator, claw, drive));
-    manipulatorControls.runRollersIn().onTrue(claw.runRollersInCommand()).onFalse(claw.stopRollersCommand());
+    manipulatorControls.x().whileTrue(new LineUpL4(drive, true));
+    manipulatorControls.runRollersIn().onTrue(claw.autoIntakeCommand()).onFalse(claw.stopClawCommand());
     manipulatorControls.runRollersOut().onTrue(claw.runRollersOutCommand()).onFalse(claw.stopRollersCommand());
     manipulatorControls.rightTrigger().onTrue(claw.runManualCommand(0.1)).onFalse(claw.stopClawCommand());
     manipulatorControls.leftTrigger().onTrue(claw.runManualCommand(-0.1)).onFalse(claw.stopClawCommand());

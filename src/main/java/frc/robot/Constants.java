@@ -199,10 +199,11 @@ public final class Constants {
     public static final double MOI = 6.898;
     public static final double wheelCOF = 1.0;
     public static final int distanceSensor1Port = 0;
-    public static final int distanceSensor2Port = 0;
-    public static final double distanceCoeff = 0;
-    public static final double distanceFromReef = 0;
-    public static double distanceThreshold = 0;
+    public static final int distanceSensor2Port = 1;
+    public static final double distanceCoeff = 0.5;
+    public static final double distanceFromReef = 0.55;
+    public static final double distanceFromReefScore = 0.40;
+    public static double distanceThreshold = 0.01;
 
     public static Transform3d aprilTagToLeftCam;
     public static Transform3d aprilTagToRightCam;
@@ -238,8 +239,8 @@ public final class Constants {
   }
   public static final class VisionConstants{
     public static final AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark); //IGNORE THE ERROR
-    public static final Transform3d frontLeftCamTransform = new Transform3d();
-    public static final Transform3d frontRightCamTransform = new Transform3d();
+    public static final Transform3d frontLeftCamTransform = new Transform3d(5, 10.5, 13, new Rotation3d()); // inches
+    public static final Transform3d frontRightCamTransform = new Transform3d(5, -10.5, 13, new Rotation3d());
   }
 
    public class FieldConstants{
@@ -276,9 +277,9 @@ public final class Constants {
       public static double horizontalEncoderValue = -95.86046600341797 / 5 - encoderOffset; //currently set with Neo Encoder
       public static double l4EncoderValue = 50.81052780151367 / 5 - encoderOffset; //currently set with Neo Encoder
       public static double tolerance = 0.5;
-      public static int canRangePort = 0;
+      public static int canRangePort = 2;
       public static double algaeValue = 40 / 5 - encoderOffset;
-      public static double coralSensorRange = 0.5; 
+      public static double coralSensorRange = 0.03; 
     }
 }
 

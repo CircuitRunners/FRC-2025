@@ -53,8 +53,8 @@ public class Drive extends SubsystemBase {
   public boolean visionRunning;
   private SwerveRequest.FieldCentric driveRequest;
 
-  public CANrange distSensor1 = new CANrange(SwerveConstants.distanceSensor1Port);
-  public CANrange distSensor2 = new CANrange(SwerveConstants.distanceSensor2Port);
+  public CANrange distSensor1 = new CANrange(SwerveConstants.distanceSensor1Port, "Drivebase");
+  public CANrange distSensor2 = new CANrange(SwerveConstants.distanceSensor2Port, "Drivebase");
 
   // private final SysIdSwerveTranslation translation = new SysIdSwerveTranslation();
   // private final SysIdRoutine sysIdTranslation = new SysIdRoutine(
@@ -84,6 +84,9 @@ public class Drive extends SubsystemBase {
   public Drive(Swerve swerve, boolean visionRunning) {
     
     SignalLogger.setPath("logs/sysid/drive");
+    if(visionRunning) {
+      vision = new Vision();
+    }
     this.swerve = swerve;
 
     forwardLimiter = new SlewRateLimiter(10, -10, 0);
@@ -101,6 +104,7 @@ public class Drive extends SubsystemBase {
       EstimatedRobotPose[] poses = vision.run(swerve.getPigeon2().getYaw().getValueAsDouble());
       swerve.addVisionMeasurement(poses[0].estimatedPose.toPose2d(), poses[0].timestampSeconds);
       swerve.addVisionMeasurement(poses[1].estimatedPose.toPose2d(), poses[1].timestampSeconds);
+      fieldUtil.setObjectGlobalPose("LeftPoseEstimate", poses[0].estimatedPose.toPose2d());
     }
     SmartDashboard.putNumber("pigeon angle", swerve.getPigeon2().getYaw().getValueAsDouble() % 60);
     SmartDashboard.putNumber("drive limit", limit);

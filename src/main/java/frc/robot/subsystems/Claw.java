@@ -42,7 +42,7 @@ public class Claw extends SubsystemBase {
         roller1Motor.configure(r1mConfig, null, null);
         roller2Motor.configure(r2mConfig, null, null);
 
-        canRangeSensor = new CANrange(ClawConstants.canRangePort);
+        canRangeSensor = new CANrange(ClawConstants.canRangePort, "rio");
 
         double constP = 0.045; // proportional coefficient gain
         double constI = 0; // integral coefficient gain
@@ -83,7 +83,7 @@ public class Claw extends SubsystemBase {
     }
 
     public boolean isCoralInClaw() {
-        return canRangeSensor.getDistance().getValueAsDouble() < ClawConstants.coralSensorRange;
+        return canRangeSensor.getDistance().getValueAsDouble() <= ClawConstants.coralSensorRange;
     }
 
     public void stopClaw() {
@@ -138,7 +138,7 @@ public class Claw extends SubsystemBase {
     }
 
     public Command autoIntakeCommand() {
-        return runRollersInCommand().until(this::isCoralInClaw).andThen(runRollersInCommand()).withTimeout(0.4).finallyDo(this::stopRoller);
+        return runRollersInCommand().until(this::isCoralInClaw).finallyDo(this::stopRoller);
     }
 
     public Command stopRollersCommand() {
@@ -204,6 +204,7 @@ public class Claw extends SubsystemBase {
         SmartDashboard.putBoolean("clawIsAtTarget", isAtTarget());
         SmartDashboard.putNumber("Rollers voltage", roller1Motor.getBusVoltage());
         SmartDashboard.putNumber("Coral Distance Sensor", canRangeSensor.getDistance().getValueAsDouble());
+        SmartDashboard.putBoolean("iS coral in claw", isCoralInClaw());
         SmartDashboard.updateValues();
         if(this.manual == false) {
             double output = pidController.calculate(getClawPos(), this.targetPos);

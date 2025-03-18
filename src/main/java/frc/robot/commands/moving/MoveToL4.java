@@ -20,7 +20,7 @@ public class MoveToL4 extends SequentialCommandGroup {
     addRequirements(elevator, claw);
     addCommands(new ParallelCommandGroup(
       elevator.moveToL4(), 
-      Commands.waitSeconds(0.2)
+      Commands.waitSeconds(0.1)
         .andThen(claw.runRollersInCommandAlt().withDeadline(Commands.waitSeconds(0.025)))
         .andThen(claw.moveClawToL4Command())).withTimeout(1.75)
       );

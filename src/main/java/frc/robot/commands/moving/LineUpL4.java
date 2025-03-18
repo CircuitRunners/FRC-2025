@@ -4,18 +4,24 @@
 
 package frc.robot.commands.moving;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagPoseEstimate;
 import edu.wpi.first.apriltag.AprilTagPoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.lib.swerve.Swerve;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.Drive;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class LineUpL4 extends Command {
+public class LineUpL4 extends SequentialCommandGroup {
   /** Creates a new LineUpL4. */
   Drive drive;
   boolean left;
@@ -27,56 +33,17 @@ public class LineUpL4 extends Command {
     addRequirements(Drive);
     this.drive = Drive;
     this.left = leftBranch;
-  }
-
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {
-    if(left) {
-        drive.visionRunning = false;
-        camToAprilTag = drive.vision.frontRightCam.getAllUnreadResults().get(drive.vision.frontRightCam.getAllUnreadResults().size()).getBestTarget().bestCameraToTarget;
-        driveStrafeCommand = drive.driveToStrafeDistanceCommand(camToAprilTag.getY() - SwerveConstants.aprilTagToRightCam.getY(),0.5);
-    } else {
-        drive.visionRunning = false;
-        camToAprilTag = drive.vision.frontLeftCam.getAllUnreadResults().get(drive.vision.frontLeftCam.getAllUnreadResults().size()).getBestTarget().bestCameraToTarget;
-        driveStrafeCommand = drive.driveToStrafeDistanceCommand(camToAprilTag.getY() - SwerveConstants.aprilTagToLeftCam.getY(),0.5);
-    }
-    drive.visionRunning = true;
-
-  }
-
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {
-    while (!finished) { 
-      double dist1 = drive.distSensor1.getDistance().getValueAsDouble();
-      double dist2 = drive.distSensor2.getDistance().getValueAsDouble();
-  
-      if(Math.abs(dist1-dist2)>SwerveConstants.distanceThreshold){
-        drive.driveRobotCentric(new ChassisSpeeds(0, 0, (dist1-dist2)*SwerveConstants.distanceCoeff));
-      }
-      else if((dist1 - SwerveConstants.distanceFromReef) > SwerveConstants.distanceThreshold){
-        drive.driveToForwardDistanceCommand(dist1-SwerveConstants.distanceFromReef, 0.5).execute();
-      }
-      else if((SwerveConstants.distanceFromReef - dist1) > SwerveConstants.distanceThreshold){ 
-        drive.driveToForwardDistanceCommand(dist1-SwerveConstants.distanceFromReef, 0.5).execute();
-      }
-      else {
-        drive.brake();
-        driveStrafeCommand.schedule();
-        finished = true;
-      }
-    }
+    DoubleSupplier dist1 = () -> drive.distSensor1.getDistance().getValueAsDouble();
+    DoubleSupplier dist2 = () -> drive.distSensor2.getDistance().getValueAsDouble();
+    // double error = ((dist1  + dist2) / 2 ) - SwerveConstants.distanceFromReef;
+    addCommands(
+        //drive.driveRobotCentricCommand(() ->new ChassisSpeeds(0, 0, Units.degreesToRadians(20) * Math.signum(dist1.getAsDouble()-dist2.getAsDouble()))).until(() -> Math.abs(dist1.getAsDouble()-dist2.getAsDouble())<SwerveConstants.distanceThreshold),
+        // drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0,0,Math.signum(dist1.getAsDouble() - dist2.getAsDouble()) * Units.degreesToRadians(50))).withTimeout((Math.atan((dist1.getAsDouble() + Units.inchesToMeters(21)))/dist2.getAsDouble()) / Math.toRadians(50)),
+        // drive.driveToForwardDistanceCommand(((dist1.getAsDouble()  + dist2.getAsDouble()) / 2 ) - SwerveConstants.distanceFromReef, 
+        //     0.5 * Math.signum((dist1.getAsDouble() + dist2.getAsDouble()) /2  - SwerveConstants.distanceFromReef)
+        //                 )
+        drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.6 * Math.signum((dist1.getAsDouble()+dist2.getAsDouble())/2 - SwerveConstants.distanceFromReef) , 0, 0)).withTimeout(((dist1.getAsDouble()+dist2.getAsDouble())/2 - SwerveConstants.distanceFromReef)/ 0.6).andThen(drive.brakeCommand())
+    );
     
-  }
-
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {}
-
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return finished;
   }
 }

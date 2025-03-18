@@ -12,21 +12,23 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DataLogManager;
 import frc.lib.LimelightHelpers;
 import frc.robot.Constants.VisionConstants;
 
 public class Vision {
     public static final record VisionMeasurement (Pose2d pose, double timestamp, Matrix<N3, N1> stdDev) {}
-    public final PhotonCamera frontLeftCam = new PhotonCamera("frontLeft");
-    public final PhotonCamera frontRightCam = new PhotonCamera("frontRight");
+    public final PhotonCamera frontLeftCam = new PhotonCamera("FrontLeft");
+    public final PhotonCamera frontRightCam = new PhotonCamera("FrontRight");
 
     public final PhotonPoseEstimator frontLeftPoseEstimator = new PhotonPoseEstimator(VisionConstants.fieldLayout, PoseStrategy.AVERAGE_BEST_TARGETS, VisionConstants.frontLeftCamTransform);
     public final PhotonPoseEstimator frontRightPoseEstimator = new PhotonPoseEstimator(VisionConstants.fieldLayout,PoseStrategy.AVERAGE_BEST_TARGETS, VisionConstants.frontRightCamTransform);
 
-    public final Consumer<VisionMeasurement> visionMeasurementConsumer;
     
-    public Vision(Consumer<VisionMeasurement> visionMeasurementConsumer){
-        this.visionMeasurementConsumer = visionMeasurementConsumer;
+    public Vision(){
+        NetworkTableInstance.stopEntryDataLog(0);
+        DataLogManager.stop();
     }
     
     public EstimatedRobotPose[] run(double robotYaw){
@@ -66,5 +68,6 @@ public class Vision {
         }
 
         return new EstimatedRobotPose[] { frontLeftEstimate, frontRightEstimate};
+
     }
 }
