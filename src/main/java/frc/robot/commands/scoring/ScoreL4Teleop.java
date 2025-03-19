@@ -19,8 +19,8 @@ public class ScoreL4Teleop extends SequentialCommandGroup {
     addCommands(
       new LineUpL4(drive, false),
       new MoveToL4(elevator, claw, drive),
-      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.5, 0, 0)).withTimeout(0.6).andThen(drive.brakeCommand()),
-      claw.scoreL4(),
+      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.5, 0, 0)).withTimeout(0.5).andThen(drive.brakeCommand()),
+      // claw.scoreL4(),
       drive.driveToForwardDistanceCommand(-0.25, -0.5),
       elevator.moveToBottom()
       );

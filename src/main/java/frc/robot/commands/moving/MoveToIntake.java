@@ -4,6 +4,7 @@
 
 package frc.robot.commands.moving;
 
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -30,7 +31,7 @@ public class MoveToIntake extends SequentialCommandGroup {
     // )
     // )
     addCommands(new SequentialCommandGroup(
-      drive.setLimitCommand(0.8),
+      // drive.driveRobotCentricCommand(() -> new ChassisSpeeds()),
       claw.moveClawToIntakeCommand(),
       elevator.moveToBottom()
     ));

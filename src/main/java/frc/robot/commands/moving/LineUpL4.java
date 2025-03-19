@@ -42,7 +42,7 @@ public class LineUpL4 extends SequentialCommandGroup {
         // drive.driveToForwardDistanceCommand(((dist1.getAsDouble()  + dist2.getAsDouble()) / 2 ) - SwerveConstants.distanceFromReef, 
         //     0.5 * Math.signum((dist1.getAsDouble() + dist2.getAsDouble()) /2  - SwerveConstants.distanceFromReef)
         //                 )
-        drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.6 * Math.signum((dist1.getAsDouble()+dist2.getAsDouble())/2 - SwerveConstants.distanceFromReef) , 0, 0)).withTimeout(((dist1.getAsDouble()+dist2.getAsDouble())/2 - SwerveConstants.distanceFromReef)/ 0.6).andThen(drive.brakeCommand())
+        drive.driveToForwardDistanceCommand((dist1.getAsDouble()+dist2.getAsDouble())/2 - SwerveConstants.distanceFromReef,0.5 * Math.signum(dist1.getAsDouble() - SwerveConstants.distanceFromReef))
     );
     
   }

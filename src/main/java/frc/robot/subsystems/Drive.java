@@ -23,6 +23,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -41,6 +42,9 @@ import frc.robot.Constants.SwerveConstants;
 import frc.robot.io.DriverControls;
 
 import java.time.LocalDate;
+
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.HttpCamera;
 
 public class Drive extends SubsystemBase {
   public static double limit = 0.7;
@@ -111,6 +115,14 @@ public class Drive extends SubsystemBase {
 
     SmartDashboard.putNumber("dist1", distSensor1.getDistance().getValueAsDouble());
     SmartDashboard.putNumber("dist2", distSensor2.getDistance().getValueAsDouble());
+    Shuffleboard.getTab("Tab2").add("Good to lift", (distSensor1.getDistance().getValueAsDouble() + distSensor2.getDistance().getValueAsDouble())/2 < 0.35 &&  (distSensor1.getDistance().getValueAsDouble() + distSensor2.getDistance().getValueAsDouble())/2 > 0.15);
+    Shuffleboard.getTab("Tab2").add("Good to score", (distSensor1.getDistance().getValueAsDouble() + distSensor2.getDistance().getValueAsDouble())/2 < 0.15 &&  (distSensor1.getDistance().getValueAsDouble() + distSensor2.getDistance().getValueAsDouble())/2 > 0.08 );
+    Shuffleboard.getTab("Tab2").add("Head on", Math.abs(distSensor1.getDistance().getValueAsDouble() - distSensor2.getDistance().getValueAsDouble()) < 0.05);
+    SmartDashboard.putBoolean("Good to lift", (distSensor1.getDistance().getValueAsDouble() + distSensor2.getDistance().getValueAsDouble())/2 < 0.35 &&  (distSensor1.getDistance().getValueAsDouble() + distSensor2.getDistance().getValueAsDouble())/2 > 0.15);
+    SmartDashboard.putBoolean("Good to score", (distSensor1.getDistance().getValueAsDouble() + distSensor2.getDistance().getValueAsDouble())/2 < 0.15 &&  (distSensor1.getDistance().getValueAsDouble() + distSensor2.getDistance().getValueAsDouble())/2 > 0.08 );
+    SmartDashboard.putBoolean("Head on", Math.abs(distSensor1.getDistance().getValueAsDouble() + distSensor2.getDistance().getValueAsDouble()) < 0.05);
+
+
 
     fieldUtil.setSwerveRobotPose(swerve.getPose2d(), swerve.getModuleStates(), SwerveConstants.modulePositions);
     // SmartDashboard.putData("default pigeon value", swerve.getPigeon2().getRotation2d());
@@ -206,7 +218,7 @@ public class Drive extends SubsystemBase {
   public Command driveToForwardDistanceCommand(double dist, double speed) {
     return run(() -> driveRobotCentric(new ChassisSpeeds(speed, 0, 0)))
         .until(() -> getPose().getTranslation().getDistance(new Translation2d(0, 0)) >
-                     dist);
+                     dist).finallyDo(this::brake);
   }
 
   // public Command sysIdDynamic(Direction direction){

@@ -173,7 +173,7 @@ public class Robot extends TimedRobot {
       driveRequest
         .withVelocityX(driverControls.driveForward())
         .withVelocityY(driverControls.driveStrafe())
-        .withRotationalRate(driverControls.driveRotation())  
+        .withRotationalRate(driverControls.driveRotation() * 0.8)  
     ));
     driverControls.increaseLimit().onTrue(drive.increaseLimitCommand());
     driverControls.decreaseLimit().onTrue(drive.decreaseLimitCommand());
@@ -202,20 +202,20 @@ public class Robot extends TimedRobot {
     manipulatorControls.a().onTrue(claw.moveClawToHorizontalCommand());
     // manipulatorControls.moveClawL4().onTrue(claw.moveClawToL4Command());
     // manipulatorControls.scoreL4Algae2().onTrue(new ScoreL4Algae(elevator, claw));
-    // manipulatorControls.Algae1().onTrue(new Algae1(elevator, claw, drive));
+    manipulatorControls.Algae1().onTrue(new Algae1(elevator, claw, drive));
     manipulatorControls.scoreL4().whileTrue(new ScoreL4Teleop(elevator, claw, drive));
-    manipulatorControls.x().whileTrue(new LineUpL4(drive, true));
-    manipulatorControls.runRollersIn().onTrue(claw.autoIntakeCommand()).onFalse(claw.stopClawCommand());
+    // manipulatorControls.x().onTrue(claw.moveClawToHorizontalCommand());
+    manipulatorControls.runRollersIn().onTrue(claw.runRollersInCommand()).onFalse(claw.stopClawCommand());
     manipulatorControls.runRollersOut().onTrue(claw.runRollersOutCommand()).onFalse(claw.stopRollersCommand());
-    manipulatorControls.rightTrigger().onTrue(claw.runManualCommand(0.1)).onFalse(claw.stopClawCommand());
-    manipulatorControls.leftTrigger().onTrue(claw.runManualCommand(-0.1)).onFalse(claw.stopClawCommand());
-    manipulatorControls.start().whileTrue(elevator.moveElevatorDown()).onFalse(elevator.stopCommand().andThen(elevator.resetPos()));
+    // manipulatorControls.rightTrigger().onTrue(claw.runManualCommand(0.1)).onFalse(claw.stopClawCommand());
+    // manipulatorControls.leftTrigger().onTrue(claw.runManualCommand(-0.1)).onFalse(claw.stopClawCommand());
+    // manipulatorControls.start().whileTrue(elevator.moveElevatorDown()).onFalse(elevator.stopCommand().andThen(elevator.resetPos()));
 
     // manipulatorControls.start().onTrue(new ParallelCommandGroup(elevator.resetTargetPos(), claw.resetTargetPos()));
     // manipulatorControls.b().onTrue(claw.runRollersOutSlowCommand()).onFalse(claw.stopRollersCommand());
 
     //overall controls
-    manipulatorControls.moveElevatorBottom().onTrue(new MoveToIntake(elevator, claw, drive));
+    manipulatorControls.back().onTrue(new MoveToIntake(elevator, claw, drive));
     manipulatorControls.moveToL1().onTrue(new MoveToL1(elevator, claw, drive));
     manipulatorControls.moveToL2().onTrue(new MoveToL2(elevator, claw, drive));
     manipulatorControls.moveToL3().onTrue(new MoveToL3(elevator, claw, drive));
