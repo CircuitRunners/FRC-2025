@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.swerve.SwerveConfig;
 import frc.lib.utils.PathPlannerUtil;
 import frc.robot.Constants.ClawConstants;
@@ -175,13 +176,24 @@ public class Robot extends TimedRobot {
         .withVelocityY(driverControls.driveStrafe())
         .withRotationalRate(driverControls.driveRotation() * 0.8)  
     ));
-    driverControls.increaseLimit().onTrue(drive.increaseLimitCommand());
-    driverControls.decreaseLimit().onTrue(drive.decreaseLimitCommand());
-    driverControls.start().onTrue(Commands.runOnce(() -> drive.zeroGyro(45), drive));
-    driverControls.robotMoveRight().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, -0.4, 0)));
-    driverControls.robotMoveLeft().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0.4, 0)));
-    driverControls.robotMoveForward().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.7, 0, 0)));
-    driverControls.robotMoveBack().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(-0.7, 0, 0)));
+    // driverControls.increaseLimit().onTrue(drive.increaseLimitCommand());
+    // driverControls.decreaseLimit().onTrue(drive.decreaseLimitCommand());
+    // 
+
+    Trigger rotateRight = new Trigger(() -> driverControls.rightBumper().getAsBoolean());
+    Trigger rotateLeft = new Trigger(() -> (driverControls.leftBumper().getAsBoolean()));
+    Trigger strafeRight = new Trigger(() -> (!driverControls.rightBumper().getAsBoolean() && driverControls.povRight().getAsBoolean()));
+    Trigger strafeLeft = new Trigger(() -> (!driverControls.leftBumper().getAsBoolean() && driverControls.povLeft().getAsBoolean()));
+    
+    rotateRight.whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, -0.5)));
+    rotateLeft.whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, 0.5)));
+
+    driverControls.start().onTrue(Commands.runOnce(() -> drive.zeroGyro(0), drive));
+    strafeRight.whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, -0.4, 0)));
+    strafeLeft.whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0.4, 0)));
+    
+    driverControls.robotMoveForward().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.4, 0, 0)));
+    driverControls.robotMoveBack().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(-0.4, 0, 0)));
     driverControls.leftTrigger().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, Math.toRadians(2))));
     driverControls.rightTrigger().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, Math.toRadians(2))));
 
@@ -203,7 +215,7 @@ public class Robot extends TimedRobot {
     // manipulatorControls.moveClawL4().onTrue(claw.moveClawToL4Command());
     // manipulatorControls.scoreL4Algae2().onTrue(new ScoreL4Algae(elevator, claw));
     manipulatorControls.Algae1().onTrue(new Algae1(elevator, claw, drive));
-    manipulatorControls.scoreL4().whileTrue(new ScoreL4Teleop(elevator, claw, drive));
+    manipulatorControls.scoreL4().whileTrue(new ScoreL4(elevator, claw));
     // manipulatorControls.x().onTrue(claw.moveClawToHorizontalCommand());
     manipulatorControls.runRollersIn().onTrue(claw.runRollersInCommand()).onFalse(claw.stopClawCommand());
     manipulatorControls.runRollersOut().onTrue(claw.runRollersOutCommand()).onFalse(claw.stopRollersCommand());
@@ -215,7 +227,22 @@ public class Robot extends TimedRobot {
     // manipulatorControls.b().onTrue(claw.runRollersOutSlowCommand()).onFalse(claw.stopRollersCommand());
 
     //overall controls
-    manipulatorControls.back().onTrue(new MoveToIntake(elevator, claw, drive));
+    manipulatorControls.leftStick().onTrue(new MoveToIntake(elevator, claw, drive)).onFalse(Commands.runOnce(() -> {
+      drive.setDefaultCommand(drive.driveFieldCentricCommand(() -> 
+        driveRequest
+          .withVelocityX(driverControls.driveForward())
+          .withVelocityY(driverControls.driveStrafe())
+          .withRotationalRate(driverControls.driveRotation() * 0.8)  
+    ));
+    }));
+    manipulatorControls.back().onTrue(new MoveToIntake(elevator, claw, drive)).onFalse(Commands.runOnce(() -> {
+        drive.setDefaultCommand(drive.driveFieldCentricCommand(() -> 
+          driveRequest
+            .withVelocityX(driverControls.driveForward())
+            .withVelocityY(driverControls.driveStrafe())
+            .withRotationalRate(driverControls.driveRotation() * 0.8)  
+      ));
+    }));
     manipulatorControls.moveToL1().onTrue(new MoveToL1(elevator, claw, drive));
     manipulatorControls.moveToL2().onTrue(new MoveToL2(elevator, claw, drive));
     manipulatorControls.moveToL3().onTrue(new MoveToL3(elevator, claw, drive));

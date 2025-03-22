@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.*;
+import frc.robot.io.DriverControls;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
@@ -30,10 +31,14 @@ public class MoveToIntake extends SequentialCommandGroup {
     //   )
     // )
     // )
-    addCommands(new SequentialCommandGroup(
-      // drive.driveRobotCentricCommand(() -> new ChassisSpeeds()),
-      claw.moveClawToIntakeCommand(),
-      elevator.moveToBottom()
+    addCommands(
+      new ParallelCommandGroup(
+        drive.driveRobotCentricCommand(() -> new ChassisSpeeds()),
+        new SequentialCommandGroup(
+        claw.moveClawToIntakeCommand(),
+        elevator.moveToBottom()
+      )
+      // Commands.runOnce(() -> drive.resetDrivecommand(driverControls), drive)
     ));
 
   }

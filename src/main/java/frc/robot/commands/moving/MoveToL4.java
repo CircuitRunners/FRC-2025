@@ -4,6 +4,7 @@
 
 package frc.robot.commands.moving;
 
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -17,8 +18,9 @@ public class MoveToL4 extends SequentialCommandGroup {
   public MoveToL4(Elevator elevator, Claw claw, Drive drive) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addRequirements(elevator, claw);
+    addRequirements(elevator, claw, drive);
     addCommands(new ParallelCommandGroup(
+      drive.driveRobotCentricCommand(() -> new ChassisSpeeds()),
       elevator.moveToL4(), 
       Commands.waitSeconds(0.1)
         .andThen(claw.runRollersInCommandAlt().withDeadline(Commands.waitSeconds(0.025)))
