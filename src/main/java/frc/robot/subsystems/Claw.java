@@ -125,6 +125,11 @@ public class Claw extends SubsystemBase {
         return changeRollerSpdCommand(-0.5);
     }
 
+    public Command runRollersOutAdjustCommand() {
+        SmartDashboard.putString("rollers state", "running out");
+        return changeRollerSpdCommand(-0.3);
+    }
+
     public Command runRollersOutSlowCommand() {
         SmartDashboard.putString("rollers state", "running out slow");
         return changeRollerSpdCommand(-0.3);

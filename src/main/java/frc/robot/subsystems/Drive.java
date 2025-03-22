@@ -116,18 +116,28 @@ public class Drive extends SubsystemBase {
     double distance1 = distSensor1.getDistance().getValueAsDouble();
     double distance2 = distSensor2.getDistance().getValueAsDouble();
     double average = (distance1 + distance2) / 2;
+    double scoreDistance = 0.445;
+    double scoreTolerance = 0.015;
+    double headingTolerance = 0.02;
+    
     SmartDashboard.putNumber("dist1", distance1);
     SmartDashboard.putNumber("dist2", distance2);
-    SmartDashboard.putBoolean("Good to lift", average < 0.6);
+    SmartDashboard.putBoolean("Good to lift", average > 0.6);
     // TODO FIND THE PERFECT POSITION, THEN FIND THE +/- WE HAVE BASED ON THAT
-    SmartDashboard.putBoolean("Good to score", average < 0.455 && average > 0.42);
+    SmartDashboard.putBoolean("Good to score", average < (scoreDistance + scoreTolerance) && average > (scoreDistance - scoreTolerance));
     SmartDashboard.putBoolean("Head on", Math.abs(distance1 - distance2) < 0.02);
     String direction;
-    if (distance1 - distance2 > 0.02) {
+    if (distance1 - distance2 > headingTolerance) {
+      SmartDashboard.putBoolean("Right", true);
+      SmartDashboard.putBoolean("Left", false);
       direction = "right";
-    } else if (distance2 - distance1 > 0.02) {
+    } else if (distance2 - distance1 > headingTolerance) {
+      SmartDashboard.putBoolean("Right", false);
+      SmartDashboard.putBoolean("Left", true);
       direction = "left";
     } else {
+      SmartDashboard.putBoolean("Right", false);
+      SmartDashboard.putBoolean("Left", false);
       direction = "good";
     }
     SmartDashboard.putString("Direction To Turn", direction);

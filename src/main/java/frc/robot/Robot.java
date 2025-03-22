@@ -187,14 +187,14 @@ public class Robot extends TimedRobot {
     
     rotateRight.whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, -0.5)));
     rotateLeft.whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, 0.5)));
-
+    double speed = 0.4;
     // driverControls.start().onTrue(Commands.runOnce(() -> drive.zeroGyro(0), drive));
     driverControls.start().onTrue(Commands.runOnce(() -> drive.seedFieldCentric()));
-    strafeRight.whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, -0.4, 0)));
-    strafeLeft.whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0.4, 0)));
+    strafeRight.whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, -speed, 0)));
+    strafeLeft.whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, speed, 0)));
     
-    driverControls.robotMoveForward().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.4, 0, 0)));
-    driverControls.robotMoveBack().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(-0.4, 0, 0)));
+    driverControls.robotMoveForward().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(speed, 0, 0)));
+    driverControls.robotMoveBack().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(-speed, 0, 0)));
     driverControls.leftTrigger().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, Math.toRadians(2))));
     driverControls.rightTrigger().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, Math.toRadians(2))));
 
@@ -219,7 +219,7 @@ public class Robot extends TimedRobot {
     manipulatorControls.scoreL4().whileTrue(new ScoreL4(elevator, claw));
     // manipulatorControls.x().onTrue(claw.moveClawToHorizontalCommand());
     manipulatorControls.runRollersIn().onTrue(claw.runRollersInCommand()).onFalse(claw.stopClawCommand());
-    manipulatorControls.runRollersOut().onTrue(claw.runRollersOutCommand()).onFalse(claw.stopRollersCommand());
+    manipulatorControls.runRollersOut().onTrue(claw.runRollersOutAdjustCommand()).onFalse(claw.stopRollersCommand());
     // manipulatorControls.rightTrigger().onTrue(claw.runManualCommand(0.1)).onFalse(claw.stopClawCommand());
     // manipulatorControls.leftTrigger().onTrue(claw.runManualCommand(-0.1)).onFalse(claw.stopClawCommand());
     // manipulatorControls.start().whileTrue(elevator.moveElevatorDown()).onFalse(elevator.stopCommand().andThen(elevator.resetPos()));
