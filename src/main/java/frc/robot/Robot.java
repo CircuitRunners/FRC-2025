@@ -188,7 +188,8 @@ public class Robot extends TimedRobot {
     rotateRight.whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, -0.5)));
     rotateLeft.whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, 0.5)));
 
-    driverControls.start().onTrue(Commands.runOnce(() -> drive.zeroGyro(0), drive));
+    // driverControls.start().onTrue(Commands.runOnce(() -> drive.zeroGyro(0), drive));
+    driverControls.start().onTrue(Commands.runOnce(() -> drive.seedFieldCentric()));
     strafeRight.whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, -0.4, 0)));
     strafeLeft.whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0.4, 0)));
     

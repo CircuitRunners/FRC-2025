@@ -113,16 +113,20 @@ public class Drive extends SubsystemBase {
     SmartDashboard.putNumber("pigeon angle", swerve.getPigeon2().getYaw().getValueAsDouble());
     SmartDashboard.putNumber("drive limit", limit);
 
-    SmartDashboard.putNumber("dist1", distSensor1.getDistance().getValueAsDouble());
-    SmartDashboard.putNumber("dist2", distSensor2.getDistance().getValueAsDouble());
-    SmartDashboard.putBoolean("Good to lift", (distSensor1.getDistance().getValueAsDouble() + distSensor2.getDistance().getValueAsDouble())/2 > 0.6);
-    SmartDashboard.putBoolean("Good to score", (distSensor1.getDistance().getValueAsDouble() + distSensor2.getDistance().getValueAsDouble())/2 < 0.455 &&  (distSensor1.getDistance().getValueAsDouble() + distSensor2.getDistance().getValueAsDouble())/2 > 0.42);
-    SmartDashboard.putBoolean("Head on", Math.abs(distSensor1.getDistance().getValueAsDouble() - distSensor2.getDistance().getValueAsDouble()) < 0.02);
+    double distance1 = distSensor1.getDistance().getValueAsDouble();
+    double distance2 = distSensor2.getDistance().getValueAsDouble();
+    double average = (distance1 + distance2) / 2;
+    SmartDashboard.putNumber("dist1", distance1);
+    SmartDashboard.putNumber("dist2", distance2);
+    SmartDashboard.putBoolean("Good to lift", average < 0.6);
+    // TODO FIND THE PERFECT POSITION, THEN FIND THE +/- WE HAVE BASED ON THAT
+    SmartDashboard.putBoolean("Good to score", average < 0.455 && average > 0.42);
+    SmartDashboard.putBoolean("Head on", Math.abs(distance1 - distance2) < 0.02);
     String direction;
-    if (distSensor1.getDistance().getValueAsDouble() - distSensor2.getDistance().getValueAsDouble() > 0.02) {
-      direction = "r";
-    } else if (distSensor2.getDistance().getValueAsDouble() - distSensor1.getDistance().getValueAsDouble() > 0.02) {
-      direction = "l";
+    if (distance1 - distance2 > 0.02) {
+      direction = "right";
+    } else if (distance2 - distance1 > 0.02) {
+      direction = "left";
     } else {
       direction = "good";
     }
@@ -213,13 +217,15 @@ public class Drive extends SubsystemBase {
   public Pose2d getPose(){
     return swerve.getPose2d();
   }
-
+  public void seedFieldCentric() {
+    swerve.seedFieldCentric();
+  }
   public void resetPose(Pose2d pose){
     swerve.resetPose(pose);
   }
 
   public void zeroGyro(double newYaw) {
-    swerve.getPigeon2().setYaw(newYaw);
+    // swerve.getPigeon2().setYaw(newYaw);
   }
 
   public Command zeroGyroCommand(){
