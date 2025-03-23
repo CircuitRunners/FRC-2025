@@ -252,6 +252,7 @@ public class Robot extends TimedRobot {
     manipulatorControls.moveToL2().onTrue(new MoveToL2(elevator, claw, drive));
     manipulatorControls.moveToL3().onTrue(new MoveToL3(elevator, claw, drive));
     manipulatorControls.moveToL4().onTrue(new MoveToL4(elevator, claw, drive));
+    manipulatorControls.leftBumper().onTrue(claw.runManualCommand(-0.05)).onFalse(claw.zeroArm());
     
   }
 

@@ -192,14 +192,18 @@ public class Claw extends SubsystemBase {
         );
     }
 
-    
-
     public Command runManualCommand(double speed){
-        
         return run(() -> {
             this.manual = true;
             SmartDashboard.putString("claw state", "moving");
             moveMotor.set(speed);});
+    }
+
+    public Command zeroArm() {
+        return runOnce(() -> {
+            clawEncoder.setPosition(0);
+            setTargetPos(0);
+        });
     }
 
     @Override
