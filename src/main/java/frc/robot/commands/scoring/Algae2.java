@@ -15,11 +15,11 @@ import frc.robot.subsystems.*;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class Algae2 extends SequentialCommandGroup {
   /** Creates a new ScoreL4. */
-  public Algae2(Elevator elevator, Claw claw, Drive drive) {
+  public Algae2(Elevator elevator, Claw claw) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addRequirements(elevator, claw, drive);
-    addCommands(new ParallelCommandGroup(drive.setLimitCommand(0), new SequentialCommandGroup(new WaitCommand(0.2), claw.moveClawToAlgae()), elevator.moveElevatorToAlgae2()));
+    addRequirements(elevator, claw);
+    addCommands(new ParallelCommandGroup(new SequentialCommandGroup(new WaitCommand(0.2), claw.moveClawToAlgae()), elevator.moveElevatorToAlgae2()));
     //
   }
 }

@@ -105,7 +105,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousExit() {
-    drive.zeroGyro(180);
+    drive.seedFieldCentric();
   }
 
   @Override
@@ -201,6 +201,7 @@ public class Robot extends TimedRobot {
     driverControls.leftTrigger().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, Math.toRadians(2))));
     driverControls.rightTrigger().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, Math.toRadians(2))));
 
+    driverControls.b().whileTrue(new ScoreL4Auto(elevator, claw, drive));
     // driverControls.a().whileTrue(PathPlannerUtil.getAutoCommand("Mid Preload to L4"));
 
     // driverControls.y().onTrue(elevator.moveElevatorUp()).onFalse(elevator.stopCommand());
@@ -218,11 +219,12 @@ public class Robot extends TimedRobot {
     manipulatorControls.start().onTrue(claw.moveClawToHorizontalCommand());
     // manipulatorControls.moveClawL4().onTrue(claw.moveClawToL4Command());
     // manipulatorControls.scoreL4Algae2().onTrue(new ScoreL4Algae(elevator, claw));
-    manipulatorControls.Algae1().onTrue(new Algae1(elevator, claw, drive));
-    manipulatorControls.Algae2().onTrue(new Algae2(elevator, claw, drive));
+    manipulatorControls.Algae1().onTrue(new Algae1(elevator, claw));
+    
+    manipulatorControls.Algae2().onTrue(new Algae2(elevator, claw));
     manipulatorControls.scoreL4().whileTrue(new ScoreL4(elevator, claw));
     // manipulatorControls.x().onTrue(claw.moveClawToHorizontalCommand());
-    manipulatorControls.runRollersIn().onTrue(claw.runRollersInCommand()).onFalse(claw.stopClawCommand());
+    manipulatorControls.runRollersIn().onTrue(claw.runRollersInCommand()).onFalse(claw.stopRollersCommand());
     manipulatorControls.runRollersOut().onTrue(claw.runRollersOutAdjustCommand()).onFalse(claw.stopRollersCommand());
     // manipulatorControls.rightTrigger().onTrue(claw.runManualCommand(0.1)).onFalse(claw.stopClawCommand());
     // manipulatorControls.leftTrigger().onTrue(claw.runManualCommand(-0.1)).onFalse(claw.stopClawCommand());
@@ -252,7 +254,7 @@ public class Robot extends TimedRobot {
     manipulatorControls.moveToL2().onTrue(new MoveToL2(elevator, claw, drive));
     manipulatorControls.moveToL3().onTrue(new MoveToL3(elevator, claw, drive));
     manipulatorControls.moveToL4().onTrue(new MoveToL4(elevator, claw, drive));
-    manipulatorControls.leftBumper().onTrue(claw.runManualCommand(-0.05)).onFalse(claw.zeroArm());
+    manipulatorControls.leftTrigger().onTrue(claw.runManualCommand(-0.05)).onFalse(claw.zeroArm());
     
   }
 
