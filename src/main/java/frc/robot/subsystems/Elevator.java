@@ -48,7 +48,7 @@ extends SubsystemBase {
         
         //Initialize PID controller with motion constraints
         pidController = new PIDController(kp, ki, kd);
-        pidController.setTolerance(5); //Acceptable error range
+        pidController.setTolerance(6); //Acceptable error range
     }
 
     // Move the elevator to the specified position
