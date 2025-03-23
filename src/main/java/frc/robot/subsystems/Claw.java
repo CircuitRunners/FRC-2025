@@ -203,6 +203,7 @@ public class Claw extends SubsystemBase {
         return runOnce(() -> {
             clawEncoder.setPosition(0);
             setTargetPos(0);
+            this.manual = false;
         });
     }
 
