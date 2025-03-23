@@ -52,9 +52,9 @@ public class ManipulatorControls extends CommandXboxController{
     //     return y();
     // }
 
-    public Trigger scoreL4Algae2() {
-        return a();
-    }
+    // public Trigger scoreL4Algae2() {
+    //     return a();
+    // }
     
     public Trigger scoreL4() {
         return b();
@@ -62,6 +62,10 @@ public class ManipulatorControls extends CommandXboxController{
     
     public Trigger Algae1() {
         return y();
+    }
+
+    public Trigger Algae2() {
+        return a();
     }
 
     public Trigger runRollersOut() {

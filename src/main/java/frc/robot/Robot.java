@@ -215,10 +215,11 @@ public class Robot extends TimedRobot {
     // manipulatorControls.moveElevatorL3().onTrue(elevator.moveToL3());
     // manipulatorControls.moveElevatorL4().onTrue(elevator.moveToL4());
     // // claw controls
-    manipulatorControls.a().onTrue(claw.moveClawToHorizontalCommand());
+    manipulatorControls.start().onTrue(claw.moveClawToHorizontalCommand());
     // manipulatorControls.moveClawL4().onTrue(claw.moveClawToL4Command());
     // manipulatorControls.scoreL4Algae2().onTrue(new ScoreL4Algae(elevator, claw));
     manipulatorControls.Algae1().onTrue(new Algae1(elevator, claw, drive));
+    manipulatorControls.Algae2().onTrue(new Algae2(elevator, claw, drive));
     manipulatorControls.scoreL4().whileTrue(new ScoreL4(elevator, claw));
     // manipulatorControls.x().onTrue(claw.moveClawToHorizontalCommand());
     manipulatorControls.runRollersIn().onTrue(claw.runRollersInCommand()).onFalse(claw.stopClawCommand());
