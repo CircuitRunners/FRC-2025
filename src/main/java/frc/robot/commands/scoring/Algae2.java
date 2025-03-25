@@ -19,7 +19,7 @@ public class Algae2 extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addRequirements(elevator, claw);
-    addCommands(new ParallelCommandGroup(new SequentialCommandGroup(new WaitCommand(0.2), claw.moveClawToAlgae()), elevator.moveElevatorToAlgae2()));
+    addCommands(new ParallelCommandGroup(claw.moveClawToAlgae(), elevator.moveElevatorToAlgae2()));
     //
   }
 }

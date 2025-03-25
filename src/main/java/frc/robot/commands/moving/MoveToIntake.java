@@ -32,14 +32,13 @@ public class MoveToIntake extends SequentialCommandGroup {
     // )
     // )
     addCommands(
+      drive.driveRobotCentricCommand(() -> new ChassisSpeeds()).withTimeout(0.1),
       new ParallelCommandGroup(
-        drive.driveRobotCentricCommand(() -> new ChassisSpeeds()),
         new SequentialCommandGroup(
-        claw.moveClawToIntakeCommand(),
-        elevator.moveToBottom()
-      )
-      // Commands.runOnce(() -> drive.resetDrivecommand(driverControls), drive)
-    ));
+          claw.moveClawToIntakeCommand(),
+          elevator.moveToBottom().until(() -> elevator.isAtTarget())
+        ))
+    );
 
   }
 }

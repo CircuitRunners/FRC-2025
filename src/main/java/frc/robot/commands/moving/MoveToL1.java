@@ -19,6 +19,6 @@ public class MoveToL1 extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addRequirements(elevator, claw, drive);
-    addCommands(new ParallelCommandGroup(drive.driveRobotCentricCommand(() -> new ChassisSpeeds()),elevator.moveToL1(), Commands.waitSeconds(0.2).andThen(claw.moveClawToHorizontalCommand())));
+    addCommands(new ParallelCommandGroup(drive.driveRobotCentricCommand(() -> new ChassisSpeeds()),elevator.moveToL1().until(() -> elevator.isAtTarget()), Commands.waitSeconds(0.2).andThen(claw.moveClawToHorizontalCommand())));
   }
 }

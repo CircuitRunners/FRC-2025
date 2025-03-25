@@ -261,8 +261,8 @@ public final class Constants {
     public static final double l2EncoderValue = -10.238096714019775 - encoderDifference; // tune specifically
     public static final double l3EncoderValue = -42.928138732910156 - encoderDifference; // tune specifically
     public static final double l4EncoderValue = -71.5 - encoderDifference; // tune specifically
-    public static final double Algae2 = -50 - encoderDifference;
-    public static final double Algae1 = -20 - encoderDifference;
+    public static final double Algae2 = -54 - encoderDifference;
+    public static final double Algae1 = -24 - encoderDifference;
     public static final double tolerance = 0.5;
   }
   
@@ -279,7 +279,7 @@ public final class Constants {
       public static double tolerance = 0.5;
       public static int canRangePort = 2;
       public static double algaeValue = 40 / 5 - encoderOffset;
-      public static double coralSensorRange = 0.03; 
+      public static double coralSensorRange = 0.05; 
     }
 }
 

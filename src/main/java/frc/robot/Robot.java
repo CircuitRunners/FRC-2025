@@ -13,6 +13,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -45,6 +46,19 @@ import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.wpilibj.TimedRobot;
+
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.CvSink;
+import edu.wpi.first.cscore.CvSource;
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.wpilibj.TimedRobot;
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
+
 public class Robot extends TimedRobot {
   private Drive drive;
   private Elevator elevator;
@@ -53,6 +67,8 @@ public class Robot extends TimedRobot {
   private ManipulatorControls manipulatorControls;
   private Command m_autonomousCommand;
   private SendableChooser<Command> autoChooser = new SendableChooser<>();
+
+  Thread m_visionThread;
 
 
   // public Robot() {
@@ -66,6 +82,8 @@ public class Robot extends TimedRobot {
     configureAutos();
 
     DataLogManager.logNetworkTables(false);
+    CameraServer.startAutomaticCapture();
+
     
   }
   
@@ -105,7 +123,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousExit() {
-    drive.seedFieldCentric();
+    drive.resetRotation(new Rotation2d(180));
   }
 
   @Override
@@ -242,19 +260,13 @@ public class Robot extends TimedRobot {
           .withRotationalRate(driverControls.driveRotation() * 0.8)  
     ));
     }));
-    manipulatorControls.back().onTrue(new MoveToIntake(elevator, claw, drive)).onFalse(Commands.runOnce(() -> {
-        drive.setDefaultCommand(drive.driveFieldCentricCommand(() -> 
-          driveRequest
-            .withVelocityX(driverControls.driveForward())
-            .withVelocityY(driverControls.driveStrafe())
-            .withRotationalRate(driverControls.driveRotation() * 0.8)  
-      ));
-    }));
+    manipulatorControls.back().onTrue(new MoveToIntake(elevator, claw, drive));
     manipulatorControls.moveToL1().onTrue(new MoveToL1(elevator, claw, drive));
     manipulatorControls.moveToL2().onTrue(new MoveToL2(elevator, claw, drive));
     manipulatorControls.moveToL3().onTrue(new MoveToL3(elevator, claw, drive));
     manipulatorControls.moveToL4().onTrue(new MoveToL4(elevator, claw, drive));
     manipulatorControls.leftTrigger().onTrue(claw.runManualCommand(-0.05)).onFalse(claw.zeroArm());
+    manipulatorControls.leftTrigger().onTrue(claw.runManualCommand(0.05));
     
   }
 

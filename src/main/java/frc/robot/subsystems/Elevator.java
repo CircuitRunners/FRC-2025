@@ -84,7 +84,7 @@ extends SubsystemBase {
     }
 
     public boolean isAtTarget(){
-        return (Math.abs(getElevatorPos() - getTargetPos()) < 5);
+        return (Math.abs(getElevatorPos() - getTargetPos()) < 6);
     }
 
     public Command moveElevatorCommand(double targetPosition, String stateName) {
@@ -94,6 +94,10 @@ extends SubsystemBase {
     public Command moveToL4() {
         // Drive.limit = 0.3;
         return moveElevatorCommand(ElevatorConstants.l4EncoderValue, "L4");
+    }
+    
+    public Command decrement(double decrement) {
+        return moveElevatorCommand(getTargetPos() - 5, "yum yum eat em");
     }
 
     public Command moveElevatorToAlgae2() {
