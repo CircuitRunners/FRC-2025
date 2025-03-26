@@ -175,10 +175,14 @@ public class Robot extends TimedRobot {
 
     autoChooser = AutoBuilder.buildAutoChooser("taxi");
     autoChooser.addOption("long taxi", drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.6 * SwerveConstants.maxVelocityMPS, 0, 0)).withTimeout(7));
-    autoChooser.setDefaultOption("scoreL4 auto no pathplanner",
+    autoChooser.addOption("scoreL4 auto no pathplanner",
       drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.75, 0, 0))
         .withTimeout(3)
         .andThen(new ScoreL4Auto(elevator, claw, drive)));
+    autoChooser.setDefaultOption("scoreL4 auto remove algae no pathplanner",
+      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.75, 0, 0))
+        .withTimeout(3)
+        .andThen(new ScoreL4AutoWithAlgaeRemoval(elevator, claw, drive)));
     
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
