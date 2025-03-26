@@ -41,6 +41,8 @@ import edu.wpi.first.cscore.CvSink;
 import edu.wpi.first.cscore.CvSource;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.TimedRobot;
+
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
@@ -82,10 +84,46 @@ public class Robot extends TimedRobot {
     configureAutos();
 
     DataLogManager.logNetworkTables(false);
-    CameraServer.startAutomaticCapture();
+    // CameraServer.startAutomaticCapture();
 
-    
+
+    /**
+     * If this vision thread doesnt work, comment out lines 93-124 and uncomment line 87
+     */
+    m_visionThread =
+        new Thread(
+            () -> {
+              UsbCamera camera = CameraServer.startAutomaticCapture();
+              camera.setResolution(640, 480);
+
+              CvSink cvSink = CameraServer.getVideo();
+              CvSource outputStream = CameraServer.putVideo("Rectangle", 640, 480);
+
+              Mat mat = new Mat();
+
+              while (!Thread.interrupted()) {
+                if (cvSink.grabFrame(mat) == 0) {
+                  outputStream.notifyError(cvSink.getError());
+                  continue;
+                }
+
+                Core.rotate(mat, mat, Core.ROTATE_90_COUNTERCLOCKWISE);
+                int barWidth = 4;
+                Imgproc.rectangle(
+                  mat,
+                  new Point(mat.width() - barWidth / 2, 0),
+                  new Point(mat.width() + barWidth / 2, mat.height()),
+                  new Scalar(0, 255, 0),
+                  -1
+                );
+                outputStream.putFrame(mat);
+              }
+            });
+    m_visionThread.setDaemon(true);
+    m_visionThread.start();
   }
+    
+  
   
   @Override
   public void driverStationConnected() {
