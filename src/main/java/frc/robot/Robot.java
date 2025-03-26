@@ -90,37 +90,37 @@ public class Robot extends TimedRobot {
     /**
      * If this vision thread doesnt work, comment out lines 93-124 and uncomment line 87
      */
-    m_visionThread =
-        new Thread(
-            () -> {
-              UsbCamera camera = CameraServer.startAutomaticCapture();
-              camera.setResolution(640, 480);
+    // m_visionThread =
+    //     new Thread(
+    //         () -> {
+    //           UsbCamera camera = CameraServer.startAutomaticCapture();
+    //           camera.setResolution(640, 480);
 
-              CvSink cvSink = CameraServer.getVideo();
-              CvSource outputStream = CameraServer.putVideo("Rectangle", 640, 480);
+    //           CvSink cvSink = CameraServer.getVideo();
+    //           CvSource outputStream = CameraServer.putVideo("Rectangle", 640, 480);
 
-              Mat mat = new Mat();
+    //           Mat mat = new Mat();
 
-              while (!Thread.interrupted()) {
-                if (cvSink.grabFrame(mat) == 0) {
-                  outputStream.notifyError(cvSink.getError());
-                  continue;
-                }
+    //           while (!Thread.interrupted()) {
+    //             if (cvSink.grabFrame(mat) == 0) {
+    //               outputStream.notifyError(cvSink.getError());
+    //               continue;
+    //             }
 
-                Core.rotate(mat, mat, Core.ROTATE_90_COUNTERCLOCKWISE);
-                int barWidth = 4;
-                Imgproc.rectangle(
-                  mat,
-                  new Point(mat.width() - barWidth / 2, 0),
-                  new Point(mat.width() + barWidth / 2, mat.height()),
-                  new Scalar(0, 255, 0),
-                  -1
-                );
-                outputStream.putFrame(mat);
-              }
-            });
-    m_visionThread.setDaemon(true);
-    m_visionThread.start();
+    //             Core.rotate(mat, mat, Core.ROTATE_90_COUNTERCLOCKWISE);
+    //             int barWidth = 4;
+    //             Imgproc.rectangle(
+    //               mat,
+    //               new Point(mat.width() - barWidth / 2, 0),
+    //               new Point(mat.width() + barWidth / 2, mat.height()),
+    //               new Scalar(0, 255, 0),
+    //               -1
+    //             );
+    //             outputStream.putFrame(mat);
+    //           }
+    //         });
+    // m_visionThread.setDaemon(true);
+    // m_visionThread.start();
   }
     
   
@@ -161,13 +161,13 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousExit() {
-    drive.resetRotation(new Rotation2d(180));
+    // drive.resetRotation(new Rotation2d(325));
   }
 
   @Override
   public void teleopInit() {
     elevator.resetTargetPos().execute();;
-    // drive.resetGyroCommand().execute();
+    // drive.resetRotation(new Rotation2d(330));
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
@@ -308,7 +308,7 @@ public class Robot extends TimedRobot {
     manipulatorControls.moveToL3().onTrue(new MoveToL3(elevator, claw, drive));
     manipulatorControls.moveToL4().onTrue(new MoveToL4(elevator, claw, drive));
     manipulatorControls.leftTrigger().onTrue(claw.runManualCommand(-0.05)).onFalse(claw.zeroArm());
-    manipulatorControls.leftTrigger().onTrue(claw.runManualCommand(0.05));
+    manipulatorControls.rightTrigger().onTrue(claw.runManualCommand(0.05));
     
   }
 

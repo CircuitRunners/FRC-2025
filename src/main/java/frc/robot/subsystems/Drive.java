@@ -231,6 +231,10 @@ public class Drive extends SubsystemBase {
     swerve.seedFieldCentric();
   }
 
+  public void resetOrientationAuto() {
+    swerve.resetRotation(Rotation2d.fromDegrees(180));
+  }
+
   public void resetRotation(Rotation2d rotation ) {
     swerve.resetRotation(rotation);
   }
