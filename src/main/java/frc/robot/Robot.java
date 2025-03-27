@@ -161,7 +161,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousExit() {
-    // drive.resetRotation(new Rotation2d(325));
+    drive.resetRotation(Rotation2d.fromDegrees(180));
   }
 
   @Override
@@ -216,11 +216,13 @@ public class Robot extends TimedRobot {
     autoChooser.addOption("scoreL4 auto no pathplanner",
       drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.75, 0, 0))
         .withTimeout(3)
-        .andThen(new ScoreL4Auto(elevator, claw, drive)));
+        .andThen(new ScoreL4Auto(elevator, claw, drive))
+        .andThen(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, Math.PI)).withTimeout(1).finallyDo(drive::brake)));
     autoChooser.setDefaultOption("scoreL4 auto remove algae no pathplanner",
       drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.75, 0, 0))
         .withTimeout(3)
-        .andThen(new ScoreL4AutoWithAlgaeRemoval(elevator, claw, drive)));
+        .andThen(new ScoreL4AutoWithAlgaeRemoval(elevator, claw, drive))
+        .andThen(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, Math.PI)).withTimeout(1).finallyDo(drive::brake)));
     
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
