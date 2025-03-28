@@ -161,7 +161,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousExit() {
-    drive.resetRotation(Rotation2d.fromDegrees(180));
+    drive.resetOrientationAuto();
   }
 
   @Override
