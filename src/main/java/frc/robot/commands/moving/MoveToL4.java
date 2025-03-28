@@ -22,7 +22,7 @@ public class MoveToL4 extends SequentialCommandGroup {
     addCommands(new ParallelCommandGroup(
       drive.driveRobotCentricCommand(() -> new ChassisSpeeds()),
       elevator.moveToL4(), 
-      Commands.waitSeconds(0.1)
+      Commands.waitSeconds(0.2)
         .andThen(claw.runRollersInCommandAlt().withDeadline(Commands.waitSeconds(0.02)))
         .andThen(claw.moveClawToL4Command())).withTimeout(1.75)
     );
