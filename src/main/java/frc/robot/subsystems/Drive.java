@@ -35,8 +35,8 @@ import frc.lib.swerve.Swerve;
 import frc.lib.swerve.SwerveConfig;
 import frc.lib.utils.FieldUtil;
 import frc.lib.utils.PathPlannerUtil;
-import frc.robot.Vision;
-import frc.robot.Vision.VisionMeasurement;
+// import frc.robot.Vision;
+// import frc.robot.Vision.VisionMeasurement;
 import frc.robot.Constants.DriverConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.io.DriverControls;
@@ -53,7 +53,7 @@ public class Drive extends SubsystemBase {
   private boolean sysIdTranslator = true;
   public long setTime;
   
-  public Vision vision;
+  // public Vision vision;
   public boolean visionRunning;
   private SwerveRequest.FieldCentric driveRequest;
 
