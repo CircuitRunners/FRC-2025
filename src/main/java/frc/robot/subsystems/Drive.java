@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import org.photonvision.EstimatedRobotPose;
+// import org.photonvision.EstimatedRobotPose;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.MountPoseConfigs;
@@ -89,7 +89,7 @@ public class Drive extends SubsystemBase {
     
     SignalLogger.setPath("logs/sysid/drive");
     if(visionRunning) {
-      vision = new Vision();
+      // vision = new Vision();
     }
     this.swerve = swerve;
 
@@ -105,10 +105,10 @@ public class Drive extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     if (visionRunning) {
-      EstimatedRobotPose[] poses = vision.run(swerve.getPigeon2().getYaw().getValueAsDouble());
-      swerve.addVisionMeasurement(poses[0].estimatedPose.toPose2d(), poses[0].timestampSeconds);
-      swerve.addVisionMeasurement(poses[1].estimatedPose.toPose2d(), poses[1].timestampSeconds);
-      fieldUtil.setObjectGlobalPose("LeftPoseEstimate", poses[0].estimatedPose.toPose2d());
+      // EstimatedRobotPose[] poses = vision.run(swerve.getPigeon2().getYaw().getValueAsDouble());
+      // swerve.addVisionMeasurement(poses[0].estimatedPose.toPose2d(), poses[0].timestampSeconds);
+      // swerve.addVisionMeasurement(poses[1].estimatedPose.toPose2d(), poses[1].timestampSeconds);
+      // fieldUtil.setObjectGlobalPose("LeftPoseEstimate", poses[0].estimatedPose.toPose2d());
     }
     SmartDashboard.putNumber("pigeon angle", swerve.getPigeon2().getYaw().getValueAsDouble());
     SmartDashboard.putNumber("drive limit", limit);
