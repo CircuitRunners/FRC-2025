@@ -47,7 +47,7 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.HttpCamera;
 
 public class Drive extends SubsystemBase {
-  public static double limit = 0.8;
+  public static double limit = 1;
   private Swerve swerve;
   private FieldUtil fieldUtil = FieldUtil.getField();
   private boolean sysIdTranslator = true;

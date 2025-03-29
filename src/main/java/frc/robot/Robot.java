@@ -200,14 +200,15 @@ public class Robot extends TimedRobot {
   private void configureAutos() {
     
     NamedCommands.registerCommand("MoveToIntake", new MoveToIntake(elevator, claw, drive));
-    NamedCommands.registerCommand("AutoIntake", claw.autoIntakeCommand());
+    NamedCommands.registerCommand("AutoIntake", claw.autoIntakeCommand().until(() -> claw.isCoralInClaw()));
     NamedCommands.registerCommand("ScoreL1", new ScoreL1(elevator, claw,  drive));
     NamedCommands.registerCommand("ScoreL2", new ScoreL2(elevator, claw, drive));
     NamedCommands.registerCommand("ScoreL3", new ScoreL3(elevator, claw, drive));
-    NamedCommands.registerCommand("ScoreL4", new ScoreL4Algae(elevator, claw));
-    NamedCommands.registerCommand("ScoreL4Auto", new ScoreL4Teleop(elevator, claw, drive));
+    NamedCommands.registerCommand("ScoreL4Auto", new ScoreL4Auto(elevator, claw, drive));
+    // NamedCommands.registerCommand("ScoreL4Auto", new ScoreL4Teleop(elevator, claw, drive));
     NamedCommands.registerCommand("do nothing", Commands.none());
     NamedCommands.registerCommand("brake", drive.brakeCommand());
+    NamedCommands.registerCommand("Drive Robot Centric Forward", drive.driveRobotCentricCommand(() -> new ChassisSpeeds(1, 0, 0)));
 
     PathPlannerUtil.configure(drive, true);
 
@@ -311,8 +312,8 @@ public class Robot extends TimedRobot {
     manipulatorControls.moveToL2().onTrue(new MoveToL2(elevator, claw, drive));
     manipulatorControls.moveToL3().onTrue(new MoveToL3(elevator, claw, drive));
     manipulatorControls.moveToL4().onTrue(new MoveToL4(elevator, claw, drive));
-    manipulatorControls.leftTrigger().onTrue(claw.runManualCommand(-0.05)).onFalse(claw.zeroArm());
-    manipulatorControls.rightTrigger().onTrue(claw.runManualCommand(0.05));
+    manipulatorControls.leftTrigger().onTrue(claw.runManualCommand(-0.1)).onFalse(claw.zeroArm());
+    manipulatorControls.rightTrigger().onTrue(claw.runManualCommand(0.2));
     
   }
 

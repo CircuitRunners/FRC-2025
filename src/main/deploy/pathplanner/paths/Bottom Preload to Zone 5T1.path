@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.917000000000984,
-        "y": 0.817249999997747
+        "x": 7.120065789473683,
+        "y": 0.4842105263157896
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.737250000000984,
-        "y": 0.4077499999977464
+        "x": 6.148273026315788,
+        "y": 1.3212993421052635
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 4.0755,
-        "y": 2.913499999999999
+        "x": 3.858305921052631,
+        "y": 2.533634868421052
       },
       "prevControl": {
-        "x": 4.96275,
-        "y": 2.386999999999999
+        "x": 4.676433190389721,
+        "y": 1.9715336046922913
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Reef Zone 5T1"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 59.19855402386318
+    "rotation": 59.99999999999999
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 179.48383577023515
   },
   "useDefaultConstraints": true
 }

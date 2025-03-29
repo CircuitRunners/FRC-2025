@@ -16,15 +16,15 @@
     },
     {
       "anchor": {
-        "x": 4.0755,
-        "y": 2.913499999999999
+        "x": 3.5407894736842103,
+        "y": 2.726069078947369
       },
       "prevControl": {
-        "x": 3.843367808821727,
-        "y": 2.820684883673111
+        "x": 3.3086572825059375,
+        "y": 2.633253962620481
       },
       "nextControl": null,
-      "isLocked": true,
+      "isLocked": false,
       "linkedName": "Reef Zone 5T1"
     }
   ],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 59.19855402386318
+    "rotation": 59.99999999999999
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 48.88790956083307
+    "rotation": 54.12741364210763
   },
   "useDefaultConstraints": true
 }
