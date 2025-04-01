@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Bottom Preload to Zone 5T1"
+            "pathName": "Top Preload to Zone 3T1"
           }
         },
         {
@@ -23,7 +23,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 0.3
+                  "waitTime": 0.4
                 }
               }
             ]
@@ -57,7 +57,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Zone 5T1 to  Station 1"
+            "pathName": "Zone 3T1 to Station 2"
           }
         },
         {
@@ -69,7 +69,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": " Station 1 to Zone 5T1"
+            "pathName": "Station 2 to Zone 3T2"
           }
         },
         {
@@ -85,7 +85,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 0.3
+                  "waitTime": 0.4
                 }
               }
             ]

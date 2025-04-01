@@ -209,6 +209,7 @@ public class Robot extends TimedRobot {
     NamedCommands.registerCommand("do nothing", Commands.none());
     NamedCommands.registerCommand("brake", drive.brakeCommand());
     NamedCommands.registerCommand("Drive Robot Centric Forward", drive.driveRobotCentricCommand(() -> new ChassisSpeeds(1, 0, 0)));
+    NamedCommands.registerCommand("Drive Robot Centric Forward", drive.driveRobotCentricCommand(() -> new ChassisSpeeds(-1, 0, 0)));
 
     PathPlannerUtil.configure(drive, true);
 
@@ -313,7 +314,7 @@ public class Robot extends TimedRobot {
     manipulatorControls.moveToL3().onTrue(new MoveToL3(elevator, claw, drive));
     manipulatorControls.moveToL4().onTrue(new MoveToL4(elevator, claw, drive));
     manipulatorControls.leftTrigger().onTrue(claw.runManualCommand(-0.1)).onFalse(claw.zeroArm());
-    manipulatorControls.rightTrigger().onTrue(claw.runManualCommand(0.2));
+    manipulatorControls.rightTrigger().onTrue(claw.runManualCommand(0.2)).onFalse(claw.zeroArm());
     
   }
 
