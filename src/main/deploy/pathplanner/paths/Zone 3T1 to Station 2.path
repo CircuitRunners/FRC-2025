@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.7813322368421054,
-        "y": 5.497121710526316
+        "x": 3.819819078947368,
+        "y": 5.5259868421052625
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.084261272497802,
-        "y": 5.4415499395228
+        "x": 4.1227481146030645,
+        "y": 5.470415071101747
       },
       "isLocked": true,
       "linkedName": "Reef Zone 3T1"
@@ -48,7 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -59.99999999999999
+    "rotation": -59.47029410006586
   },
   "useDefaultConstraints": true
 }

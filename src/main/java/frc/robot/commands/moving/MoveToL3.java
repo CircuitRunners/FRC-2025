@@ -19,6 +19,6 @@ public class MoveToL3 extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addRequirements(elevator, claw, drive);
-    addCommands(new ParallelCommandGroup(      drive.driveRobotCentricCommand(() -> new ChassisSpeeds()), elevator.moveToL3().until(() -> elevator.isAtTarget()), Commands.waitSeconds(0.2).andThen(claw.moveClawToHorizontalCommand())), Commands.waitUntil(() -> claw.isAtTarget() && elevator.isAtTarget()));
+    addCommands(new ParallelCommandGroup(elevator.moveToL3().until(() -> elevator.isAtTarget()), Commands.waitSeconds(0.2).andThen(claw.moveClawToHorizontalCommand())), Commands.waitUntil(() -> claw.isAtTarget() && elevator.isAtTarget()));
   }
 }

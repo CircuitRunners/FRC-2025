@@ -36,7 +36,7 @@ public class MoveToIntake extends SequentialCommandGroup {
       new ParallelCommandGroup(
         new SequentialCommandGroup(
           claw.moveClawToIntakeCommand(),
-          elevator.moveToBottom()
+          elevator.moveToBottom().until(() -> elevator.isAtTarget())
         ))
     );
 

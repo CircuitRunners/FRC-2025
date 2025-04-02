@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
 import java.util.Date;
@@ -59,30 +60,65 @@ public class Drive extends SubsystemBase {
 
   public CANrange distSensor1 = new CANrange(SwerveConstants.distanceSensor1Port, "Drivebase");
   public CANrange distSensor2 = new CANrange(SwerveConstants.distanceSensor2Port, "Drivebase");
+/* Swerve requests to apply during SysId characterization */
+private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
+private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
+private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
 
-  // private final SysIdSwerveTranslation translation = new SysIdSwerveTranslation();
-  // private final SysIdRoutine sysIdTranslation = new SysIdRoutine(
-  //   new SysIdRoutine.Config(
-  //     null, 
-  //     Volts.of(7),
-  //     null,
-  //     null),  
-  //   new SysIdRoutine.Mechanism(
-  //     (volts) -> swerve.setControl(translation.withVolts(volts)),
-  //     null,
-  //     this)
-  //   );
-  // private final SysIdSwerveRotation rotation = new SysIdSwerveRotation();
-  // private final SysIdRoutine sysIdRotation = new SysIdRoutine(
-  //   new SysIdRoutine.Config(
-  //     null,
-  //     Volts.of(7),
-  //     null,
-  //     null),
-  //   new SysIdRoutine.Mechanism(
-  //     (volts) -> swerve.setControl(rotation.withVolts(volts)),
-  //     null,
-  //     this));
+  /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
+  private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
+      new SysIdRoutine.Config(
+          null,        // Use default ramp rate (1 V/s)
+          Volts.of(4), // Reduce dynamic step voltage to 4 V to prevent brownout
+          null,        // Use default timeout (10 s)
+          // Log state with SignalLogger class
+          state -> SignalLogger.writeString("SysIdTranslation_State", state.toString())
+      ),
+      new SysIdRoutine.Mechanism(
+          output -> swerve.setControl(m_translationCharacterization.withVolts(output)),
+          null,
+          this
+      )
+  );
+
+  /* SysId routine for characterizing steer. This is used to find PID gains for the steer motors. */
+  private final SysIdRoutine m_sysIdRoutineSteer = new SysIdRoutine(
+      new SysIdRoutine.Config(
+          null,        // Use default ramp rate (1 V/s)
+          Volts.of(7), // Use dynamic voltage of 7 V
+          null,        // Use default timeout (10 s)
+          // Log state with SignalLogger class
+          state -> SignalLogger.writeString("SysIdSteer_State", state.toString())
+      ),
+      new SysIdRoutine.Mechanism(
+          volts -> swerve.setControl(m_steerCharacterization.withVolts(volts)),
+          null,
+          this
+      )
+  );
+
+  private final SysIdRoutine m_sysIdRoutineRotation = new SysIdRoutine(
+        new SysIdRoutine.Config(
+            /* This is in radians per second², but SysId only supports "volts per second" */
+            Volts.of(Math.PI / 6).per(Second),
+            /* This is in radians per second, but SysId only supports "volts" */
+            Volts.of(Math.PI),
+            null, // Use default timeout (10 s)
+            // Log state with SignalLogger class
+            state -> SignalLogger.writeString("SysIdRotation_State", state.toString())
+        ),
+        new SysIdRoutine.Mechanism(
+            output -> {
+                /* output is actually radians per second, but SysId only supports "volts" */
+                swerve.setControl(m_rotationCharacterization.withRotationalRate(output.in(Volts)));
+                /* also log the requested output for SysId */
+                SignalLogger.writeDouble("Rotational_Rate", output.in(Volts));
+            },
+            null,
+            this
+        )
+    );
+
   private SlewRateLimiter forwardLimiter, strafeLimiter;
   /** Creates a new Drive */
   public Drive(Swerve swerve, boolean visionRunning) {
@@ -263,6 +299,28 @@ public class Drive extends SubsystemBase {
                      dist).finallyDo(this::brake);
   }
 
+  /**
+     * Runs the SysId Quasistatic test in the given direction for the routine
+     * specified by {@link #m_sysIdRoutineToApply}.
+     *
+     * @param direction Direction of the SysId Quasistatic test
+     * @return Command to run
+     */
+    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+      return sysIdTranslator ? m_sysIdRoutineTranslation.quasistatic(direction) : m_sysIdRoutineRotation.quasistatic(direction);
+  }
+
+  /**
+   * Runs the SysId Dynamic test in the given direction for the routine
+   * specified by {@link #m_sysIdRoutineToApply}.
+   *
+   * @param direction Direction of the SysId Dynamic test
+   * @return Command to run
+   */
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+      return sysIdTranslator ? m_sysIdRoutineTranslation.dynamic(direction) : m_sysIdRoutineRotation.dynamic(direction);
+  }
+
   // public Command sysIdDynamic(Direction direction){
   //   return sysIdTranslator ? sysIdTranslation.dynamic(direction) : sysIdRotation.dynamic(direction);
   // }
@@ -271,9 +329,9 @@ public class Drive extends SubsystemBase {
   //   return sysIdTranslator ? sysIdTranslation.quasistatic(direction) : sysIdRotation.quasistatic(direction);
   // }
 
-  // public Command toggleSysIdMode(){
-  //   return Commands.runOnce(() -> sysIdTranslator = !sysIdTranslator);
-  // }
+  public Command toggleSysIdMode(){
+    return Commands.runOnce(() -> sysIdTranslator = !sysIdTranslator);
+  }
 
   // public void targetAngleDrive(Translation2d targetAngle, DriverControls controls){
   //   swerve.targetAngleDrive(targetAngle, controls.driveForward(), controls.driveStrafe());

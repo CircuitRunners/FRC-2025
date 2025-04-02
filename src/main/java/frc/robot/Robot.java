@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.lib.swerve.SwerveConfig;
 import frc.lib.utils.PathPlannerUtil;
 import frc.robot.Constants.ClawConstants;
@@ -60,6 +61,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
+import frc.robot.commands.auton.*;
 
 public class Robot extends TimedRobot {
   private Drive drive;
@@ -205,6 +207,7 @@ public class Robot extends TimedRobot {
     NamedCommands.registerCommand("ScoreL2", new ScoreL2(elevator, claw, drive));
     NamedCommands.registerCommand("ScoreL3", new ScoreL3(elevator, claw, drive));
     NamedCommands.registerCommand("ScoreL4Auto", new ScoreL4Auto(elevator, claw, drive));
+    NamedCommands.registerCommand("AutonScoreL4", new AutonScoreL4(drive,elevator, claw, true));
     // NamedCommands.registerCommand("ScoreL4Auto", new ScoreL4Teleop(elevator, claw, drive));
     NamedCommands.registerCommand("do nothing", Commands.none());
     NamedCommands.registerCommand("brake", drive.brakeCommand());
@@ -267,10 +270,14 @@ public class Robot extends TimedRobot {
     driverControls.leftTrigger().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, Math.toRadians(2))));
     driverControls.rightTrigger().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, Math.toRadians(2))));
 
-    driverControls.b().whileTrue(new ScoreL4Auto(elevator, claw, drive));
-    // driverControls.a().whileTrue(PathPlannerUtil.getAutoCommand("Mid Preload to L4"));
+    // driverControls.b().whileTrue(new ScoreL4Auto(elevator, claw, drive));
 
-    // driverControls.y().onTrue(elevator.moveElevatorUp()).onFalse(elevator.stopCommand());
+    driverControls.back().onTrue(drive.toggleSysIdMode());
+    
+    driverControls.y().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    driverControls.a().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    driverControls.b().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    driverControls.x().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
     // ------------------------------- Manipulator Controls ---------------------------------------------------------
     manipulatorControls = new ManipulatorControls(DriverConstants.operatorPort);

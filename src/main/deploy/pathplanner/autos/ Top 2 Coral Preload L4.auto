@@ -11,47 +11,9 @@
           }
         },
         {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "Drive Robot Centric Forward"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0.4
-                }
-              }
-            ]
-          }
-        },
-        {
           "type": "named",
           "data": {
-            "name": "ScoreL4Auto"
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "Drive Robot Centric Backward"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0.335
-                }
-              }
-            ]
+            "name": "AutonScoreL4"
           }
         },
         {
@@ -73,28 +35,9 @@
           }
         },
         {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "Drive Robot Centric Forward"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0.4
-                }
-              }
-            ]
-          }
-        },
-        {
           "type": "named",
           "data": {
-            "name": "ScoreL4Auto"
+            "name": "AutonScoreL4"
           }
         }
       ]
