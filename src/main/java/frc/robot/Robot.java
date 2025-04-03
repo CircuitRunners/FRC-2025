@@ -272,12 +272,15 @@ public class Robot extends TimedRobot {
 
     // driverControls.b().whileTrue(new ScoreL4Auto(elevator, claw, drive));
 
-    driverControls.back().onTrue(drive.toggleSysIdMode());
+    driverControls.a().whileTrue(AutoBuilder.buildAuto("Left 2 Coral Preload L4"));
+    driverControls.y().whileTrue(AutoBuilder.buildAuto("Right 2 Coral Preload L4"));
+
+    // driverControls.back().onTrue(drive.toggleSysIdMode());
     
-    driverControls.y().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    driverControls.a().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    driverControls.b().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    driverControls.x().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    // driverControls.y().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    // driverControls.a().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    // driverControls.b().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    // driverControls.x().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
     // ------------------------------- Manipulator Controls ---------------------------------------------------------
     manipulatorControls = new ManipulatorControls(DriverConstants.operatorPort);

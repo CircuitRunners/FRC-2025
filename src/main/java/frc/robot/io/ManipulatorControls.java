@@ -61,11 +61,11 @@ public class ManipulatorControls extends CommandXboxController{
     }
     
     public Trigger Algae1() {
-        return y();
+        return a();
     }
 
     public Trigger Algae2() {
-        return a();
+        return y();
     }
 
     public Trigger runRollersOut() {

@@ -19,7 +19,7 @@ public class MoveToIntake extends SequentialCommandGroup {
   public MoveToIntake(Elevator elevator, Claw claw, Drive drive) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addRequirements(elevator, claw, drive);
+    addRequirements(elevator, claw);
     // addCommands(
     //   claw.moveClawToIntakeCommand(), Commands.waitUntil(() -> claw.isAtTarget()).andThen(elevator.moveToBottom())
     // );

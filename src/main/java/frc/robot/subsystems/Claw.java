@@ -42,7 +42,7 @@ public class Claw extends SubsystemBase {
         roller1Motor.configure(r1mConfig, null, null);
         roller2Motor.configure(r2mConfig, null, null);
 
-        canRangeSensor = new CANrange(ClawConstants.canRangePort, "rio");
+        canRangeSensor = new CANrange(ClawConstants.canRangePort);
 
         double constP = 0.045; // proportional coefficient gain
         double constI = 0; // integral coefficient gain
