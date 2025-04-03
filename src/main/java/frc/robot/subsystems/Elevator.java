@@ -141,6 +141,7 @@ extends SubsystemBase {
 
     public Command moveElevatorUp() {
         return run(() -> {
+            this.manual = true;
             SmartDashboard.putString("state", "moving");
             elevatorSparkMax1.set(-0.5);});
     }
@@ -154,7 +155,11 @@ extends SubsystemBase {
 
     public Command resetPos(){
         return runOnce(
-            () -> elevatorEncoder.setPosition(ElevatorConstants.minEncoderValue));
+            () -> {
+                elevatorEncoder.setPosition(0);
+                resetTargetPos();
+                this.manual = false;
+            });
     }
 
     public boolean isElevatorAtBottom() {
