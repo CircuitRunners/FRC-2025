@@ -21,7 +21,7 @@ public class AutonScoreL4 extends SequentialCommandGroup {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drive, elevator, claw);
     addCommands(
-      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(1, 0, 0)).withTimeout(0.6),
+      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(1, 0, 0)).withTimeout(1),
       new ScoreL4Auto(elevator, claw, drive),
       drive.driveRobotCentricCommand(() -> new ChassisSpeeds(-1, 0, 0)).withTimeout(0.305)
     );

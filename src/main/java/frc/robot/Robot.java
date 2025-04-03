@@ -202,7 +202,7 @@ public class Robot extends TimedRobot {
   private void configureAutos() {
     
     NamedCommands.registerCommand("MoveToIntake", new MoveToIntake(elevator, claw, drive));
-    NamedCommands.registerCommand("AutoIntake", claw.autoIntakeCommand().until(() -> claw.isCoralInClaw()));
+    NamedCommands.registerCommand("AutoIntake", drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, 0)).withDeadline(claw.autoIntakeCommand().until(() -> claw.isCoralInClaw())));
     NamedCommands.registerCommand("ScoreL1", new ScoreL1(elevator, claw,  drive));
     NamedCommands.registerCommand("ScoreL2", new ScoreL2(elevator, claw, drive));
     NamedCommands.registerCommand("ScoreL3", new ScoreL3(elevator, claw, drive));
