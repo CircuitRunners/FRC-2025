@@ -199,7 +199,7 @@ public class Vision extends SubsystemBase{
             int bestId = 0;
             double bestDistance = Double.MAX_VALUE;
             for (PhotonTrackedTarget t : targetsSeen) {
-                if (isReefID(t.getFiducialId())) continue;
+                if (!isReefID(t.getFiducialId())) continue;
                 double distance = Math.abs(t.getBestCameraToTarget().getY());
                 if (distance < bestDistance) {
                     bestId = t.getFiducialId();
