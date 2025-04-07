@@ -164,6 +164,7 @@ public class Drive extends SubsystemBase {
     xController.setTolerance(kXTolerance);
     yController.setTolerance(kYTolerance);
     thetaController.setTolerance(kThetaTolerance);
+    thetaController.enableContinuousInput(-Math.PI/2, Math.PI/2);
 
     vision = new Vision();
   }
@@ -358,34 +359,42 @@ public class Drive extends SubsystemBase {
   }
 
   public Command autoAlignCommand(boolean left) {
-    return run(() -> {
+    return startRun(()->{
+      // Set the target pose based on the alignment side
+      double targetX = left ? leftAlignmentX : rightAlignmentX;
+      double targetY = left ? leftAlignmentY : rightAlignmentY;
+      double targetTheta = thetaAlignment;
+
+      // Set the PID controllers' setpoints
+      xController.setSetpoint(targetX);
+      yController.setSetpoint(targetY);
+      thetaController.setSetpoint(targetTheta);
+
+    },() -> {
       // Get the latest vision measurement (robot pose in tag space)
       Optional<Pose2d> visionOpt = vision.getRobotInTagSpace();
+      
       if (visionOpt.isPresent()) {
         Pose2d visionPose = visionOpt.get();
         
-        // Choose the target setpoints based on whether aligning to the left or right reef
-        double targetX = left ? Vision.leftAlignmentX : Vision.rightAlignmentX;
-        double targetY = left ? Vision.leftAlignmentY : Vision.rightAlignmentY;
-        double targetTheta = Vision.thetaAlignment;
         
         // Calculate corrections using your PID controllers
-        double xPower = xController.calculate(visionPose.getX(), targetX);
-        double yPower = yController.calculate(visionPose.getY(), targetY);
-        double thetaPower = thetaController.calculate(visionPose.getRotation().getRadians(), targetTheta);
+        double xPower = xController.calculate(visionPose.getX());
+        double yPower = yController.calculate(visionPose.getY());
+        double thetaPower = thetaController.calculate(visionPose.getRotation().getRadians());
         
         // Publish debug values to SmartDashboard (optional)
-        SmartDashboard.putNumber("AutoAlign/xError", visionPose.getX() - targetX);
-        SmartDashboard.putNumber("AutoAlign/yError", visionPose.getY() - targetY);
-        SmartDashboard.putNumber("AutoAlign/thetaError", visionPose.getRotation().getRadians() - targetTheta);
+        SmartDashboard.putNumber("AutoAlign/xError", xController.getError());
+        SmartDashboard.putNumber("AutoAlign/yError", yController.getError());
+        SmartDashboard.putNumber("AutoAlign/thetaError", thetaController.getError());
         SmartDashboard.putNumber("AutoAlign/xPower", xPower);
         SmartDashboard.putNumber("AutoAlign/yPower", yPower);
         SmartDashboard.putNumber("AutoAlign/thetaPower", thetaPower);
         
         // Command the drive: Here we send the PID outputs as chassis speeds
         driveRobotCentric(new ChassisSpeeds(
-            Math.max(-2, Math.min(2, xPower)), 
-            Math.max(-2, Math.min(2, yPower)), 
+            Math.max(-2, Math.min(2, -xPower)), 
+            Math.max(-2, Math.min(2, -yPower)), 
             thetaPower
         ));
       } else {
@@ -394,18 +403,9 @@ public class Drive extends SubsystemBase {
       }
     }).until(() -> {
       // Terminate when the vision measurements are within the set tolerances
-      Optional<Pose2d> visionOpt = vision.getRobotInTagSpace();
-      if (visionOpt.isPresent()) {
-        Pose2d visionPose = visionOpt.get();
-        double targetX = left ? Vision.leftAlignmentX : Vision.rightAlignmentX;
-        double targetY = left ? Vision.leftAlignmentY : Vision.rightAlignmentY;
-        double targetTheta = Vision.thetaAlignment;
-        
-        return Math.abs(visionPose.getX() - targetX) < Vision.xTolerance &&
-               Math.abs(visionPose.getY() - targetY) < Vision.yTolerance &&
-               Math.abs(visionPose.getRotation().getRadians() - targetTheta) < Vision.thetaTolerance;
-      }
-      return false;
+      return xController.atSetpoint() &&
+      yController.atSetpoint() &&
+      thetaController.atSetpoint();
     });
   }
 }

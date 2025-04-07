@@ -280,6 +280,8 @@ public class Robot extends TimedRobot {
     driverControls.a().whileTrue(AutoBuilder.buildAuto("Left 2 Coral Preload L4"));
     driverControls.y().whileTrue(AutoBuilder.buildAuto("Right 2 Coral Preload L4"));
 
+    driverControls.b().onTrue(drive.autoAlignCommand(true));
+
     // driverControls.back().onTrue(drive.toggleSysIdMode());
     
     // driverControls.y().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward));

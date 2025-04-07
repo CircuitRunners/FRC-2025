@@ -153,7 +153,7 @@ public class Vision extends SubsystemBase{
         reefCameraSim = new PhotonCameraSim(reefCamera, prop);
         visionSim = new VisionSystemSim("visionSim");
         visionSim.addAprilTags(fieldLayout);
-        visionSim.addCamera(reefCameraSim, new Transform3d(0,0,0,new Rotation3d(0,0,0)));
+        visionSim.addCamera(reefCameraSim, new Transform3d(0,0,.25,new Rotation3d(0,0,0)));
         reefCameraSim.enableDrawWireframe(true);
         reefCameraSim.enableProcessedStream(true);
     }
@@ -163,6 +163,7 @@ public class Vision extends SubsystemBase{
 
         var pose = getRobotInTagSpace();
         SmartDashboard.putBoolean("Subsystem/posePresent", pose.isPresent());
+        SmartDashboard.putString("tagPose", pose.toString());
 
         if (pose != null && pose.isPresent()) {
             reefDstPose = pose.get();
@@ -255,7 +256,7 @@ public class Vision extends SubsystemBase{
                 int bestId = 0;
                 double bestDistance = Double.MAX_VALUE;
                 for (PhotonTrackedTarget t : result.getTargets()) {
-                    if (isReefID(t.getFiducialId())) continue;
+                    if (!isReefID(t.getFiducialId())) continue;
                     double distance = Math.abs(t.getBestCameraToTarget().getY());
 
                     if (distance < bestDistance) {
@@ -281,7 +282,9 @@ public class Vision extends SubsystemBase{
         return lastCalculatedDist;
     }
 
-    public static final int[] kReefIDs = {6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22};
+    public static final int[] kReefIDs = {6};
+//    public static final int[] kReefIDs = {6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22};
+
 
     public static boolean isReefID(int id) {
         for (int i : kReefIDs) {
