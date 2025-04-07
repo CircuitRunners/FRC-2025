@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
 import java.util.Date;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -18,11 +19,16 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.SysIdSwerveRotation;
 import com.ctre.phoenix6.swerve.SwerveRequest.SysIdSwerveTranslation;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -36,10 +42,12 @@ import frc.lib.swerve.Swerve;
 import frc.lib.swerve.SwerveConfig;
 import frc.lib.utils.FieldUtil;
 import frc.lib.utils.PathPlannerUtil;
+import frc.robot.Constants;
 // import frc.robot.Vision;
 // import frc.robot.Vision.VisionMeasurement;
 import frc.robot.Constants.DriverConstants;
 import frc.robot.Constants.SwerveConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.io.DriverControls;
 
 import java.time.LocalDate;
@@ -56,14 +64,38 @@ public class Drive extends SubsystemBase {
   
   // public Vision vision;
   public boolean visionRunning;
+  
   private SwerveRequest.FieldCentric driveRequest;
 
   public CANrange distSensor1 = new CANrange(SwerveConstants.distanceSensor1Port, "Drivebase");
   public CANrange distSensor2 = new CANrange(SwerveConstants.distanceSensor2Port, "Drivebase");
+
+  public Vision vision;
+  public static final double kPX = 1;
+  public static final double kPY = 1;
+  public static final double kPTheta = 1;
+  public static final double kXTolerance = 0.1;
+  public static final double kYTolerance = 0.1;
+  public static final double kThetaTolerance = 0.1;
+  public static final double leftAlignmentX = 0.5;
+  public static final double leftAlignmentY = 0.5;
+  public static final double rightAlignmentX = 0.5;
+  public static final double rightAlignmentY = 0.5;
+  public static final double thetaAlignment = 0.5;
+
+  private PIDController xController = new PIDController(kPX, 0, 0);
+  private PIDController yController = new PIDController(kPY, 0, 0);
+  private PIDController thetaController = new PIDController(kPTheta, 0, 0);
+
+  StructPublisher<Pose2d> finalPoseEstimate = NetworkTableInstance.getDefault().getStructTopic("SmartDashboard/Subsystem/Swerve/finalPoseEstimate", Pose2d.struct).publish();
+  StructPublisher<ChassisSpeeds> curChassisSpeed = NetworkTableInstance.getDefault().getStructTopic("SmartDashboard/Subsystem/Swerve/curChassisSpeeds", ChassisSpeeds.struct).publish();
+  StructArrayPublisher<SwerveModuleState> swerveModuleState = NetworkTableInstance.getDefault().getStructArrayTopic("SmartDashboard/Subsystem/Swerve/curModuleStates", SwerveModuleState.struct).publish();
+
+
 /* Swerve requests to apply during SysId characterization */
-private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
-private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
-private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
+  private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
+  private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
+  private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
 
   /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
   private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
@@ -124,28 +156,20 @@ private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new
   public Drive(Swerve swerve, boolean visionRunning) {
     
     SignalLogger.setPath("logs/sysid/drive");
-    if(visionRunning) {
-      // vision = new Vision();
-    }
     this.swerve = swerve;
 
     forwardLimiter = new SlewRateLimiter(10, -10, 0);
     strafeLimiter = new SlewRateLimiter(10, -10, 0);
 
-    this.visionRunning = visionRunning;
-    // swerve.setPigeonOffset();
-    // resetGyroCommand().execute();
+    xController.setTolerance(kXTolerance);
+    yController.setTolerance(kYTolerance);
+    thetaController.setTolerance(kThetaTolerance);
+
+    vision = new Vision();
   }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
-    if (visionRunning) {
-      // EstimatedRobotPose[] poses = vision.run(swerve.getPigeon2().getYaw().getValueAsDouble());
-      // swerve.addVisionMeasurement(poses[0].estimatedPose.toPose2d(), poses[0].timestampSeconds);
-      // swerve.addVisionMeasurement(poses[1].estimatedPose.toPose2d(), poses[1].timestampSeconds);
-      // fieldUtil.setObjectGlobalPose("LeftPoseEstimate", poses[0].estimatedPose.toPose2d());
-    }
     SmartDashboard.putNumber("pigeon angle", swerve.getPigeon2().getYaw().getValueAsDouble());
     SmartDashboard.putNumber("drive limit", limit);
 
@@ -333,19 +357,55 @@ private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new
     return Commands.runOnce(() -> sysIdTranslator = !sysIdTranslator);
   }
 
-  // public void targetAngleDrive(Translation2d targetAngle, DriverControls controls){
-  //   swerve.targetAngleDrive(targetAngle, controls.driveForward(), controls.driveStrafe());
-  // }
-
-  // public void targetAngleDrive(Rotation2d targetAngle, DriverControls controls){
-  //   swerve.targetAngleDrive(targetAngle, controls.driveForward(), controls.driveStrafe());
-  // }
-
-  // public void addVisionMeasurement(){
-  //   Consumer<VisionMeasurement> visionMeasurementConsumer = (visionMeasurement) -> {
-  //     swerve.addVisionMeasurement(visionMeasurement.pose(), visionMeasurement.timestamp(), visionMeasurement.stdDev());
-  //   };
-  //   vision = new Vision(visionMeasurementConsumer);
-  // }
-
+  public Command autoAlignCommand(boolean left) {
+    return run(() -> {
+      // Get the latest vision measurement (robot pose in tag space)
+      Optional<Pose2d> visionOpt = vision.getRobotInTagSpace();
+      if (visionOpt.isPresent()) {
+        Pose2d visionPose = visionOpt.get();
+        
+        // Choose the target setpoints based on whether aligning to the left or right reef
+        double targetX = left ? Vision.leftAlignmentX : Vision.rightAlignmentX;
+        double targetY = left ? Vision.leftAlignmentY : Vision.rightAlignmentY;
+        double targetTheta = Vision.thetaAlignment;
+        
+        // Calculate corrections using your PID controllers
+        double xPower = xController.calculate(visionPose.getX(), targetX);
+        double yPower = yController.calculate(visionPose.getY(), targetY);
+        double thetaPower = thetaController.calculate(visionPose.getRotation().getRadians(), targetTheta);
+        
+        // Publish debug values to SmartDashboard (optional)
+        SmartDashboard.putNumber("AutoAlign/xError", visionPose.getX() - targetX);
+        SmartDashboard.putNumber("AutoAlign/yError", visionPose.getY() - targetY);
+        SmartDashboard.putNumber("AutoAlign/thetaError", visionPose.getRotation().getRadians() - targetTheta);
+        SmartDashboard.putNumber("AutoAlign/xPower", xPower);
+        SmartDashboard.putNumber("AutoAlign/yPower", yPower);
+        SmartDashboard.putNumber("AutoAlign/thetaPower", thetaPower);
+        
+        // Command the drive: Here we send the PID outputs as chassis speeds
+        driveRobotCentric(new ChassisSpeeds(
+            Math.max(-2, Math.min(2, xPower)), 
+            Math.max(-2, Math.min(2, yPower)), 
+            thetaPower
+        ));
+      } else {
+        // If no vision data is available, stop the robot
+        driveRobotCentric(new ChassisSpeeds(0, 0, 0));
+      }
+    }).until(() -> {
+      // Terminate when the vision measurements are within the set tolerances
+      Optional<Pose2d> visionOpt = vision.getRobotInTagSpace();
+      if (visionOpt.isPresent()) {
+        Pose2d visionPose = visionOpt.get();
+        double targetX = left ? Vision.leftAlignmentX : Vision.rightAlignmentX;
+        double targetY = left ? Vision.leftAlignmentY : Vision.rightAlignmentY;
+        double targetTheta = Vision.thetaAlignment;
+        
+        return Math.abs(visionPose.getX() - targetX) < Vision.xTolerance &&
+               Math.abs(visionPose.getY() - targetY) < Vision.yTolerance &&
+               Math.abs(visionPose.getRotation().getRadians() - targetTheta) < Vision.thetaTolerance;
+      }
+      return false;
+    });
+  }
 }

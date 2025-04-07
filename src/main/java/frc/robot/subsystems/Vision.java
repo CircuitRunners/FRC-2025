@@ -125,7 +125,6 @@ public class Vision extends SubsystemBase{
 
 
     public static AprilTagFieldLayout fieldLayout;
-    private Field2d field2d;
 
     private PhotonCamera reefCamera;
     private Optional<Pose2d> lastCalculatedDist;
@@ -133,13 +132,16 @@ public class Vision extends SubsystemBase{
     private int latestID;
     private Pose2d reefDstPose;
 
+    private PhotonCameraSim reefCameraSim;
+    private VisionSystemSim visionSim;
+    private SimCameraProperties prop = new SimCameraProperties().setAvgLatencyMs(.1).setCalibration(1080,720,Rotation2d.fromDegrees(71.4));
+
     StructPublisher<Pose2d> reefTagDisp = NetworkTableInstance.getDefault()
         .getStructTopic("SmartDashboard/Subsystem/Vision/RobotToTag", Pose2d.struct).publish();
     StructPublisher<Pose2d> estimatedCaemraPose = NetworkTableInstance.getDefault()
         .getStructTopic("SmartDashboard/Subsystem/Vision/estimatedCameraPose", Pose2d.struct).publish();
 
-    public Vision(Field2d field) {
-        this.field2d = field;
+    public Vision() {
 
         fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
         reefCamera = new PhotonCamera("ReefCamera");
@@ -147,10 +149,18 @@ public class Vision extends SubsystemBase{
         poseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.LOWEST_AMBIGUITY,
             new Transform3d(new Translation3d(0, 0, 0), new Rotation3d(0, 0, 0)));
         lastCalculatedDist = Optional.empty();
+
+        reefCameraSim = new PhotonCameraSim(reefCamera, prop);
+        visionSim = new VisionSystemSim("visionSim");
+        visionSim.addAprilTags(fieldLayout);
+        visionSim.addCamera(reefCameraSim, new Transform3d(0,0,0,new Rotation3d(0,0,0)));
+        reefCameraSim.enableDrawWireframe(true);
+        reefCameraSim.enableProcessedStream(true);
     }
 
     @Override
     public void periodic() {
+
         var pose = getRobotInTagSpace();
         SmartDashboard.putBoolean("Subsystem/posePresent", pose.isPresent());
 
@@ -212,7 +222,7 @@ public class Vision extends SubsystemBase{
 
     public Pose2d getEstimatedPose(boolean left) {
         PhotonPoseEstimator selectedPoseEstimator = poseEstimator;
-        PhotonPipelineResult result = reefCamera.getLatestResult();
+        PhotonPipelineResult result = reefCamera.getLatestResult(); //deprecated, use getAllUnreadResults()
         if (result != null && result.hasTargets()) {
             Optional<EstimatedRobotPose> estimatedPose = selectedPoseEstimator.update(result);
             if (estimatedPose.isPresent()) {
@@ -231,12 +241,13 @@ public class Vision extends SubsystemBase{
     }
 
     public Optional<Pose2d> getRobotInTagSpace() {
-        PhotonPipelineResult result = reefCamera.getLatestResult();
+        PhotonPipelineResult result = reefCamera.getLatestResult(); //deprecated, use getAllUnreadResults()
 
         if (result != null && result.hasTargets()) {
             Optional<EstimatedRobotPose> estimatedPoseOptional = poseEstimator.update(result);
 
             if (estimatedPoseOptional.isPresent()) {
+                // this bestID stuff seems irrelevant, the lowest_ambiguity strategy of the pose estimator will do this for you. Just filter out non reef tags and let the estimator handle the rest
                 EstimatedRobotPose estimatedPose = estimatedPoseOptional.get();
                 double y = estimatedPose.estimatedPose.toPose2d().getRotation().getRadians();
 
@@ -277,5 +288,9 @@ public class Vision extends SubsystemBase{
             if (id == i) return true;
         }
         return false;
+    }
+
+    public void simulationPeriodic(Pose2d robotPose){
+        visionSim.update(robotPose);
     }
 }
