@@ -135,6 +135,10 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+
+    if(Robot.isSimulation()){
+      drive.vision.simulationPeriodic(drive.getPose());
+    }
   }
 
   @Override
@@ -275,6 +279,8 @@ public class Robot extends TimedRobot {
 
     driverControls.a().whileTrue(AutoBuilder.buildAuto("Left 2 Coral Preload L4"));
     driverControls.y().whileTrue(AutoBuilder.buildAuto("Right 2 Coral Preload L4"));
+
+    driverControls.b().onTrue(drive.autoAlignCommand(true));
 
     // driverControls.back().onTrue(drive.toggleSysIdMode());
     
