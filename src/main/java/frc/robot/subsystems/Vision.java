@@ -19,6 +19,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.jni.WPIMathJNI;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
@@ -159,16 +160,20 @@ private static final Map<Pose2d, Integer> rightDepositMapping = new HashMap<>() 
 
  public static AprilTagFieldLayout fieldLayout;
 
-    private PhotonCamera reefCamera;
+    private PhotonCamera rightCamera;
+    private PhotonCamera leftCamera;
     private Optional<Pose2d> lastCalculatedDist;
-    private PhotonPoseEstimator poseEstimator;
+    private PhotonPoseEstimator rightPoseEstimator;
+    private PhotonPoseEstimator leftPoseEstimator;
     private int latestID;
     private Pose2d reefDstPose;
+    private static Transform3d rightCameraTransform = new Transform3d(.177,-.299,.223+0.036073,new Rotation3d(0,11.508393*0.01745329,31.474949*0.01745329));
+    private static Transform3d leftCameraTransform = new Transform3d(.177, .299, .223 + 0.036073, new Rotation3d(0, 11.508393 * 0.01745329, -31.474949 * 0.01745329));
 
     private PhotonCameraSim reefCameraSim;
+    private PhotonCameraSim leftCameraSim;
     private VisionSystemSim visionSim;
-    private SimCameraProperties prop = new SimCameraProperties().setAvgLatencyMs(.1).setCalibration(1080,720,Rotation2d.fromDegrees(71.4));
-
+    private SimCameraProperties prop;
     StructPublisher<Pose2d> reefTagDisp = NetworkTableInstance.getDefault()
         .getStructTopic("SmartDashboard/Subsystem/Vision/RobotToTag", Pose2d.struct).publish();
     StructPublisher<Pose2d> estimatedCaemraPose = NetworkTableInstance.getDefault()
@@ -177,29 +182,43 @@ private static final Map<Pose2d, Integer> rightDepositMapping = new HashMap<>() 
     public Vision() {
 
         fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
-        reefCamera = new PhotonCamera("ReefCamera");
-        // TODO : Set the camera transform
-        poseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.LOWEST_AMBIGUITY,
-            new Transform3d(new Translation3d(0, 0, 0), new Rotation3d(0, 0, 0)));
+        rightCamera = new PhotonCamera("ReefCamera");
+        leftCamera = new PhotonCamera("LeftCamera");
+        rightPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.LOWEST_AMBIGUITY, rightCameraTransform);
+        leftPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.LOWEST_AMBIGUITY, leftCameraTransform);
         lastCalculatedDist = Optional.empty();
 
-        reefCameraSim = new PhotonCameraSim(reefCamera, prop);
+        prop = new SimCameraProperties();
+        prop.setFPS(50);
+        prop.setAvgLatencyMs(50);
+        prop.setCalibError(.35, .10);
+        prop.setLatencyStdDevMs(15);
+        prop.setCalibration(1600, 1200, Rotation2d.fromDegrees(75));
+        reefCameraSim = new PhotonCameraSim(rightCamera, prop);
+        leftCameraSim = new PhotonCameraSim(leftCamera, prop);
         visionSim = new VisionSystemSim("visionSim");
         visionSim.addAprilTags(fieldLayout);
-        visionSim.addCamera(reefCameraSim, new Transform3d(0,0,.25,new Rotation3d(0,0,0)));
+        visionSim.addCamera(reefCameraSim, rightCameraTransform);
+        visionSim.addCamera(leftCameraSim, leftCameraTransform);
         reefCameraSim.enableDrawWireframe(true);
         reefCameraSim.enableProcessedStream(true);
+        leftCameraSim.enableDrawWireframe(true);
+        leftCameraSim.enableProcessedStream(true);
     }
 
     @Override
     public void periodic() {
 
-        var pose = getRobotInTagSpace(true);
-        SmartDashboard.putBoolean("Subsystem/posePresent", pose.isPresent());
-        SmartDashboard.putString("tagPose", pose.toString());
+        var rightPose = getRobotInTagSpace(true);
+        SmartDashboard.putBoolean("Subsystem/posePresent", rightPose.isPresent());
+        SmartDashboard.putString("tagPose", rightPose.toString());
 
-        if (pose != null && pose.isPresent()) {
-            reefDstPose = pose.get();
+        var leftPose = getRobotInTagSpace(false); // Use left camera for left-side alignment
+        SmartDashboard.putBoolean("Subsystem/leftPosePresent", leftPose.isPresent());
+        SmartDashboard.putString("leftTagPose", leftPose.toString());
+
+        if (rightPose != null && rightPose.isPresent()) {
+            reefDstPose = rightPose.get();
             reefTagDisp.set(reefDstPose);
 
             SmartDashboard.putBoolean("Subsystem/ALIGNED",
@@ -212,14 +231,14 @@ private static final Map<Pose2d, Integer> rightDepositMapping = new HashMap<>() 
 
             SmartDashboard.putBoolean("Subsystem/Vision_CAN_ALIGN",
                 latestID != -1 && FieldPositions.isReefID(latestID)
-                    && pose.get().getX() < maxAlignmentDistance);
+                    && rightPose.get().getX() < maxAlignmentDistance);
 
         } else {
             SmartDashboard.putBoolean("Subsystem/Vision_CAN_ALIGN", false);
             SmartDashboard.putBoolean("Subsystem/ALIGNED", false);
         }
 
-        var result = reefCamera.getLatestResult();
+        var result = rightCamera.getLatestResult();
         if (result != null && result.hasTargets()) {
             latestID = result.getBestTarget().getFiducialId();
         } else {
@@ -247,7 +266,7 @@ private static final Map<Pose2d, Integer> rightDepositMapping = new HashMap<>() 
     }
 
     public List<PhotonTrackedTarget> getTargetsSeen(boolean left) {
-        PhotonPipelineResult result = reefCamera.getLatestResult();
+        PhotonPipelineResult result = left ? leftCamera.getLatestResult() : rightCamera.getLatestResult();
         if (result != null && result.hasTargets()) {
             return result.getTargets();
         }
@@ -255,8 +274,9 @@ private static final Map<Pose2d, Integer> rightDepositMapping = new HashMap<>() 
     }
 
     public Pose2d getEstimatedPose(boolean left) {
-        PhotonPoseEstimator selectedPoseEstimator = poseEstimator;
-        PhotonPipelineResult result = reefCamera.getLatestResult(); //deprecated, use getAllUnreadResults()
+        PhotonPipelineResult result = left ? leftCamera.getLatestResult() : rightCamera.getLatestResult();
+        PhotonPoseEstimator selectedPoseEstimator = left ? leftPoseEstimator : rightPoseEstimator;
+
         if (result != null && result.hasTargets()) {
             Optional<EstimatedRobotPose> estimatedPose = selectedPoseEstimator.update(result);
             if (estimatedPose.isPresent()) {
@@ -276,13 +296,15 @@ private static final Map<Pose2d, Integer> rightDepositMapping = new HashMap<>() 
 
     public Optional<Pose2d> getRobotInTagSpace(boolean left) {
         // Get the latest vision result
-        PhotonPipelineResult result = reefCamera.getLatestResult();
+        PhotonPipelineResult result = left ? leftCamera.getLatestResult() : rightCamera.getLatestResult();
+        PhotonPoseEstimator selectedPoseEstimator = left ? leftPoseEstimator : rightPoseEstimator;
+
         if (result == null || !result.hasTargets()) {
             return lastCalculatedDist;
         }
         
         // Use the photon pose estimator to update the global robot pose based on the vision result.
-        Optional<EstimatedRobotPose> globalPoseOpt = poseEstimator.update(result);
+        Optional<EstimatedRobotPose> globalPoseOpt = selectedPoseEstimator.update(result);
         if (!globalPoseOpt.isPresent()) {
             return lastCalculatedDist;
         }
@@ -340,8 +362,8 @@ private static final Map<Pose2d, Integer> rightDepositMapping = new HashMap<>() 
         }
     }
 
-    public static final int[] kReefIDs = {6};
-//    public static final int[] kReefIDs = {6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22};
+    // public static final int[] kReefIDs = {6};
+    public static final int[] kReefIDs = {6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22};
 
 
     public static boolean isReefID(int id) {
