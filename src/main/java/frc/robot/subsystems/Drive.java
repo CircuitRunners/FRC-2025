@@ -372,7 +372,7 @@ public class Drive extends SubsystemBase {
 
     },() -> {
       // Get the latest vision measurement (robot pose in tag space)
-      Optional<Pose2d> visionOpt = vision.getRobotInTagSpace();
+      Optional<Pose2d> visionOpt = vision.getRobotInTagSpace(left);
       
       if (visionOpt.isPresent()) {
         Pose2d visionPose = visionOpt.get();

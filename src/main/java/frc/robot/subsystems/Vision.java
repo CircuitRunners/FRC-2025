@@ -161,7 +161,7 @@ public class Vision extends SubsystemBase{
     @Override
     public void periodic() {
 
-        var pose = getRobotInTagSpace();
+        var pose = getRobotInTagSpace(true);
         SmartDashboard.putBoolean("Subsystem/posePresent", pose.isPresent());
         SmartDashboard.putString("tagPose", pose.toString());
 
@@ -241,45 +241,106 @@ public class Vision extends SubsystemBase{
         return robotPose.relativeTo(tagPose);
     }
 
-    public Optional<Pose2d> getRobotInTagSpace() {
-        PhotonPipelineResult result = reefCamera.getLatestResult(); //deprecated, use getAllUnreadResults()
+    // public Optional<Pose2d> getRobotInTagSpace() {
+    //     PhotonPipelineResult result = reefCamera.getLatestResult(); //deprecated, use getAllUnreadResults()
 
-        if (result != null && result.hasTargets()) {
-            Optional<EstimatedRobotPose> estimatedPoseOptional = poseEstimator.update(result);
+    //     if (result != null && result.hasTargets()) {
+    //         Optional<EstimatedRobotPose> estimatedPoseOptional = poseEstimator.update(result);
 
-            if (estimatedPoseOptional.isPresent()) {
-                // this bestID stuff seems irrelevant, the lowest_ambiguity strategy of the pose estimator will do this for you. Just filter out non reef tags and let the estimator handle the rest
-                EstimatedRobotPose estimatedPose = estimatedPoseOptional.get();
-                double y = estimatedPose.estimatedPose.toPose2d().getRotation().getRadians();
+    //         if (estimatedPoseOptional.isPresent()) {
+    //             // this bestID stuff seems irrelevant, the lowest_ambiguity strategy of the pose estimator will do this for you. Just filter out non reef tags and let the estimator handle the rest
+    //             EstimatedRobotPose estimatedPose = estimatedPoseOptional.get();
+    //             double y = estimatedPose.estimatedPose.toPose2d().getRotation().getRadians();
 
-                estimatedCaemraPose.set(estimatedPose.estimatedPose.toPose2d());
-                int bestId = 0;
-                double bestDistance = Double.MAX_VALUE;
-                for (PhotonTrackedTarget t : result.getTargets()) {
-                    if (!isReefID(t.getFiducialId())) continue;
-                    double distance = Math.abs(t.getBestCameraToTarget().getY());
+    //             estimatedCaemraPose.set(estimatedPose.estimatedPose.toPose2d());
+    //             int bestId = 0;
+    //             double bestDistance = Double.MAX_VALUE;
+    //             for (PhotonTrackedTarget t : result.getTargets()) {
+    //                 if (!isReefID(t.getFiducialId())) continue;
+    //                 double distance = Math.abs(t.getBestCameraToTarget().getY());
 
-                    if (distance < bestDistance) {
-                        bestId = t.getFiducialId();
-                        bestDistance = distance;
-                    }
-                }
-                SmartDashboard.putNumber("Subsystem/Vision/BestReefId", bestId);
-                Optional<Pose3d> tagPoseOptional = fieldLayout.getTagPose(bestId);
+    //                 if (distance < bestDistance) {
+    //                     bestId = t.getFiducialId();
+    //                     bestDistance = distance;
+    //                 }
+    //             }
+    //             SmartDashboard.putNumber("Subsystem/Vision/BestReefId", bestId);
+    //             Optional<Pose3d> tagPoseOptional = fieldLayout.getTagPose(bestId);
 
-                if (tagPoseOptional.isPresent()) {
-                    Pose3d tagPose = tagPoseOptional.get();
+    //             if (tagPoseOptional.isPresent()) {
+    //                 Pose3d tagPose = tagPoseOptional.get();
 
-                    Pose2d robotPose = estimatedPose.estimatedPose.toPose2d();
-                    Pose2d tagPose2d = tagPose.toPose2d();
-                    Pose2d robotInTagSpace = robotPose.relativeTo(tagPose2d);
-                    lastCalculatedDist = Optional.of(robotInTagSpace);
+    //                 Pose2d robotPose = estimatedPose.estimatedPose.toPose2d();
+    //                 Pose2d tagPose2d = tagPose.toPose2d();
+    //                 Pose2d robotInTagSpace = robotPose.relativeTo(tagPose2d);
+    //                 lastCalculatedDist = Optional.of(robotInTagSpace);
 
-                    return Optional.of(robotInTagSpace);
-                }
-            }
+    //                 return Optional.of(robotInTagSpace);
+    //             }
+    //         }
+    //     }
+    //     return lastCalculatedDist;
+    // }
+
+    public Optional<Pose2d> getRobotInTagSpace(boolean left) {
+        // Get the latest vision result
+        PhotonPipelineResult result = reefCamera.getLatestResult();
+        if (result == null || !result.hasTargets()) {
+            return lastCalculatedDist;
         }
-        return lastCalculatedDist;
+        
+        // Use the photon pose estimator to update the global robot pose based on the vision result.
+        Optional<EstimatedRobotPose> globalPoseOpt = poseEstimator.update(result);
+        if (!globalPoseOpt.isPresent()) {
+            return lastCalculatedDist;
+        }
+        Pose2d globalPose = globalPoseOpt.get().estimatedPose.toPose2d();
+
+        // Choose the list of deposit poses (for example, the left positions).
+        // If you later need to toggle between left/right, you might pass a flag or determine it some other way.
+        List<Pose2d> depositPoses = left ? FieldPositions.kLeftReefPoses : FieldPositions.kRightReefPoses;
+        
+        // Find the deposit pose from the list that is closest to the global pose estimate.
+        Pose2d nearestDepositPose = depositPoses.stream()
+            .min((p1, p2) -> Double.compare(
+                globalPose.getTranslation().getDistance(p1.getTranslation()),
+                globalPose.getTranslation().getDistance(p2.getTranslation())))
+            .orElse(null);
+        
+        if (nearestDepositPose == null) {
+            return lastCalculatedDist;
+        }
+        
+        // Map the selected deposit pose to its corresponding AprilTag ID.
+        // The mapping could be as simple as using a single tag for all deposits or looking up a table.
+        int targetTagId = getDepositTagId(nearestDepositPose);
+        
+        // Retrieve the global field pose of the selected AprilTag from the field layout.
+        Optional<Pose3d> tagGlobalPoseOpt = fieldLayout.getTagPose(targetTagId);
+        if (!tagGlobalPoseOpt.isPresent()) {
+            return lastCalculatedDist;
+        }
+        Pose2d tagGlobalPose2d = tagGlobalPoseOpt.get().toPose2d();
+        
+        // Compute the robot's pose relative to the tag's known pose.
+        Pose2d relativePose = globalPose.relativeTo(tagGlobalPose2d);
+        
+        // Store and return the calculated relative pose.
+        lastCalculatedDist = Optional.of(relativePose);
+        return Optional.of(relativePose);
+    }
+
+    /**
+     * Helper method to map a deposit pose to its corresponding AprilTag ID.
+     * For instance, if you are always aligning to the same tag for left deposits, you might simply return that tag ID.
+     *
+     * Alternatively, if each deposit position has an associated tag, then you could look it up in a Map or via some conditional logic.
+     */
+    private int getDepositTagId(Pose2d depositPose) {
+        // Example: if all left deposit positions align with tag 6, just return that.
+        return 6;
+        // For more complex mappings, you could do:
+        // return depositPoseToTagMap.get(depositPose);
     }
 
     public static final int[] kReefIDs = {6};
