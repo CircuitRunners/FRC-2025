@@ -255,14 +255,14 @@ public final class Constants {
     
     
     public static double encoderDifference = 40.571014404296875; // tune specifically
-    public static final double maxEncoderValue = -73.50224304199219 - encoderDifference; // tune specifically
+    public static final double maxEncoderValue = (-73.50224304199219 - encoderDifference) / 5; // tune specifically
     public static final double minEncoderValue = 0;
-    public static final double l1EncoderValue = 2.857138395309448 - encoderDifference; // tune specifically
-    public static final double l2EncoderValue = -10.238096714019775 - encoderDifference; // tune specifically
-    public static final double l3EncoderValue = -42.928138732910156 - encoderDifference; // tune specifically
-    public static final double l4EncoderValue = -71.5 - encoderDifference; // tune specifically
-    public static final double Algae2 = -54 - encoderDifference;
-    public static final double Algae1 = -24 - encoderDifference;
+    public static final double l1EncoderValue = (7 - encoderDifference) / 5; // tune specifically
+    public static final double l2EncoderValue = (-10.238096714019775 - encoderDifference) / 5; // tune specifically
+    public static final double l3EncoderValue = (-42.928138732910156 - encoderDifference) / 5; // tune specifically
+    public static final double l4EncoderValue = (-71.5 - encoderDifference) / 5; // tune specifically
+    public static final double Algae2 = (-54 - encoderDifference) / 5;
+    public static final double Algae1 = (-24 - encoderDifference)/ 5;
     public static final double tolerance = 0.5;
   }
   
@@ -275,7 +275,8 @@ public final class Constants {
       public static double maxEncoderValue = 95.86046600341797 / 5 - encoderOffset; //currently set with Neo Encoder
       public static double minEncoderValue = 0;
       public static double horizontalEncoderValue = -95.86046600341797 / 5 - encoderOffset; //currently set with Neo Encoder
-      public static double l4EncoderValue = 50.81052780151367 / 5 - encoderOffset; //currently set with Neo Encoder
+      public static double l1EncoderValue = -70 / 5 - encoderOffset;
+      public static double l4EncoderValue = 50 / 5 - encoderOffset; //currently set with Neo Encoder
       public static double tolerance = 0.5;
       public static int canRangePort = 2;
       public static double algaeValue = 40 / 5 - encoderOffset;

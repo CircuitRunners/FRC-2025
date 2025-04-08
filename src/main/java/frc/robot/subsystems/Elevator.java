@@ -42,7 +42,7 @@ extends SubsystemBase {
         targetPos = getElevatorPos();
 
         //Tunes the PID gains- Adjust for better control and movement of elevator
-        double kp = 0.1; //Proportional (Increase the number if moving too slow, decrease if oscillating)  NEEDS TO BE TUNED
+        double kp = 0.03; //Proportional (Increase the number if moving too slow, decrease if oscillating)  NEEDS TO BE TUNED
         double ki = 0.0; //Integral (Stays at 0 unless there's a steady-state error)  NEEDS TO BE TUNED
         double kd = 0; //Derivate (Increase if overshoot target, decrease if sluggish/slow)  NEEDS TO BE TUNED
         
@@ -173,6 +173,11 @@ extends SubsystemBase {
     @Override
     public void periodic(){
         if (manual == false) {
+            if (targetPos > getElevatorPos()) {
+                pidController.setP(0.02);
+            } else {
+                pidController.setP(0.1);
+            }
             var output = pidController.calculate(getElevatorPos(), this.targetPos);
             elevatorSparkMax1.set(output);
         }
@@ -198,6 +203,7 @@ extends SubsystemBase {
             this.elevator = elevator;
             this.targetPosition = targetPosition;
             this.targetState = targetState;
+
             addRequirements(elevator);
         }
 

@@ -223,14 +223,14 @@ public class Robot extends TimedRobot {
       drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.75, 0, 0))
         .alongWith(claw.runRollersInCommand().withTimeout(2.8))
         .withTimeout(3)
-        .andThen(new ScoreL4Auto(elevator, claw, drive))
-        .andThen(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, Math.PI)).withTimeout(1).finallyDo(drive::brake)));
+        .andThen(new ScoreL4Auto(elevator, claw, drive)));
+        // .andThen(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, Math.PI)).withTimeout(1).finallyDo(drive::brake)));
       autoChooser.addOption("scoreL4 auto remove algae no pathplanner",
       drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.75, 0, 0))
         .alongWith(claw.runRollersInCommand().withTimeout(2.8))
         .withTimeout(3)
-        .andThen(new ScoreL4AutoWithAlgaeRemoval(elevator, claw, drive))
-        .andThen(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, Math.PI)).withTimeout(1).finallyDo(drive::brake)));
+        .andThen(new ScoreL4AutoWithAlgaeRemoval(elevator, claw, drive)));
+        // .andThen(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, Math.PI)).withTimeout(1).finallyDo(drive::brake)));
     
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
@@ -300,6 +300,7 @@ public class Robot extends TimedRobot {
     
     manipulatorControls.Algae2().onTrue(new Algae2(elevator, claw));
     manipulatorControls.scoreL4().whileTrue(new ScoreL4(elevator, claw));
+    manipulatorControls.x().onTrue(claw.runRollersInSlowCommand()).onFalse(claw.stopRollersCommand());
     // manipulatorControls.x().onTrue(claw.moveClawToHorizontalCommand());
     manipulatorControls.runRollersIn().onTrue(claw.runRollersInCommand()).onFalse(claw.stopRollersCommand());
     manipulatorControls.runRollersOut().onTrue(claw.runRollersOutAdjustCommand()).onFalse(claw.stopRollersCommand());
@@ -330,6 +331,7 @@ public class Robot extends TimedRobot {
     manipulatorControls.moveToL4().onTrue(new MoveToL4(elevator, claw, drive));
     manipulatorControls.leftTrigger().onTrue(claw.runManualCommand(-0.1)).onFalse(claw.zeroArm());
     manipulatorControls.rightTrigger().onTrue(claw.runManualCommand(0.2)).onFalse(claw.zeroArm());
+    
     
   }
 

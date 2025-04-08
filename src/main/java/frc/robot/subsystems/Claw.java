@@ -116,6 +116,10 @@ public class Claw extends SubsystemBase {
         return changeRollerSpdCommand(0.8);
     }
 
+    public Command runRollersInSlowCommand() {
+        SmartDashboard.putString("rollers state", "running in");
+        return changeRollerSpdCommand(0.2);
+    }
     public Command runRollersInCommandAlt() {
         SmartDashboard.putString("rollers state", "running in");
         return changeRollerSpdCommand(0.5);
@@ -177,6 +181,9 @@ public class Claw extends SubsystemBase {
         return moveWristCommand(ClawConstants.algaeValue);
     }
 
+    public Command moveClawToL1Command() {
+        return moveWristCommand(ClawConstants.l1EncoderValue);
+    }
     public Command moveClawToL4Command() {
         return moveWristCommand(ClawConstants.l4EncoderValue);
     }
