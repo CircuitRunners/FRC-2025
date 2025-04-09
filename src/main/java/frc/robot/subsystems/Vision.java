@@ -61,7 +61,7 @@ public class Vision extends SubsystemBase{
     public static final double leftAlignmentX = .2435737274077523; //meters
     public static final double leftAlignmentY = 0.275;
     public static final double rightAlignmentX = .2435737274077523;
-    public static final double rightAlignmentY = 0.623;
+    public static final double rightAlignmentY = 0;
     public static final double thetaAlignment = -Math.PI/2; //degrees
     public static double maxAlignmentDistance = 1.5;
 
@@ -167,9 +167,11 @@ private static final Map<Pose2d, Integer> rightDepositMapping = new HashMap<>() 
     private PhotonPoseEstimator leftPoseEstimator;
     private int latestID;
     private Pose2d reefDstPose;
-    private static Transform3d rightCameraTransform = new Transform3d(.177,-.299,.223+0.036073,new Rotation3d(0,11.508393*0.01745329,31.474949*0.01745329));
-    private static Transform3d leftCameraTransform = new Transform3d(.177, .299, .223 + 0.036073, new Rotation3d(0, 11.508393 * 0.01745329, -31.474949 * 0.01745329));
+    //private static Transform3d rightCameraTransform = new Transform3d(.177,-.299,.223+0.036073,new Rotation3d(0,11.508393*0.01745329,31.474949*0.01745329));
+    //private static Transform3d leftCameraTransform = new Transform3d(.177, .299, .223 + 0.036073, new Rotation3d(0, 11.508393 * 0.01745329, -31.474949 * 0.01745329));
 
+    private static Transform3d rightCameraTransform = new Transform3d(.159,-.272,0.284988,new Rotation3d(0,0,Math.toRadians(15)));
+    private static Transform3d leftCameraTransform = new Transform3d(.159,.272,0.284988,new Rotation3d(0,0,-Math.toRadians(16)));
     private PhotonCameraSim reefCameraSim;
     private PhotonCameraSim leftCameraSim;
     private VisionSystemSim visionSim;
@@ -182,8 +184,8 @@ private static final Map<Pose2d, Integer> rightDepositMapping = new HashMap<>() 
     public Vision() {
 
         fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
-        rightCamera = new PhotonCamera("ReefCamera");
-        leftCamera = new PhotonCamera("LeftCamera");
+        rightCamera = new PhotonCamera("rightCamera");
+        leftCamera = new PhotonCamera("leftCamera");
         rightPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.LOWEST_AMBIGUITY, rightCameraTransform);
         leftPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.LOWEST_AMBIGUITY, leftCameraTransform);
         lastCalculatedDist = Optional.empty();
@@ -310,38 +312,52 @@ private static final Map<Pose2d, Integer> rightDepositMapping = new HashMap<>() 
         }
         Pose2d globalPose = globalPoseOpt.get().estimatedPose.toPose2d();
 
+
         // Choose the list of deposit poses (for example, the left positions).
         // If you later need to toggle between left/right, you might pass a flag or determine it some other way.
         List<Pose2d> depositPoses = left ? FieldPositions.kLeftReefPoses : FieldPositions.kRightReefPoses;
-        
-        // Find the deposit pose from the list that is closest to the global pose estimate.
-        Pose2d nearestDepositPose = depositPoses.stream()
-            .min((p1, p2) -> Double.compare(
-                globalPose.getTranslation().getDistance(p1.getTranslation()),
-                globalPose.getTranslation().getDistance(p2.getTranslation())))
-            .orElse(null);
-        
+
+        Pose2d nearestDepositPose = fieldLayout.getTags().stream().filter(tagPose -> isReefID(tagPose.ID)).map(tagPose -> tagPose.pose.toPose2d()).min((p1, p2) -> Double.compare(globalPose.getTranslation().getDistance(p1.getTranslation()), globalPose.getTranslation().getDistance(p2.getTranslation()))).orElse(null);
         if (nearestDepositPose == null) {
             return lastCalculatedDist;
         }
-        
-        // Map the selected deposit pose to its corresponding AprilTag ID.
-        // The mapping could be as simple as using a single tag for all deposits or looking up a table.
-        int targetTagId = getDepositTagId(nearestDepositPose, left);
-        
-        // Retrieve the global field pose of the selected AprilTag from the field layout.
-        Optional<Pose3d> tagGlobalPoseOpt = fieldLayout.getTagPose(targetTagId);
-        if (!tagGlobalPoseOpt.isPresent()) {
-            return lastCalculatedDist;
-        }
-        Pose2d tagGlobalPose2d = tagGlobalPoseOpt.get().toPose2d();
-        
-        // Compute the robot's pose relative to the tag's known pose.
-        Pose2d relativePose = globalPose.relativeTo(tagGlobalPose2d);
-        
-        // Store and return the calculated relative pose.
+
+        Pose2d relativePose = globalPose.relativeTo(nearestDepositPose);
+        SmartDashboard.putString("Relative Pose", relativePose.toString());
+
         lastCalculatedDist = Optional.of(relativePose);
+        
         return Optional.of(relativePose);
+
+        
+        // // Find the deposit pose from the list that is closest to the global pose estimate.
+        // Pose2d nearestDepositPose = depositPoses.stream()
+        //     .min((p1, p2) -> Double.compare(
+        //         globalPose.getTranslation().getDistance(p1.getTranslation()),
+        //         globalPose.getTranslation().getDistance(p2.getTranslation())))
+        //     .orElse(null);
+        
+        // if (nearestDepositPose == null) {
+        //     return lastCalculatedDist;
+        // }
+        
+        // // Map the selected deposit pose to its corresponding AprilTag ID.
+        // // The mapping could be as simple as using a single tag for all deposits or looking up a table.
+        // int targetTagId = getDepositTagId(nearestDepositPose, left);
+        
+        // // Retrieve the global field pose of the selected AprilTag from the field layout.
+        // Optional<Pose3d> tagGlobalPoseOpt = fieldLayout.getTagPose(targetTagId);
+        // if (!tagGlobalPoseOpt.isPresent()) {
+        //     return lastCalculatedDist;
+        // }
+        // Pose2d tagGlobalPose2d = tagGlobalPoseOpt.get().toPose2d();
+        
+        // // Compute the robot's pose relative to the tag's known pose.
+        // Pose2d relativePose = globalPose.relativeTo(tagGlobalPose2d);
+        
+        // // Store and return the calculated relative pose.
+        // lastCalculatedDist = Optional.of(relativePose);
+        // return Optional.of(relativePose);
     }
 
     /**

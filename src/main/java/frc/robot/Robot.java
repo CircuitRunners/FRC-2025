@@ -16,6 +16,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -224,16 +225,21 @@ public class Robot extends TimedRobot {
     autoChooser = new SendableChooser<Command>();
     autoChooser.addOption("long taxi", drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.6 * SwerveConstants.maxVelocityMPS, 0, 0)).withTimeout(7));
     autoChooser.setDefaultOption("scoreL4 auto no pathplanner",
-      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.75, 0, 0))
-        .alongWith(claw.runRollersInCommand().withTimeout(2.8))
-        .withTimeout(3)
-        .andThen(new ScoreL4Auto(elevator, claw, drive)));
+      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(1, 0, 0))
+        .alongWith(claw.runRollersInCommand().withTimeout(0.2))
+        .withTimeout(2)
+        .andThen(drive.autoAlignCommand(true))
+        .andThen(new MoveToL4(elevator, claw, drive))
+        .andThen(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.5, 0, 0)).withTimeout(0.1525*2).andThen(drive.brakeCommand()))
+        .andThen(claw.scoreL4())
+        .andThen(elevator.moveToBottom())
+        );
         // .andThen(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, Math.PI)).withTimeout(1).finallyDo(drive::brake)));
-      autoChooser.addOption("scoreL4 auto remove algae no pathplanner",
-      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.75, 0, 0))
-        .alongWith(claw.runRollersInCommand().withTimeout(2.8))
-        .withTimeout(3)
-        .andThen(new ScoreL4AutoWithAlgaeRemoval(elevator, claw, drive)));
+      // autoChooser.addOption("scoreL4 auto remove algae no pathplanner",
+      // drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.75, 0, 0))
+      //   .alongWith(claw.runRollersInCommand().withTimeout(2.8))
+      //   .withTimeout(2)
+      //   .andThen(new ScoreL4AutoWithAlgaeRemoval(elevator, claw, drive)));
         // .andThen(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, Math.PI)).withTimeout(1).finallyDo(drive::brake)));
     
     SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -280,7 +286,8 @@ public class Robot extends TimedRobot {
     driverControls.a().whileTrue(AutoBuilder.buildAuto("Left 2 Coral Preload L4"));
     driverControls.y().whileTrue(AutoBuilder.buildAuto("Right 2 Coral Preload L4"));
 
-    driverControls.b().onTrue(drive.autoAlignCommand(true));
+    driverControls.b().whileTrue(drive.autoAlignCommand(false));
+    driverControls.x().whileTrue(drive.autoAlignCommand(true));
 
     // driverControls.back().onTrue(drive.toggleSysIdMode());
     

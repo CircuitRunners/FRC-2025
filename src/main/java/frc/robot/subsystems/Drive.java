@@ -71,17 +71,19 @@ public class Drive extends SubsystemBase {
   public CANrange distSensor2 = new CANrange(SwerveConstants.distanceSensor2Port, "Drivebase");
 
   public Vision vision;
-  public static final double kPX = 1;
-  public static final double kPY = 1;
-  public static final double kPTheta = 1;
-  public static final double kXTolerance = 0.1;
-  public static final double kYTolerance = 0.1;
-  public static final double kThetaTolerance = 0.1;
-  public static final double leftAlignmentX = 0.5;
-  public static final double leftAlignmentY = 0.5;
-  public static final double rightAlignmentX = 0.5;
-  public static final double rightAlignmentY = 0.5;
-  public static final double thetaAlignment = 0.5;
+  public static final double kPX = 2;
+  public static final double kPY = 2;
+  public static final double kPTheta = 2;
+  public static final double kXTolerance = 0.05;
+  public static final double kYTolerance = 0.05;
+  public static final double kThetaTolerance = 0.005;
+  public static final double leftAlignmentX = 0.7;
+  public static final double leftAlignmentY = -0.17;
+
+
+  public static final double rightAlignmentX = 0.7;
+  public static final double rightAlignmentY = 0.18;
+  public static final double thetaAlignment = 0;
 
   private PIDController xController = new PIDController(kPX, 0, 0);
   private PIDController yController = new PIDController(kPY, 0, 0);
