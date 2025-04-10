@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.3566611842105263,
-        "y": 6.9018914473684205
+        "x": 1.1161184210526316,
+        "y": 7.0943256578947365
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.6694973107831823,
-        "y": 6.667785427097913
+        "x": 1.4289545476252872,
+        "y": 6.860219637624229
       },
       "isLocked": true,
       "linkedName": "Coral Station 2"
     },
     {
       "anchor": {
-        "x": 3.579,
-        "y": 5.314309210526315
+        "x": 3.0308388157894735,
+        "y": 5.458634868421052
       },
       "prevControl": {
-        "x": 3.2753305075139885,
-        "y": 5.564329305821361
+        "x": 2.615040338348269,
+        "y": 5.761897847089319
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Reef Zone 3T2"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -48,7 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -55.175510843043206
+    "rotation": -53.36588612403252
   },
   "useDefaultConstraints": true
 }

@@ -179,6 +179,9 @@ extends SubsystemBase {
                 pidController.setP(0.1);
             }
             var output = pidController.calculate(getElevatorPos(), this.targetPos);
+            if (targetPos == ElevatorConstants.l4EncoderValue) {
+                Math.max(-0.5, Math.min(0.5, output));
+            }
             elevatorSparkMax1.set(output);
         }
 

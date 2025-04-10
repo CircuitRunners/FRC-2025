@@ -258,8 +258,8 @@ public final class Constants {
     public static final double maxEncoderValue = (-73.50224304199219 - encoderDifference) / 5; // tune specifically
     public static final double minEncoderValue = 0;
     public static final double l1EncoderValue = (7 - encoderDifference) / 5; // tune specifically
-    public static final double l2EncoderValue = (-10.238096714019775 - encoderDifference) / 5; // tune specifically
-    public static final double l3EncoderValue = (-42.928138732910156 - encoderDifference) / 5; // tune specifically
+    public static final double l2EncoderValue = (-15.238096714019775 - encoderDifference) / 5; // tune specifically
+    public static final double l3EncoderValue = (-44.928138732910156 - encoderDifference) / 5; // tune specifically
     public static final double l4EncoderValue = (-71.5 - encoderDifference) / 5; // tune specifically
     public static final double Algae2 = (-54 - encoderDifference) / 5;
     public static final double Algae1 = (-24 - encoderDifference)/ 5;

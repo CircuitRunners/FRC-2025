@@ -13,7 +13,7 @@
         {
           "type": "named",
           "data": {
-            "name": "AutonScoreL4"
+            "name": "AutonScoreL4Right"
           }
         },
         {
@@ -37,7 +37,7 @@
         {
           "type": "named",
           "data": {
-            "name": "AutonScoreL4"
+            "name": "AutonScoreL4Left"
           }
         }
       ]

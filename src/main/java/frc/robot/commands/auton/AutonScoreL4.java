@@ -10,9 +10,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.moving.LineUpL4;
+import frc.robot.commands.moving.MoveToL4;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.Drive;
 import frc.robot.commands.scoring.*;
+
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class AutonScoreL4 extends SequentialCommandGroup {
@@ -21,9 +22,12 @@ public class AutonScoreL4 extends SequentialCommandGroup {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drive, elevator, claw);
     addCommands(
-      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(1, 0, 0)).withTimeout(1),
-      new ScoreL4Auto(elevator, claw, drive),
-      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(-1, 0, 0)).withTimeout(0.305)
+      drive.autoAlignCommand(left).withTimeout(3),
+      drive.driveRobotCentricCommand(() -> new ChassisSpeeds()).withTimeout(0.1),
+      new MoveToL4(elevator, claw, drive),
+      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.5, 0, 0)).withTimeout(0.2225*2).andThen(drive.brakeCommand()),
+      claw.scoreL4(),
+      elevator.moveToBottom().withTimeout(0.75)
     );
   }
 }

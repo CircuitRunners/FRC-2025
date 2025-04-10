@@ -1,6 +1,6 @@
 package frc.robot.commands.scoring;
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.pathfinding.Pathfinder;
+// import com.pathplanner.lib.auto.AutoBuilder;
+// import com.pathplanner.lib.pathfinding.Pathfinder;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
