@@ -170,6 +170,14 @@ extends SubsystemBase {
     //     return new Trigger(() -> !isElevatorAtBottom() || elevatorSparkMax1.get() > 0.5);
     // }
 
+    public boolean targetReached() {
+        return Math.abs(getElevatorPos() - targetPos) <= 6;
+    }
+
+    public boolean isTargetL4() {
+        return targetPos == ElevatorConstants.l4EncoderValue;
+    }
+
     @Override
     public void periodic(){
         if (manual == false) {

@@ -22,10 +22,11 @@ public class AutonScoreL4 extends SequentialCommandGroup {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drive, elevator, claw);
     addCommands(
-      drive.autoAlignCommand(left).withTimeout(3),
-      drive.driveRobotCentricCommand(() -> new ChassisSpeeds()).withTimeout(0.1),
-      new MoveToL4(elevator, claw, drive),
-      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.5, 0, 0)).withTimeout(0.2225*2).andThen(drive.brakeCommand()),
+      new ParallelCommandGroup(
+        drive.autoAlignCommand(left, () -> true).withTimeout(3),
+        new MoveToL4(elevator, claw, drive)
+      ),
+      drive.autoAlignCommand(left, () -> false, () -> true).withTimeout(3),
       claw.scoreL4(),
       elevator.moveToBottom().withTimeout(0.75)
     );

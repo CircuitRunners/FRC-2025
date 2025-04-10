@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.lib.swerve.SwerveConfig;
@@ -75,6 +76,8 @@ public class Robot extends TimedRobot {
   private SendableChooser<Command> autoChooser = new SendableChooser<>();
 
   private static boolean l4 = true;
+  private static boolean l4Score = false;
+
 
   Thread m_visionThread;
 
@@ -291,8 +294,8 @@ public class Robot extends TimedRobot {
     driverControls.a().whileTrue(AutoBuilder.buildAuto("Left 2 Coral Preload L4"));
     driverControls.y().whileTrue(AutoBuilder.buildAuto("Right 2 Coral Preload L4"));
 
-    driverControls.rightTrigger().whileTrue(drive.autoAlignCommand(false, () -> Robot.l4));
-    driverControls.leftTrigger().whileTrue(drive.autoAlignCommand(true, () -> Robot.l4));
+    driverControls.rightTrigger().whileTrue(drive.autoAlignCommand(false, () -> Robot.l4, () -> Robot.l4Score));
+    driverControls.leftTrigger().whileTrue(drive.autoAlignCommand(true, () -> Robot.l4, () -> Robot.l4Score));
 
     // driverControls.back().onTrue(drive.toggleSysIdMode());
     
@@ -330,7 +333,7 @@ public class Robot extends TimedRobot {
     // manipulatorControls.b().onTrue(claw.runRollersOutSlowCommand()).onFalse(claw.stopRollersCommand());
 
     //overall controls
-    manipulatorControls.leftStick().onTrue(new MoveToIntake(elevator, claw, drive)).onFalse(Commands.runOnce(() -> {
+    manipulatorControls.leftStick().onTrue(new SequentialCommandGroup(new MoveToIntake(elevator, claw, drive), Commands.runOnce(() -> Robot.l4Score = false))).onFalse(Commands.runOnce(() -> {
       drive.setDefaultCommand(drive.driveFieldCentricCommand(() -> 
         driveRequest
           .withVelocityX(driverControls.driveForward())
@@ -344,10 +347,22 @@ public class Robot extends TimedRobot {
 
     // manipulatorControls.back().onTrue(new MoveToIntake(elevator, claw, drive));
     manipulatorControls.back().onTrue(Commands.runOnce(() -> Robot.l4 = !Robot.l4).andThen(Commands.run(() -> driverControls.setRumble(RumbleType.kBothRumble, 1)).withTimeout(0.3).finallyDo(() -> driverControls.setRumble(RumbleType.kBothRumble, 0))));
-    manipulatorControls.moveToL1().onTrue(new MoveToL1(elevator, claw, drive));
-    manipulatorControls.moveToL2().onTrue(new MoveToL2(elevator, claw, drive));
-    manipulatorControls.moveToL3().onTrue(new MoveToL3(elevator, claw, drive));
-    manipulatorControls.moveToL4().onTrue(new MoveToL4(elevator, claw, drive));
+    manipulatorControls.moveToL1().onTrue(new SequentialCommandGroup(
+      new MoveToL1(elevator, claw, drive),
+      Commands.runOnce(() -> Robot.l4Score = false)
+    ));
+    manipulatorControls.moveToL2().onTrue(new SequentialCommandGroup(
+      new MoveToL2(elevator, claw, drive),
+      Commands.runOnce(() -> Robot.l4Score = false)
+    ));
+    manipulatorControls.moveToL3().onTrue(new SequentialCommandGroup(
+      new MoveToL3(elevator, claw, drive),
+      Commands.runOnce(() -> Robot.l4Score = false)
+    ));
+    manipulatorControls.moveToL4().onTrue(new SequentialCommandGroup(
+      new MoveToL4(elevator, claw, drive),
+      Commands.runOnce(() -> Robot.l4Score = true)
+    ));
     manipulatorControls.leftTrigger().onTrue(claw.runManualCommand(-0.1)).onFalse(claw.zeroArm());
     manipulatorControls.rightTrigger().onTrue(claw.runManualCommand(0.2)).onFalse(claw.zeroArm());
     
