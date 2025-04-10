@@ -171,7 +171,7 @@ extends SubsystemBase {
     // }
 
     public boolean targetReached() {
-        return Math.abs(getElevatorPos() - targetPos) <= 6;
+        return Math.abs(getElevatorPos() - targetPos) <= 12;
     }
 
     public boolean isTargetL4() {

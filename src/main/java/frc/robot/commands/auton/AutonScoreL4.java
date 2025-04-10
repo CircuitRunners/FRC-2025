@@ -27,8 +27,7 @@ public class AutonScoreL4 extends SequentialCommandGroup {
         new MoveToL4(elevator, claw, drive)
       ),
       drive.autoAlignCommand(left, () -> false, () -> true).withTimeout(3),
-      claw.scoreL4(),
-      elevator.moveToBottom().withTimeout(0.75)
+      claw.scoreL4()
     );
   }
 }

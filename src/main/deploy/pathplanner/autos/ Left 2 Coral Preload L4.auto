@@ -17,9 +17,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Zone 3T1 to Station 2"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Zone 3T1 to Station 2"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "MoveToIntake"
+                }
+              }
+            ]
           }
         },
         {
@@ -29,15 +42,41 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Station 2 to Zone 3T2"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Station 2 to Zone 3T2"
+                }
+              }
+            ]
           }
         },
         {
           "type": "named",
           "data": {
             "name": "AutonScoreL4Right"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Zone 3T1 to Station 2"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "MoveToIntake"
+                }
+              }
+            ]
           }
         }
       ]

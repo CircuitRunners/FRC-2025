@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.lib.swerve.SwerveConfig;
@@ -147,6 +148,7 @@ public class Robot extends TimedRobot {
       drive.vision.simulationPeriodic(drive.getPose());
     }
     SmartDashboard.putBoolean("Auto Align to L4", l4);
+    SmartDashboard.putBoolean("L4 Score", l4Score);
   }
 
   @Override
@@ -221,27 +223,32 @@ public class Robot extends TimedRobot {
     NamedCommands.registerCommand("ScoreL4Auto", new ScoreL4Auto(elevator, claw, drive));
     NamedCommands.registerCommand("AutonScoreL4Left", new AutonScoreL4(drive,elevator, claw, true));
     NamedCommands.registerCommand("AutonScoreL4Right", new AutonScoreL4(drive,elevator, claw, false));
+    NamedCommands.registerCommand("RunRollersIn", claw.runRollersInCommand().until(() -> claw.isCoralInClaw()).finallyDo(() -> claw.stopRoller()));
+    NamedCommands.registerCommand("StopRollers", claw.stopRollersCommand());
     // NamedCommands.registerCommand("ScoreL4Auto", new ScoreL4Teleop(elevator, claw, drive));
     NamedCommands.registerCommand("do nothing", Commands.none());
     NamedCommands.registerCommand("brake", drive.brakeCommand());
     NamedCommands.registerCommand("Drive Robot Centric Forward", drive.driveRobotCentricCommand(() -> new ChassisSpeeds(1, 0, 0)));
     NamedCommands.registerCommand("Drive Robot Centric Forward", drive.driveRobotCentricCommand(() -> new ChassisSpeeds(-1, 0, 0)));
-
     PathPlannerUtil.configure(drive, true);
 
     autoChooser = AutoBuilder.buildAutoChooser("taxi");
     // autoChooser = new SendableChooser<Command>();
     autoChooser.addOption("long taxi", drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.6 * SwerveConstants.maxVelocityMPS, 0, 0)).withTimeout(7));
-    autoChooser.setDefaultOption("scoreL4 auto no pathplanner",
+    autoChooser.setDefaultOption("Middle Preload Left",
       drive.driveRobotCentricCommand(() -> new ChassisSpeeds(1, 0, 0))
         .alongWith(claw.runRollersInCommand().withTimeout(0.2))
-        .withTimeout(2)
-        .andThen(drive.autoAlignCommand(true))
-        .andThen(new MoveToL4(elevator, claw, drive))
-        .andThen(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.5, 0, 0)).withTimeout(0.1525*2).andThen(drive.brakeCommand()))
-        .andThen(claw.scoreL4())
+        .withTimeout(1)
+        .andThen(new AutonScoreL4(drive, elevator, claw, true))
         .andThen(elevator.moveToBottom())
-        );
+      );
+    autoChooser.addOption("Middle Preload Right",
+      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(1, 0, 0))
+        .alongWith(claw.runRollersInCommand().withTimeout(0.2))
+        .withTimeout(1)
+        .andThen(new AutonScoreL4(drive, elevator, claw, false))
+        .andThen(elevator.moveToBottom())
+      );
         // .andThen(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, Math.PI)).withTimeout(1).finallyDo(drive::brake)));
       // autoChooser.addOption("scoreL4 auto remove algae no pathplanner",
       // drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.75, 0, 0))
@@ -291,11 +298,22 @@ public class Robot extends TimedRobot {
 
     // driverControls.b().whileTrue(new ScoreL4Auto(elevator, claw, drive));
 
+    // driverControls.x().whileTrue(drive.hpAlign(true));
+    // driverControls.b().whileTrue(drive.hpAlign(false));
+
     driverControls.a().whileTrue(AutoBuilder.buildAuto("Left 2 Coral Preload L4"));
     driverControls.y().whileTrue(AutoBuilder.buildAuto("Right 2 Coral Preload L4"));
 
-    driverControls.rightTrigger().whileTrue(drive.autoAlignCommand(false, () -> Robot.l4, () -> Robot.l4Score));
-    driverControls.leftTrigger().whileTrue(drive.autoAlignCommand(true, () -> Robot.l4, () -> Robot.l4Score));
+    driverControls.rightTrigger().whileTrue(new SequentialCommandGroup(
+      drive.autoAlignCommand(false, () -> Robot.l4, () -> Robot.l4Score),
+      new WaitUntilCommand(() -> (elevator.targetReached() && elevator.isTargetL4())),
+      drive.autoAlignCommand(false, () -> Robot.l4, () -> true))
+    );
+    driverControls.leftTrigger().whileTrue(new SequentialCommandGroup(
+      drive.autoAlignCommand(true, () -> Robot.l4, () -> Robot.l4Score),
+      new WaitUntilCommand(() -> (elevator.targetReached() && elevator.isTargetL4())),
+      drive.autoAlignCommand(true, () -> Robot.l4, () -> true))
+    );
 
     // driverControls.back().onTrue(drive.toggleSysIdMode());
     
@@ -361,7 +379,11 @@ public class Robot extends TimedRobot {
     ));
     manipulatorControls.moveToL4().onTrue(new SequentialCommandGroup(
       new MoveToL4(elevator, claw, drive),
-      Commands.runOnce(() -> Robot.l4Score = true)
+      Commands.runOnce(() -> Robot.l4Score = true),
+      Commands.runOnce(() -> {
+        driverControls.rightTrigger().whileTrue(drive.autoAlignCommand(false, () -> Robot.l4, () -> Robot.l4Score));
+        driverControls.leftTrigger().whileTrue(drive.autoAlignCommand(true, () -> Robot.l4, () -> Robot.l4Score));
+      })
     ));
     manipulatorControls.leftTrigger().onTrue(claw.runManualCommand(-0.1)).onFalse(claw.zeroArm());
     manipulatorControls.rightTrigger().onTrue(claw.runManualCommand(0.2)).onFalse(claw.zeroArm());
@@ -377,3 +399,4 @@ public class Robot extends TimedRobot {
   }
 
 }
+

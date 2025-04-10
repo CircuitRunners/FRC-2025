@@ -260,7 +260,7 @@ public final class Constants {
     public static final double l1EncoderValue = (7 - encoderDifference) / 5; // tune specifically
     public static final double l2EncoderValue = (-15.238096714019775 - encoderDifference) / 5; // tune specifically
     public static final double l3EncoderValue = (-44.928138732910156 - encoderDifference) / 5; // tune specifically
-    public static final double l4EncoderValue = (-71.5 - encoderDifference) / 5; // tune specifically
+    public static final double l4EncoderValue = (-71 - encoderDifference) / 5; // tune specifically
     public static final double Algae2 = (-54 - encoderDifference) / 5;
     public static final double Algae1 = (-24 - encoderDifference)/ 5;
     public static final double tolerance = 0.5;

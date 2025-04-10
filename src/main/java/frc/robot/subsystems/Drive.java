@@ -87,7 +87,7 @@ public class Drive extends SubsystemBase {
 
   public static final double rightL4AlignmentX = leftL4AlignmentX;
   public static final double rightAlignmentX = leftAlignmentX;
-  public static final double rightL4ScoreAlignmentX = rightL4AlignmentX;
+  public static final double rightL4ScoreAlignmentX = leftL4ScoreAlignmentX;
 
   public static final double rightAlignmentY = 0.15;
   
@@ -372,10 +372,10 @@ public class Drive extends SubsystemBase {
     return startRun(()->{
       // Set the target pose based on the alignment side
       double targetX;
-      if (l4.get()) {
-        targetX = left ? leftL4AlignmentX : rightL4AlignmentX;
-      } else if (l4Score.get()) {
+      if (l4Score.get()) {
         targetX = left ? leftL4ScoreAlignmentX : rightL4ScoreAlignmentX;
+      } else if (l4.get()) {
+        targetX = left ? leftL4AlignmentX : rightL4AlignmentX;
       } else {
         targetX = left ? leftAlignmentX : rightAlignmentX;
       }
@@ -491,8 +491,10 @@ public class Drive extends SubsystemBase {
   public Command hpAlign(boolean left) {
     return startRun(() -> {
       // Set the target yaw based on the alignment side
-      double targetYaw = left ? -Math.PI / 4 : Math.PI / 4; // -45 or 45 degrees in radians
+      double targetYaw = left ? -45 : 45; // -45 or 45 degrees in radians
       thetaController.setSetpoint(targetYaw);
+      thetaController.setP(0.001);
+      thetaController.setTolerance(1);
     }, () -> {
       // Get the current yaw from the gyro
       double currentYaw = swerve.getPigeon2().getYaw().getValueAsDouble();
@@ -512,6 +514,8 @@ public class Drive extends SubsystemBase {
     }).finallyDo(interrupted -> {
       // Stop the robot after alignment
       driveRobotCentric(new ChassisSpeeds(0, 0, 0));
+      thetaController.setP(kPTheta);
+      thetaController.setTolerance(kThetaTolerance);
     });
   }
 
