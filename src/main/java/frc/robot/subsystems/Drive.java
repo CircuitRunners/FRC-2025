@@ -487,6 +487,34 @@ public class Drive extends SubsystemBase {
     // swerve.setControl(SwerveRequest.PointWheelsAt);
   }
 
+
+  public Command hpAlign(boolean left) {
+    return startRun(() -> {
+      // Set the target yaw based on the alignment side
+      double targetYaw = left ? -Math.PI / 4 : Math.PI / 4; // -45 or 45 degrees in radians
+      thetaController.setSetpoint(targetYaw);
+    }, () -> {
+      // Get the current yaw from the gyro
+      double currentYaw = swerve.getPigeon2().getYaw().getValueAsDouble();
+      
+      // Calculate correction using the PID controller
+      double thetaPower = thetaController.calculate(currentYaw);
+      
+      // Publish debug values to SmartDashboard (optional)
+      SmartDashboard.putNumber("HPAlign/thetaError", thetaController.getError());
+      SmartDashboard.putNumber("HPAlign/thetaPower", thetaPower);
+      
+      // Command the drive: Rotate the robot to align
+      driveRobotCentric(new ChassisSpeeds(0, 0, thetaPower));
+    }).until(() -> {
+      // Terminate when the yaw is within the set tolerance
+      return thetaController.atSetpoint();
+    }).finallyDo(interrupted -> {
+      // Stop the robot after alignment
+      driveRobotCentric(new ChassisSpeeds(0, 0, 0));
+    });
+  }
+
   public Command autoAlignCommand(boolean left) {
     boolean l4 = true;
     return startRun(()->{
