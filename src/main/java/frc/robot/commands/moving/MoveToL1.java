@@ -22,7 +22,7 @@ public class MoveToL1 extends SequentialCommandGroup {
     addCommands(new ParallelCommandGroup(
       elevator.moveToL1(), 
       Commands.waitSeconds(0.2)
-        .andThen(claw.runRollersInCommandAlt().withDeadline(Commands.waitSeconds(0.02)))
+        .andThen(claw.runRollersInCommandAlt().withDeadline(Commands.waitSeconds(0.08)))
         .andThen(claw.moveClawToL1Command())).withTimeout(1.75)
     );;
   }

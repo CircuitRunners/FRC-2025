@@ -37,8 +37,8 @@ public class Claw extends SubsystemBase {
         roller1Motor = new SparkMax(ClawConstants.rollerMotorPort1, MotorType.kBrushless);
         roller2Motor = new SparkMax(ClawConstants.rollerMotorPort2, MotorType.kBrushless);
 
-        SparkBaseConfig r1mConfig = new SparkMaxConfig().idleMode(IdleMode.kCoast).smartCurrentLimit(20);
-        SparkBaseConfig r2mConfig = new SparkMaxConfig().follow(ClawConstants.rollerMotorPort1,true).idleMode(IdleMode.kCoast).smartCurrentLimit(20);
+        SparkBaseConfig r1mConfig = new SparkMaxConfig().idleMode(IdleMode.kCoast).smartCurrentLimit(30);
+        SparkBaseConfig r2mConfig = new SparkMaxConfig().follow(ClawConstants.rollerMotorPort1,true).idleMode(IdleMode.kCoast).smartCurrentLimit(30);
         roller1Motor.configure(r1mConfig, null, null);
         roller2Motor.configure(r2mConfig, null, null);
 
@@ -113,16 +113,21 @@ public class Claw extends SubsystemBase {
     
     public Command runRollersInCommand() {
         SmartDashboard.putString("rollers state", "running in");
-        return changeRollerSpdCommand(0.8);
+        return changeRollerSpdCommand(0.3);
     }
 
     public Command runRollersInSlowCommand() {
         SmartDashboard.putString("rollers state", "running in");
         return changeRollerSpdCommand(0.2);
     }
+
+    public Command runRollersInSuperFast() {
+        return changeRollerSpdCommand(0.7);
+    }
+
     public Command runRollersInCommandAlt() {
         SmartDashboard.putString("rollers state", "running in");
-        return changeRollerSpdCommand(0.5);
+        return changeRollerSpdCommand(0.3);
     }
     public Command runRollersOutCommand() {
         SmartDashboard.putString("rollers state", "running out");
