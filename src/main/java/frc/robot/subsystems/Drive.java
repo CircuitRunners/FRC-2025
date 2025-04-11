@@ -20,12 +20,15 @@ import com.ctre.phoenix6.swerve.SwerveRequest.SysIdSwerveRotation;
 import com.ctre.phoenix6.swerve.SwerveRequest.SysIdSwerveTranslation;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
@@ -71,9 +74,9 @@ public class Drive extends SubsystemBase {
   public static final double kPX = 2;
   public static final double kPY = 2;
   public static final double kPTheta = 3;
-  public static final double kXTolerance = 0.05;
-  public static final double kYTolerance = 0.05;
-  public static final double kThetaTolerance = 0.01;
+  public static final double kXTolerance = 0.06;
+  public static final double kYTolerance = 0.06;
+  public static final double kThetaTolerance = 0.02;
 
 
   public static final double leftL4AlignmentX = 0.7;
@@ -90,9 +93,14 @@ public class Drive extends SubsystemBase {
   
   public static final double thetaAlignment = 0;
 
-  private PIDController xController = new PIDController(kPX, 0, 0.001);
-  private PIDController yController = new PIDController(kPY, 0, 0.001);
-  private PIDController thetaController = new PIDController(kPTheta, 0, 0.001);
+  // private PIDController xController = new PIDController(kPX, 0, 0.001);
+  // private PIDController yController = new PIDController(kPY, 0, 0.001);
+  // private PIDController thetaController = new PIDController(kPTheta, 0, 0.001);
+  private ProfiledPIDController xController = new ProfiledPIDController(kPX, 0, 0.001, new TrapezoidProfile.Constraints(2, 2));
+  private ProfiledPIDController yController = new ProfiledPIDController(kPY, 0, 0.001, new TrapezoidProfile.Constraints(2, 2));
+  private ProfiledPIDController thetaController = new ProfiledPIDController(kPTheta, 0, 0.001, new TrapezoidProfile.Constraints(2 * Math.PI, Math.PI));
+  
+  
 
   StructPublisher<Pose2d> finalPoseEstimate = NetworkTableInstance.getDefault().getStructTopic("SmartDashboard/Subsystem/Swerve/finalPoseEstimate", Pose2d.struct).publish();
   StructPublisher<ChassisSpeeds> curChassisSpeed = NetworkTableInstance.getDefault().getStructTopic("SmartDashboard/Subsystem/Swerve/curChassisSpeeds", ChassisSpeeds.struct).publish();
@@ -345,9 +353,12 @@ public class Drive extends SubsystemBase {
       double targetTheta = thetaAlignment;
 
       // Set the PID controllers' setpoints
-      xController.setSetpoint(targetX);
-      yController.setSetpoint(targetY);
-      thetaController.setSetpoint(targetTheta);
+      // xController.setSetpoint(targetX);
+      // yController.setSetpoint(targetY);
+      // thetaController.setSetpoint(targetTheta);
+      xController.setGoal(targetX);
+      yController.setGoal(targetY);
+      thetaController.setGoal(targetTheta);
 
     },() -> {
       // Get the latest vision measurement (robot pose in tag space)
@@ -363,9 +374,13 @@ public class Drive extends SubsystemBase {
         double thetaPower = thetaController.calculate(visionPose.getRotation().getRadians());
         
         // Publish debug values to SmartDashboard (optional)
-        SmartDashboard.putNumber("AutoAlign/xError", xController.getError());
-        SmartDashboard.putNumber("AutoAlign/yError", yController.getError());
-        SmartDashboard.putNumber("AutoAlign/thetaError", thetaController.getError());
+        // SmartDashboard.putNumber("AutoAlign/xError", xController.getError());
+        // SmartDashboard.putNumber("AutoAlign/yError", yController.getError());
+        // SmartDashboard.putNumber("AutoAlign/thetaError", thetaController.getError());
+        SmartDashboard.putNumber("AutoAlign/xError", xController.getPositionError());
+        SmartDashboard.putNumber("AutoAlign/yError", yController.getPositionError());
+        SmartDashboard.putNumber("AutoAlign/thetaError", thetaController.getPositionError());
+        
         SmartDashboard.putNumber("AutoAlign/xPower", xPower);
         SmartDashboard.putNumber("AutoAlign/yPower", yPower);
         SmartDashboard.putNumber("AutoAlign/thetaPower", thetaPower);
@@ -392,117 +407,10 @@ public class Drive extends SubsystemBase {
 
 
   public Command autoAlignCommand(boolean left, Supplier<Boolean> l4) {
-    return startRun(()->{
-      // Set the target pose based on the alignment side
-      double targetX;
-      if (l4.get()) {
-        targetX = left ? leftL4AlignmentX : rightL4AlignmentX;
-      } else {
-        targetX = left ? leftAlignmentX : rightAlignmentX;
-      }
-      double targetY = left ? leftAlignmentY : rightAlignmentY;
-      double targetTheta = thetaAlignment;
-
-      // Set the PID controllers' setpoints
-      xController.setSetpoint(targetX);
-      yController.setSetpoint(targetY);
-      thetaController.setSetpoint(targetTheta);
-
-    },() -> {
-      // Get the latest vision measurement (robot pose in tag space)
-      Optional<Pose2d> visionOpt = vision.getRobotInTagSpace(left);
-      
-      if (visionOpt.isPresent()) {
-        Pose2d visionPose = visionOpt.get();
-        
-        
-        // Calculate corrections using your PID controllers
-        double xPower = xController.calculate(visionPose.getX());
-        double yPower = yController.calculate(visionPose.getY());
-        double thetaPower = thetaController.calculate(visionPose.getRotation().getRadians());
-        
-        // Publish debug values to SmartDashboard (optional)
-        SmartDashboard.putNumber("AutoAlign/xError", xController.getError());
-        SmartDashboard.putNumber("AutoAlign/yError", yController.getError());
-        SmartDashboard.putNumber("AutoAlign/thetaError", thetaController.getError());
-        SmartDashboard.putNumber("AutoAlign/xPower", xPower);
-        SmartDashboard.putNumber("AutoAlign/yPower", yPower);
-        SmartDashboard.putNumber("AutoAlign/thetaPower", thetaPower);
-        
-        // Command the drive: Here we send the PID outputs as chassis speeds
-        driveRobotCentric(new ChassisSpeeds(
-            Math.max(-2, Math.min(2, -xPower)), 
-            Math.max(-2, Math.min(2, -yPower)), 
-            thetaPower
-        ));
-      } else {
-        // If no vision data is available, stop the robot
-        driveRobotCentric(new ChassisSpeeds(0, 0, 0));
-      }
-    }).until(() -> {
-      // Terminate when the vision measurements are within the set tolerances
-      return xController.atSetpoint() &&
-      yController.atSetpoint() &&
-      thetaController.atSetpoint();
-    });
-
-    // swerve.setControl(SwerveRequest.PointWheelsAt);
+    return autoAlignCommand(left, l4, () -> false);
   }
 
   public Command autoAlignCommand(boolean left) {
-    boolean l4 = true;
-    return startRun(()->{
-      // Set the target pose based on the alignment side
-      double targetX;
-      if (l4) {
-        targetX = left ? leftL4AlignmentX : rightL4AlignmentX;
-      } else {
-        targetX = left ? leftAlignmentX : rightAlignmentX;
-      }
-      double targetY = left ? leftAlignmentY : rightAlignmentY;
-      double targetTheta = thetaAlignment;
-
-      // Set the PID controllers' setpoints
-      xController.setSetpoint(targetX);
-      yController.setSetpoint(targetY);
-      thetaController.setSetpoint(targetTheta);
-
-    },() -> {
-      // Get the latest vision measurement (robot pose in tag space)
-      Optional<Pose2d> visionOpt = vision.getRobotInTagSpace(left);
-      
-      if (visionOpt.isPresent()) {
-        Pose2d visionPose = visionOpt.get();
-        
-        
-        // Calculate corrections using your PID controllers
-        double xPower = xController.calculate(visionPose.getX());
-        double yPower = yController.calculate(visionPose.getY());
-        double thetaPower = thetaController.calculate(visionPose.getRotation().getRadians());
-        
-        // Publish debug values to SmartDashboard (optional)
-        SmartDashboard.putNumber("AutoAlign/xError", xController.getError());
-        SmartDashboard.putNumber("AutoAlign/yError", yController.getError());
-        SmartDashboard.putNumber("AutoAlign/thetaError", thetaController.getError());
-        SmartDashboard.putNumber("AutoAlign/xPower", xPower);
-        SmartDashboard.putNumber("AutoAlign/yPower", yPower);
-        SmartDashboard.putNumber("AutoAlign/thetaPower", thetaPower);
-        
-        // Command the drive: Here we send the PID outputs as chassis speeds
-        driveRobotCentric(new ChassisSpeeds(
-            Math.max(-2, Math.min(2, -xPower)), 
-            Math.max(-2, Math.min(2, -yPower)), 
-            thetaPower
-        ));
-      } else {
-        // If no vision data is available, stop the robot
-        driveRobotCentric(new ChassisSpeeds(0, 0, 0));
-      }
-    }).until(() -> {
-      // Terminate when the vision measurements are within the set tolerances
-      return xController.atSetpoint() &&
-      yController.atSetpoint() &&
-      thetaController.atSetpoint();
-    });
+    return autoAlignCommand(left, () -> true, () -> false);
   }
 }
