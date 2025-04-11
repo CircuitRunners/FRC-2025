@@ -353,42 +353,34 @@ public class Drive extends SubsystemBase {
       double targetTheta = thetaAlignment;
 
       // Set the PID controllers' setpoints
-      // xController.setSetpoint(targetX);
-      // yController.setSetpoint(targetY);
-      // thetaController.setSetpoint(targetTheta);
       xController.setGoal(targetX);
       yController.setGoal(targetY);
       thetaController.setGoal(targetTheta);
-
     },() -> {
       // Get the latest vision measurement (robot pose in tag space)
       Optional<Pose2d> visionOpt = vision.getRobotInTagSpace(left);
-      
+     
       if (visionOpt.isPresent()) {
         Pose2d visionPose = visionOpt.get();
-        
-        
+       
+       
         // Calculate corrections using your PID controllers
         double xPower = xController.calculate(visionPose.getX());
         double yPower = yController.calculate(visionPose.getY());
         double thetaPower = thetaController.calculate(visionPose.getRotation().getRadians());
-        
+       
         // Publish debug values to SmartDashboard (optional)
-        // SmartDashboard.putNumber("AutoAlign/xError", xController.getError());
-        // SmartDashboard.putNumber("AutoAlign/yError", yController.getError());
-        // SmartDashboard.putNumber("AutoAlign/thetaError", thetaController.getError());
         SmartDashboard.putNumber("AutoAlign/xError", xController.getPositionError());
         SmartDashboard.putNumber("AutoAlign/yError", yController.getPositionError());
         SmartDashboard.putNumber("AutoAlign/thetaError", thetaController.getPositionError());
-        
         SmartDashboard.putNumber("AutoAlign/xPower", xPower);
         SmartDashboard.putNumber("AutoAlign/yPower", yPower);
         SmartDashboard.putNumber("AutoAlign/thetaPower", thetaPower);
-        
+       
         // Command the drive: Here we send the PID outputs as chassis speeds
         driveRobotCentric(new ChassisSpeeds(
-            Math.max(-2, Math.min(2, -xPower)), 
-            Math.max(-2, Math.min(2, -yPower)), 
+            Math.max(-2, Math.min(2, -xPower)),
+            Math.max(-2, Math.min(2, -yPower)),
             thetaPower
         ));
       } else {
@@ -407,10 +399,117 @@ public class Drive extends SubsystemBase {
 
 
   public Command autoAlignCommand(boolean left, Supplier<Boolean> l4) {
-    return autoAlignCommand(left, l4, () -> false);
+    return startRun(()->{
+      // Set the target pose based on the alignment side
+      double targetX;
+      if (l4.get()) {
+        targetX = left ? leftL4AlignmentX : rightL4AlignmentX;
+      } else {
+        targetX = left ? leftAlignmentX : rightAlignmentX;
+      }
+      double targetY = left ? leftAlignmentY : rightAlignmentY;
+      double targetTheta = thetaAlignment;
+
+      // Set the PID controllers' setpoints
+      xController.setGoal(targetX);
+      yController.setGoal(targetY);
+      thetaController.setGoal(targetTheta);
+
+    },() -> {
+      // Get the latest vision measurement (robot pose in tag space)
+      Optional<Pose2d> visionOpt = vision.getRobotInTagSpace(left);
+     
+      if (visionOpt.isPresent()) {
+        Pose2d visionPose = visionOpt.get();
+       
+       
+        // Calculate corrections using your PID controllers
+        double xPower = xController.calculate(visionPose.getX());
+        double yPower = yController.calculate(visionPose.getY());
+        double thetaPower = thetaController.calculate(visionPose.getRotation().getRadians());
+       
+        // Publish debug values to SmartDashboard (optional)
+        SmartDashboard.putNumber("AutoAlign/xError", xController.getPositionError());
+        SmartDashboard.putNumber("AutoAlign/yError", yController.getPositionError());
+        SmartDashboard.putNumber("AutoAlign/thetaError", thetaController.getPositionError());
+        SmartDashboard.putNumber("AutoAlign/xPower", xPower);
+        SmartDashboard.putNumber("AutoAlign/yPower", yPower);
+        SmartDashboard.putNumber("AutoAlign/thetaPower", thetaPower);
+       
+        // Command the drive: Here we send the PID outputs as chassis speeds
+        driveRobotCentric(new ChassisSpeeds(
+            Math.max(-2, Math.min(2, -xPower)),
+            Math.max(-2, Math.min(2, -yPower)),
+            thetaPower
+        ));
+      } else {
+        // If no vision data is available, stop the robot
+        driveRobotCentric(new ChassisSpeeds(0, 0, 0));
+      }
+    }).until(() -> {
+      // Terminate when the vision measurements are within the set tolerances
+      return xController.atSetpoint() &&
+      yController.atSetpoint() &&
+      thetaController.atSetpoint();
+    });
+
+    // swerve.setControl(SwerveRequest.PointWheelsAt);
   }
 
   public Command autoAlignCommand(boolean left) {
-    return autoAlignCommand(left, () -> true, () -> false);
+    boolean l4 = true;
+    return startRun(()->{
+      // Set the target pose based on the alignment side
+      double targetX;
+      if (l4) {
+        targetX = left ? leftL4AlignmentX : rightL4AlignmentX;
+      } else {
+        targetX = left ? leftAlignmentX : rightAlignmentX;
+      }
+      double targetY = left ? leftAlignmentY : rightAlignmentY;
+      double targetTheta = thetaAlignment;
+
+      // Set the PID controllers' setpoints
+      xController.setGoal(targetX);
+      yController.setGoal(targetY);
+      thetaController.setGoal(targetTheta);
+
+    },() -> {
+      // Get the latest vision measurement (robot pose in tag space)
+      Optional<Pose2d> visionOpt = vision.getRobotInTagSpace(left);
+     
+      if (visionOpt.isPresent()) {
+        Pose2d visionPose = visionOpt.get();
+       
+       
+        // Calculate corrections using your PID controllers
+        double xPower = xController.calculate(visionPose.getX());
+        double yPower = yController.calculate(visionPose.getY());
+        double thetaPower = thetaController.calculate(visionPose.getRotation().getRadians());
+       
+        // Publish debug values to SmartDashboard (optional)
+        SmartDashboard.putNumber("AutoAlign/xError", xController.getPositionError());
+        SmartDashboard.putNumber("AutoAlign/yError", yController.getPositionError());
+        SmartDashboard.putNumber("AutoAlign/thetaError", thetaController.getPositionError());
+        SmartDashboard.putNumber("AutoAlign/xPower", xPower);
+        SmartDashboard.putNumber("AutoAlign/yPower", yPower);
+        SmartDashboard.putNumber("AutoAlign/thetaPower", thetaPower);
+       
+        // Command the drive: Here we send the PID outputs as chassis speeds
+        driveRobotCentric(new ChassisSpeeds(
+            Math.max(-2, Math.min(2, -xPower)),
+            Math.max(-2, Math.min(2, -yPower)),
+            thetaPower
+        ));
+      } else {
+        // If no vision data is available, stop the robot
+        driveRobotCentric(new ChassisSpeeds(0, 0, 0));
+      }
+    }).until(() -> {
+      // Terminate when the vision measurements are within the set tolerances
+      return xController.atSetpoint() &&
+      yController.atSetpoint() &&
+      thetaController.atSetpoint();
+    });
   }
 }

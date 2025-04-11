@@ -283,8 +283,8 @@ public class Robot extends TimedRobot {
     Trigger strafeRight = new Trigger(() -> (!driverControls.rightBumper().getAsBoolean() && driverControls.povRight().getAsBoolean()));
     Trigger strafeLeft = new Trigger(() -> (!driverControls.leftBumper().getAsBoolean() && driverControls.povLeft().getAsBoolean()));
     
-    rotateRight.whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, -0.5)));
-    rotateLeft.whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, 0.5)));
+    driverControls.b().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, -0.5)));
+    driverControls.x().whileTrue(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, 0.5)));
     double speed = 0.4;
     // driverControls.start().onTrue(Commands.runOnce(() -> drive.zeroGyro(0), drive));
     driverControls.start().onTrue(Commands.runOnce(() -> drive.seedFieldCentric()));
@@ -305,14 +305,20 @@ public class Robot extends TimedRobot {
     driverControls.y().whileTrue(AutoBuilder.buildAuto("Right 2 Coral Preload L4"));
 
     driverControls.rightTrigger().whileTrue(new SequentialCommandGroup(
-      drive.autoAlignCommand(false, () -> Robot.l4, () -> Robot.l4Score),
-      new WaitUntilCommand(() -> (elevator.targetReached() && elevator.isTargetL4())),
-      drive.autoAlignCommand(false, () -> Robot.l4, () -> true))
+      drive.autoAlignCommand(false, () -> Robot.l4, () -> Robot.l4Score))
+    );
+    rotateRight.whileTrue(new SequentialCommandGroup(
+      drive.autoAlignCommand(false, () -> true, () -> true).withTimeout(0.001),
+      drive.autoAlignCommand(false, () -> true, () -> true).withTimeout(0.001),
+      drive.autoAlignCommand(false, () -> true, () -> true))
     );
     driverControls.leftTrigger().whileTrue(new SequentialCommandGroup(
-      drive.autoAlignCommand(true, () -> Robot.l4, () -> Robot.l4Score),
-      new WaitUntilCommand(() -> (elevator.targetReached() && elevator.isTargetL4())),
-      drive.autoAlignCommand(true, () -> Robot.l4, () -> true))
+      drive.autoAlignCommand(true, () -> Robot.l4, () -> Robot.l4Score))
+    );
+    rotateLeft.whileTrue(new SequentialCommandGroup(
+      drive.autoAlignCommand(true, () -> true, () -> true).withTimeout(0.001),
+      drive.autoAlignCommand(true, () -> true, () -> true).withTimeout(0.001),
+      drive.autoAlignCommand(true, () -> true, () -> true))
     );
 
     // driverControls.back().onTrue(drive.toggleSysIdMode());
