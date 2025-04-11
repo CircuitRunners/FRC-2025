@@ -37,8 +37,8 @@ public class Claw extends SubsystemBase {
         roller1Motor = new SparkMax(ClawConstants.rollerMotorPort1, MotorType.kBrushless);
         roller2Motor = new SparkMax(ClawConstants.rollerMotorPort2, MotorType.kBrushless);
 
-        SparkBaseConfig r1mConfig = new SparkMaxConfig().idleMode(IdleMode.kCoast);
-        SparkBaseConfig r2mConfig = new SparkMaxConfig().follow(ClawConstants.rollerMotorPort1,true).idleMode(IdleMode.kCoast);
+        SparkBaseConfig r1mConfig = new SparkMaxConfig().idleMode(IdleMode.kCoast).smartCurrentLimit(20);
+        SparkBaseConfig r2mConfig = new SparkMaxConfig().follow(ClawConstants.rollerMotorPort1,true).idleMode(IdleMode.kCoast).smartCurrentLimit(20);
         roller1Motor.configure(r1mConfig, null, null);
         roller2Motor.configure(r2mConfig, null, null);
 

@@ -165,8 +165,8 @@ public class Drive extends SubsystemBase {
     SignalLogger.setPath("logs/sysid/drive");
     this.swerve = swerve;
 
-    forwardLimiter = new SlewRateLimiter(10, -10, 0);
-    strafeLimiter = new SlewRateLimiter(10, -10, 0);
+    forwardLimiter = new SlewRateLimiter(5, -5, 0);
+    strafeLimiter = new SlewRateLimiter(5, -5, 0);
 
     xController.setTolerance(kXTolerance);
     yController.setTolerance(kYTolerance);

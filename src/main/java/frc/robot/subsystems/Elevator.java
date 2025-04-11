@@ -32,8 +32,8 @@ extends SubsystemBase {
         elevatorSparkMax1 = new SparkMax(ElevatorConstants.elevatorPort1, MotorType.kBrushless);
         elevatorSparkMax2 = new SparkMax(ElevatorConstants.elevatorPort2, MotorType.kBrushless);
         
-        SparkBaseConfig spark1Config = new SparkMaxConfig().idleMode(IdleMode.kBrake).smartCurrentLimit(80);
-        SparkBaseConfig spark2Config = new SparkMaxConfig().follow(ElevatorConstants.elevatorPort1, true).idleMode(IdleMode.kBrake).smartCurrentLimit(80);
+        SparkBaseConfig spark1Config = new SparkMaxConfig().idleMode(IdleMode.kBrake).smartCurrentLimit(60);
+        SparkBaseConfig spark2Config = new SparkMaxConfig().follow(ElevatorConstants.elevatorPort1, true).idleMode(IdleMode.kBrake).smartCurrentLimit(60);
 
         elevatorSparkMax1.configure(spark1Config, null, null);
         elevatorSparkMax2.configure(spark2Config, null, null);
@@ -188,7 +188,7 @@ extends SubsystemBase {
             }
             var output = pidController.calculate(getElevatorPos(), this.targetPos);
             if (targetPos == ElevatorConstants.l4EncoderValue) {
-                Math.max(-0.5, Math.min(0.5, output));
+                output = Math.max(-0.75, Math.min(0.75, output));
             }
             elevatorSparkMax1.set(output);
         }
