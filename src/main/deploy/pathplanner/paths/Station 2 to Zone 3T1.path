@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 3.550411184210526,
-        "y": 5.323930921052631
+        "x": 3.7428453947368414,
+        "y": 5.410526315789473
       },
       "prevControl": {
-        "x": 2.658951486636404,
-        "y": 5.9555832288556845
+        "x": 2.851385697162719,
+        "y": 6.042178623592526
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Reef Zone 2T2"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 4.3,
+    "maxAcceleration": 4.1,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
