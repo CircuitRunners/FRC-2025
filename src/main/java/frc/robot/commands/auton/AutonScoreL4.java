@@ -19,7 +19,7 @@ public class AutonScoreL4 extends SequentialCommandGroup {
   /** Creates a new SocreL4. */
   public AutonScoreL4(Drive drive, Elevator elevator, Claw claw, boolean left) {
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(drive, elevator, claw);
+    addRequirements(drive, claw);
     addCommands(
       // new ParallelCommandGroup(
       //   drive.autoAlignCommand(left, () -> true).withTimeout(3),
