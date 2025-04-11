@@ -32,8 +32,8 @@ extends SubsystemBase {
         elevatorSparkMax1 = new SparkMax(ElevatorConstants.elevatorPort1, MotorType.kBrushless);
         elevatorSparkMax2 = new SparkMax(ElevatorConstants.elevatorPort2, MotorType.kBrushless);
         
-        SparkBaseConfig spark1Config = new SparkMaxConfig().idleMode(IdleMode.kCoast);
-        SparkBaseConfig spark2Config = new SparkMaxConfig().follow(ElevatorConstants.elevatorPort1, true).idleMode(IdleMode.kCoast);
+        SparkBaseConfig spark1Config = new SparkMaxConfig().idleMode(IdleMode.kBrake).smartCurrentLimit(80);
+        SparkBaseConfig spark2Config = new SparkMaxConfig().follow(ElevatorConstants.elevatorPort1, true).idleMode(IdleMode.kBrake).smartCurrentLimit(80);
 
         elevatorSparkMax1.configure(spark1Config, null, null);
         elevatorSparkMax2.configure(spark2Config, null, null);

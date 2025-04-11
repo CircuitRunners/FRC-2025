@@ -4,7 +4,6 @@ package frc.robot.commands.scoring;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.commands.moving.LineUpL4;
 import frc.robot.commands.moving.MoveToL1;
 import frc.robot.commands.moving.MoveToL4;
 import frc.robot.subsystems.Claw;

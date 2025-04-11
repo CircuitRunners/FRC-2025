@@ -67,9 +67,6 @@ public class Drive extends SubsystemBase {
   
   private SwerveRequest.FieldCentric driveRequest;
 
-  public CANrange distSensor1 = new CANrange(SwerveConstants.distanceSensor1Port, "Drivebase");
-  public CANrange distSensor2 = new CANrange(SwerveConstants.distanceSensor2Port, "Drivebase");
-
   public Vision vision;
   public static final double kPX = 2;
   public static final double kPY = 2;
@@ -181,42 +178,7 @@ public class Drive extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("pigeon angle", swerve.getPigeon2().getYaw().getValueAsDouble());
-    SmartDashboard.putNumber("drive limit", limit);
-
-    double distance1 = distSensor1.getDistance().getValueAsDouble();
-    double distance2 = distSensor2.getDistance().getValueAsDouble();
-    double average = (distance1 + distance2) / 2;
-    double scoreDistance = 0.445;
-    double scoreTolerance = 0.015;
-    double headingTolerance = 0.02;
-    
-    SmartDashboard.putNumber("dist1", distance1);
-    SmartDashboard.putNumber("dist2", distance2);
-    SmartDashboard.putBoolean("Good to lift", average > 0.6);
-    // TODO FIND THE PERFECT POSITION, THEN FIND THE +/- WE HAVE BASED ON THAT
-    SmartDashboard.putBoolean("Good to score", average < (scoreDistance + scoreTolerance) && average > (scoreDistance - scoreTolerance));
-    SmartDashboard.putBoolean("Head on", Math.abs(distance1 - distance2) < 0.02);
-    String direction;
-    if (distance1 - distance2 > headingTolerance) {
-      SmartDashboard.putBoolean("Right", true);
-      SmartDashboard.putBoolean("Left", false);
-      direction = "right";
-    } else if (distance2 - distance1 > headingTolerance) {
-      SmartDashboard.putBoolean("Right", false);
-      SmartDashboard.putBoolean("Left", true);
-      direction = "left";
-    } else {
-      SmartDashboard.putBoolean("Right", false);
-      SmartDashboard.putBoolean("Left", false);
-      direction = "good";
-    }
-    SmartDashboard.putString("Direction To Turn", direction);
-    
-
-
     fieldUtil.setSwerveRobotPose(swerve.getPose2d(), swerve.getModuleStates(), SwerveConstants.modulePositions);
-    // SmartDashboard.putData("default pigeon value", swerve.getPigeon2().getRotation2d());
   }
 
   @Override
@@ -485,38 +447,6 @@ public class Drive extends SubsystemBase {
     });
 
     // swerve.setControl(SwerveRequest.PointWheelsAt);
-  }
-
-
-  public Command hpAlign(boolean left) {
-    return startRun(() -> {
-      // Set the target yaw based on the alignment side
-      double targetYaw = left ? -45 : 45; // -45 or 45 degrees in radians
-      thetaController.setSetpoint(targetYaw);
-      thetaController.setP(0.001);
-      thetaController.setTolerance(1);
-    }, () -> {
-      // Get the current yaw from the gyro
-      double currentYaw = swerve.getPigeon2().getYaw().getValueAsDouble();
-      
-      // Calculate correction using the PID controller
-      double thetaPower = thetaController.calculate(currentYaw);
-      
-      // Publish debug values to SmartDashboard (optional)
-      SmartDashboard.putNumber("HPAlign/thetaError", thetaController.getError());
-      SmartDashboard.putNumber("HPAlign/thetaPower", thetaPower);
-      
-      // Command the drive: Rotate the robot to align
-      driveRobotCentric(new ChassisSpeeds(0, 0, thetaPower));
-    }).until(() -> {
-      // Terminate when the yaw is within the set tolerance
-      return thetaController.atSetpoint();
-    }).finallyDo(interrupted -> {
-      // Stop the robot after alignment
-      driveRobotCentric(new ChassisSpeeds(0, 0, 0));
-      thetaController.setP(kPTheta);
-      thetaController.setTolerance(kThetaTolerance);
-    });
   }
 
   public Command autoAlignCommand(boolean left) {
