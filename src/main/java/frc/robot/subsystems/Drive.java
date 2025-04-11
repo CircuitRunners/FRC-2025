@@ -96,9 +96,9 @@ public class Drive extends SubsystemBase {
   // private PIDController xController = new PIDController(kPX, 0, 0.001);
   // private PIDController yController = new PIDController(kPY, 0, 0.001);
   // private PIDController thetaController = new PIDController(kPTheta, 0, 0.001);
-  private ProfiledPIDController xController = new ProfiledPIDController(kPX, 0, 0.001, new TrapezoidProfile.Constraints(2, 2));
-  private ProfiledPIDController yController = new ProfiledPIDController(kPY, 0, 0.001, new TrapezoidProfile.Constraints(2, 2));
-  private ProfiledPIDController thetaController = new ProfiledPIDController(kPTheta, 0, 0.001, new TrapezoidProfile.Constraints(2 * Math.PI, Math.PI));
+  private ProfiledPIDController xController = new ProfiledPIDController(kPX, 0, 0.001, new TrapezoidProfile.Constraints(2, 20));
+  private ProfiledPIDController yController = new ProfiledPIDController(kPY, 0, 0.001, new TrapezoidProfile.Constraints(2, 20));
+  private ProfiledPIDController thetaController = new ProfiledPIDController(kPTheta, 0, 0.001, new TrapezoidProfile.Constraints(2 * Math.PI, Math.PI * 20));
   
   
 

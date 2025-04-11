@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
@@ -8,6 +10,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -21,7 +24,7 @@ extends SubsystemBase {
     public final SparkMax elevatorSparkMax1;
     public final SparkMax elevatorSparkMax2;
     private final RelativeEncoder elevatorEncoder;
-    private final PIDController pidController;
+    private final ProfiledPIDController pidController;
     private double targetPos;
     private String targetState;
     private boolean running;
@@ -47,7 +50,7 @@ extends SubsystemBase {
         double kd = 0; //Derivate (Increase if overshoot target, decrease if sluggish/slow)  NEEDS TO BE TUNED
         
         //Initialize PID controller with motion constraints
-        pidController = new PIDController(kp, ki, kd);
+        pidController = new ProfiledPIDController(kp, ki, kd, new TrapezoidProfile.Constraints(300, 1600));
         pidController.setTolerance(6); //Acceptable error range
     }
 
@@ -55,7 +58,7 @@ extends SubsystemBase {
     public void moveToPos(double targetPos) {
         running = true;
         this.targetPos = targetPos;
-        pidController.setSetpoint(targetPos);
+        pidController.setGoal(targetPos);
     }
 
     public Command resetTargetPos() {
@@ -195,7 +198,7 @@ extends SubsystemBase {
 
         SmartDashboard.putNumber("elevator position",getElevatorPos());
         SmartDashboard.putNumber("elevator target",getTargetPos());
-        SmartDashboard.putNumber("elevator target setpoint",pidController.getSetpoint());
+        SmartDashboard.putNumber("elevator target setpoint",pidController.getGoal().position);
         SmartDashboard.putBoolean("isAtTarget", isAtTarget());
         SmartDashboard.putString("elevator state", "moving ");
         // SmartDashboard.putString("elevator target state", targetState);
