@@ -122,7 +122,7 @@ public class Claw extends SubsystemBase {
     }
 
     public Command runRollersInSuperFast() {
-        return changeRollerSpdCommand(0.7);
+        return changeRollerSpdCommand(0.5);
     }
 
     public Command runRollersInCommandAlt() {

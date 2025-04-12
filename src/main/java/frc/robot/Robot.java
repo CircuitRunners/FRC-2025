@@ -19,6 +19,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -78,7 +79,9 @@ public class Robot extends TimedRobot {
 
   private static boolean l4 = true;
   private static boolean l4Score = false;
+  private static double timeSinceteleopStart = 135;
 
+  private Timer timer = new Timer();
 
   Thread m_visionThread;
 
@@ -95,6 +98,7 @@ public class Robot extends TimedRobot {
 
     DataLogManager.logNetworkTables(false);
     // CameraServer.startAutomaticCapture();
+    SmartDashboard.putNumber("time in teleo", timeSinceteleopStart);
 
 
     /**
@@ -187,11 +191,14 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    timer.start();
+    SmartDashboard.putNumber("time in teleo", timeSinceteleopStart);
   }
-
+  
   @Override
   public void teleopPeriodic() {
-
+    timeSinceteleopStart -= timer.getTimestamp();
+    SmartDashboard.putNumber("time in teleo", timeSinceteleopStart);
   }
   
   @Override

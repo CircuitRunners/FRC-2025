@@ -21,11 +21,16 @@ public class AutonScoreL4 extends SequentialCommandGroup {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drive, claw);
     addCommands(
-      // new ParallelCommandGroup(
-      //   drive.autoAlignCommand(left, () -> true).withTimeout(3),
-      //   new MoveToL4(elevator, claw, drive)
-      // ),
-      new MoveToL4(elevator, claw, drive),
+      new ParallelCommandGroup(
+        drive.autoAlignCommand(left, () -> true).withTimeout(3),
+        new MoveToL4(elevator, claw, drive)
+      ),
+      // new MoveToL4(elevator, claw, drive),
+      drive.autoAlignCommand(left, () -> false, () -> true).withTimeout(3),
+      drive.autoAlignCommand(left, () -> false, () -> true).withTimeout(3),
+      drive.autoAlignCommand(left, () -> false, () -> true).withTimeout(3),
+      drive.autoAlignCommand(left, () -> false, () -> true).withTimeout(3),
+      drive.autoAlignCommand(left, () -> false, () -> true).withTimeout(3),
       drive.autoAlignCommand(left, () -> false, () -> true).withTimeout(3),
       claw.scoreL4()
     );
