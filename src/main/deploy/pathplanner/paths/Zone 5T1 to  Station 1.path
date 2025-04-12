@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 0.9333059210526315,
-        "y": 1.0615131578947363
+        "x": 0.7663099315068493,
+        "y": 0.8921446917808215
       },
       "prevControl": {
-        "x": 1.1560332705359435,
-        "y": 1.2033228877176352
+        "x": 0.9890372809901611,
+        "y": 1.0339544216037204
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "coral station 1"
     }
   ],
   "rotationTargets": [],
