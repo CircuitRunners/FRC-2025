@@ -99,6 +99,31 @@ public class Vision extends SubsystemBase{
         public static final Pose2d R9 = new Pose2d(11.95, 4.87, new Rotation2d(Math.toRadians(30)));
         public static final Pose2d R10 = new Pose2d(11.78, 3.51, new Rotation2d(Math.toRadians(90)));
         public static final Pose2d R11 = new Pose2d(12.87, 2.67, new Rotation2d(Math.toRadians(150)));
+
+        public static final Pose2d HP6 = new Pose2d(
+            (FieldPositions.R6.getX() + FieldPositions.L6.getX()) / 2,
+            (FieldPositions.R6.getY() + FieldPositions.L6.getY()) / 2,
+            new Rotation2d((FieldPositions.R6.getRotation().getRadians() + FieldPositions.L6.getRotation().getRadians()) / 2)
+        );
+
+        public static final Pose2d HP8 = new Pose2d(
+            (FieldPositions.R8.getX() + FieldPositions.L8.getX()) / 2,
+            (FieldPositions.R8.getY() + FieldPositions.L8.getY()) / 2,
+            new Rotation2d((FieldPositions.R8.getRotation().getRadians() + FieldPositions.L8.getRotation().getRadians()) / 2)
+        );
+
+        public static final Pose2d HP17 = new Pose2d(
+            (FieldPositions.R17.getX() + FieldPositions.L17.getX()) / 2,
+            (FieldPositions.R17.getY() + FieldPositions.L17.getY()) / 2,
+            new Rotation2d((FieldPositions.R17.getRotation().getRadians() + FieldPositions.L17.getRotation().getRadians()) / 2)
+        );
+
+        public static final Pose2d HP19 = new Pose2d(
+            (FieldPositions.R19.getX() + FieldPositions.L19.getX()) / 2,
+            (FieldPositions.R19.getY() + FieldPositions.L19.getY()) / 2,
+            new Rotation2d((FieldPositions.R19.getRotation().getRadians() + FieldPositions.L19.getRotation().getRadians()) / 2)
+        );
+        
         public static final Pose2d BARGE_START = new Pose2d(7.449, 6.134, new Rotation2d(Math.toRadians(-30)));
         public static final Pose2d PROCESSOR_START = new Pose2d(7.449, 6.134, new Rotation2d(Math.toRadians(-30)));
         public static final List<Pose2d> kLeftReefPoses=Arrays.asList(
@@ -113,11 +138,20 @@ public class Vision extends SubsystemBase{
 
 
         public static final int [] kReefIDs = {6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22};
+
+        public static final int[] hpIDs = {6, 8, 17, 19};
         public static boolean isReefID(int id) {
         for(int i: kReefIDs) {
             if(id==i) return true;
         }
         return false;
+        }
+
+        public static boolean isHPID(int id) {
+            for(int i: hpIDs) {
+                if(id==i) return true;
+            }
+            return false;
         }
 
         public static final Pose2d BLUE_LEFT_CORAL_STATION_PICKUP = new Pose2d(new Translation2d(1.2,7), Rotation2d.fromDegrees(120));
@@ -296,7 +330,7 @@ private static final Map<Pose2d, Integer> rightDepositMapping = new HashMap<>() 
         return robotPose.relativeTo(tagPose);
     }
 
-    public Optional<Pose2d> getRobotInTagSpace(boolean left) {
+    public Optional<Pose2d> getRobotInTagSpace(boolean left, boolean hp) {
         // Get the latest vision result
         PhotonPipelineResult result = left ? leftCamera.getLatestResult() : rightCamera.getLatestResult();
         PhotonPoseEstimator selectedPoseEstimator = left ? leftPoseEstimator : rightPoseEstimator;
@@ -315,9 +349,13 @@ private static final Map<Pose2d, Integer> rightDepositMapping = new HashMap<>() 
 
         // Choose the list of deposit poses (for example, the left positions).
         // If you later need to toggle between left/right, you might pass a flag or determine it some other way.
-        List<Pose2d> depositPoses = left ? FieldPositions.kLeftReefPoses : FieldPositions.kRightReefPoses;
 
-        Pose2d nearestDepositPose = fieldLayout.getTags().stream().filter(tagPose -> isReefID(tagPose.ID)).map(tagPose -> tagPose.pose.toPose2d()).min((p1, p2) -> Double.compare(globalPose.getTranslation().getDistance(p1.getTranslation()), globalPose.getTranslation().getDistance(p2.getTranslation()))).orElse(null);
+        Pose2d nearestDepositPose;
+        if (hp) {
+            nearestDepositPose = fieldLayout.getTags().stream().filter(tagPose -> isHPID(tagPose.ID)).map(tagPose -> tagPose.pose.toPose2d()).min((p1, p2) -> Double.compare(globalPose.getTranslation().getDistance(p1.getTranslation()), globalPose.getTranslation().getDistance(p2.getTranslation()))).orElse(null);
+        } else {
+            nearestDepositPose = fieldLayout.getTags().stream().filter(tagPose -> isReefID(tagPose.ID)).map(tagPose -> tagPose.pose.toPose2d()).min((p1, p2) -> Double.compare(globalPose.getTranslation().getDistance(p1.getTranslation()), globalPose.getTranslation().getDistance(p2.getTranslation()))).orElse(null);
+        }
         if (nearestDepositPose == null) {
             return lastCalculatedDist;
         }
@@ -328,62 +366,27 @@ private static final Map<Pose2d, Integer> rightDepositMapping = new HashMap<>() 
         lastCalculatedDist = Optional.of(relativePose);
         
         return Optional.of(relativePose);
-
-        
-        // // Find the deposit pose from the list that is closest to the global pose estimate.
-        // Pose2d nearestDepositPose = depositPoses.stream()
-        //     .min((p1, p2) -> Double.compare(
-        //         globalPose.getTranslation().getDistance(p1.getTranslation()),
-        //         globalPose.getTranslation().getDistance(p2.getTranslation())))
-        //     .orElse(null);
-        
-        // if (nearestDepositPose == null) {
-        //     return lastCalculatedDist;
-        // }
-        
-        // // Map the selected deposit pose to its corresponding AprilTag ID.
-        // // The mapping could be as simple as using a single tag for all deposits or looking up a table.
-        // int targetTagId = getDepositTagId(nearestDepositPose, left);
-        
-        // // Retrieve the global field pose of the selected AprilTag from the field layout.
-        // Optional<Pose3d> tagGlobalPoseOpt = fieldLayout.getTagPose(targetTagId);
-        // if (!tagGlobalPoseOpt.isPresent()) {
-        //     return lastCalculatedDist;
-        // }
-        // Pose2d tagGlobalPose2d = tagGlobalPoseOpt.get().toPose2d();
-        
-        // // Compute the robot's pose relative to the tag's known pose.
-        // Pose2d relativePose = globalPose.relativeTo(tagGlobalPose2d);
-        
-        // // Store and return the calculated relative pose.
-        // lastCalculatedDist = Optional.of(relativePose);
-        // return Optional.of(relativePose);
     }
 
-    /**
-     * Helper method to map a deposit pose to its corresponding AprilTag ID.
-     * For instance, if you are always aligning to the same tag for left deposits, you might simply return that tag ID.
-     *
-     * Alternatively, if each deposit position has an associated tag, then you could look it up in a Map or via some conditional logic.
-     */
-    /**
-     * Maps a deposit pose to its corresponding AprilTag ID using the appropriate mapping for left or right deposits.
-     * If the deposit pose is not found in the mapping, returns -1.
-     */
-    private int getDepositTagId(Pose2d depositPose, boolean left) {
-        if (left) {
-            return leftDepositMapping.getOrDefault(depositPose, -1);
-        } else {
-            return rightDepositMapping.getOrDefault(depositPose, -1);
-        }
+    public Optional<Pose2d> getRobotInTagSpace(boolean left) {
+        return getRobotInTagSpace(left, false);
     }
 
     // public static final int[] kReefIDs = {6};
-    public static final int[] kReefIDs = {6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22};
 
+    public static final int[] kReefIDs = {6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22};
 
     public static boolean isReefID(int id) {
         for (int i : kReefIDs) {
+            if (id == i) return true;
+        }
+        return false;
+    }
+
+    public static final int[] hpIDs = {6, 8, 17, 19};
+
+    public static boolean isHPID(int id) {
+        for (int i : FieldPositions.hpIDs) {
             if (id == i) return true;
         }
         return false;
