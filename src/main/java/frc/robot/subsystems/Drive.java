@@ -67,8 +67,6 @@ public class Drive extends SubsystemBase {
   
   // public Vision vision;
   public boolean visionRunning;
-  
-  private SwerveRequest.FieldCentric driveRequest;
 
   public Vision vision;
   public static final double kPX = 2;
@@ -81,17 +79,27 @@ public class Drive extends SubsystemBase {
 
   public static final double leftL4AlignmentX = 0.7;
   public static final double leftAlignmentX = 0.4445;
-  public static final double leftL4ScoreAlignmentX = 0.5;
+  public static final double leftL4ScoreAlignmentX = 0.5;   
   public static final double leftAlignmentY = -0.17;
 
 
   public static final double rightL4AlignmentX = leftL4AlignmentX;
   public static final double rightAlignmentX = leftAlignmentX;
   public static final double rightL4ScoreAlignmentX = leftL4ScoreAlignmentX;
-
   public static final double rightAlignmentY = 0.15;
-  
+
   public static final double thetaAlignment = 0;
+
+  public static final double kHPXTolerance = 0.1;
+  public static final double kHPYTolerance = 0.1;
+  public static final double kHPThetaTolerance = 0.05;
+  public static final double leftHPAlignmentX = 2.65;
+  public static final double leftHPAlignmentY = -2.281;
+  public static final double leftHPThetaAlignment = Math.toRadians(-55);
+  public static final double rightHPAlignmentX = leftHPAlignmentX;
+  public static final double rightHPAlignmentY = 2.281;
+  public static final double rightHPThetaAlignment = Math.toRadians(55);
+  
 
   // private PIDController xController = new PIDController(kPX, 0, 0.001);
   // private PIDController yController = new PIDController(kPY, 0, 0.001);
@@ -471,6 +479,12 @@ public class Drive extends SubsystemBase {
 
       // Set the PID controllers' setpoints
       xController.setGoal(targetX);
+      xController.setTolerance(kXTolerance);
+      yController.setGoal(targetY);
+      yController.setTolerance(kYTolerance);
+      thetaController.setGoal(targetTheta);
+      thetaController.setTolerance(kThetaTolerance);
+      xController.setGoal(targetX);
       yController.setGoal(targetY);
       thetaController.setGoal(targetTheta);
 
@@ -512,4 +526,62 @@ public class Drive extends SubsystemBase {
       thetaController.atSetpoint();
     });
   }
+
+
+  public Command autoAlignHPCommand(boolean left) {
+    return startRun(()->{
+      // Set the target pose based on the alignment side
+      double targetX = left ? leftHPAlignmentX : rightHPAlignmentX;
+      double targetY = left ? leftHPAlignmentY : rightHPAlignmentY;
+      double targetTheta = left ? leftHPThetaAlignment : rightHPThetaAlignment;
+
+      // Set the PID controllers' setpoints
+      xController.setGoal(targetX);
+      xController.setTolerance(kHPXTolerance);
+      yController.setGoal(targetY);
+      yController.setTolerance(kHPYTolerance);
+      thetaController.setGoal(targetTheta);
+      thetaController.setTolerance(kHPThetaTolerance);
+
+    },() -> {
+      // Get the latest vision measurement (robot pose in tag space)
+      Optional<Pose2d> visionOpt = vision.getRobotInTagSpace(left, true);
+     
+      if (visionOpt.isPresent()) {
+        Pose2d visionPose = visionOpt.get();
+       
+       
+        // Calculate corrections using your PID controllers
+        double xPower = xController.calculate(visionPose.getX());
+        double yPower = yController.calculate(visionPose.getY());
+        double thetaPower = thetaController.calculate(visionPose.getRotation().getRadians());
+       
+        // Publish debug values to SmartDashboard (optional)
+        SmartDashboard.putNumber("AutoAlign/xError", xController.getPositionError());
+        SmartDashboard.putNumber("AutoAlign/yError", yController.getPositionError());
+        SmartDashboard.putNumber("AutoAlign/thetaError", thetaController.getPositionError());
+        SmartDashboard.putNumber("AutoAlign/xPower", xPower);
+        SmartDashboard.putNumber("AutoAlign/yPower", yPower);
+        SmartDashboard.putNumber("AutoAlign/thetaPower", thetaPower);
+       
+        // Command the drive: Here we send the PID outputs as chassis speeds
+        driveRobotCentric(new ChassisSpeeds(
+            Math.max(-2.5, Math.min(2.5, -xPower)),
+            Math.max(-2.5, Math.min(2.5, -yPower)),
+            thetaPower
+        ));
+      } else {
+        // If no vision data is available, stop the robot
+        driveRobotCentric(new ChassisSpeeds(0, 0, 0));
+      }
+    }).until(() -> {
+      // Terminate when the vision measurements are within the set tolerances
+      return xController.atSetpoint() &&
+      yController.atSetpoint() &&
+      thetaController.atSetpoint();
+    });
+  }
+
+
+
 }
