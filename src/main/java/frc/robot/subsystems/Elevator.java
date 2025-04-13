@@ -45,12 +45,12 @@ extends SubsystemBase {
         targetPos = getElevatorPos();
 
         //Tunes the PID gains- Adjust for better control and movement of elevator
-        double kp = 0.03; //Proportional (Increase the number if moving too slow, decrease if oscillating)  NEEDS TO BE TUNED
+        double kp = 0.06; //Proportional (Increase the number if moving too slow, decrease if oscillating)  NEEDS TO BE TUNED
         double ki = 0.0; //Integral (Stays at 0 unless there's a steady-state error)  NEEDS TO BE TUNED
         double kd = 0; //Derivate (Increase if overshoot target, decrease if sluggish/slow)  NEEDS TO BE TUNED
         
         //Initialize PID controller with motion constraints
-        pidController = new ProfiledPIDController(kp, ki, kd, new TrapezoidProfile.Constraints(300, 1600));
+        pidController = new ProfiledPIDController(kp, ki, kd, new TrapezoidProfile.Constraints(600, 2400));
         pidController.setTolerance(6); //Acceptable error range
     }
 
