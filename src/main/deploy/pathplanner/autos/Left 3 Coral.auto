@@ -1,0 +1,43 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Top Preload to Zone 2T1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutonScoreL4Right"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Zone 2T1 to Station 2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "LeftHPAutoAlign"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "DoubleScoreLeft"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

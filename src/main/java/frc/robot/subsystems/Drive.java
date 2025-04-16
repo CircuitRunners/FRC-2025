@@ -90,22 +90,24 @@ public class Drive extends SubsystemBase {
 
   public static final double thetaAlignment = 0;
 
-  public static final double kHPXTolerance = 0.1;
-  public static final double kHPYTolerance = 0.1;
+  public static final double kHPXTolerance = 0.05;
+  public static final double kHPYTolerance = 0.05;
   public static final double kHPThetaTolerance = 0.05;
-  public static final double leftHPAlignmentX = 2.65;
-  public static final double leftHPAlignmentY = -2.281;
-  public static final double leftHPThetaAlignment = Math.toRadians(-55);
+
+
+  public static final double leftHPAlignmentX = 3.5;
+  public static final double leftHPAlignmentY = 1.41;
+  public static final double leftHPThetaAlignment = Math.toRadians(6);
   public static final double rightHPAlignmentX = leftHPAlignmentX;
-  public static final double rightHPAlignmentY = 2.281;
-  public static final double rightHPThetaAlignment = Math.toRadians(55);
+  public static final double rightHPAlignmentY = -1.38;
+  public static final double rightHPThetaAlignment = Math.toRadians(-6);
   
 
   // private PIDController xController = new PIDController(kPX, 0, 0.001);
   // private PIDController yController = new PIDController(kPY, 0, 0.001);
   // private PIDController thetaController = new PIDController(kPTheta, 0, 0.001);
-  private ProfiledPIDController xController = new ProfiledPIDController(kPX, 0, 0.001, new TrapezoidProfile.Constraints(2, 20));
-  private ProfiledPIDController yController = new ProfiledPIDController(kPY, 0, 0.001, new TrapezoidProfile.Constraints(2, 20));
+  private ProfiledPIDController xController = new ProfiledPIDController(kPX, 0, 0.001, new TrapezoidProfile.Constraints(3, 20));
+  private ProfiledPIDController yController = new ProfiledPIDController(kPY, 0, 0.001, new TrapezoidProfile.Constraints(3, 20));
   private ProfiledPIDController thetaController = new ProfiledPIDController(kPTheta, 0, 0.001, new TrapezoidProfile.Constraints(2 * Math.PI, Math.PI * 20));
   
   
@@ -346,6 +348,65 @@ public class Drive extends SubsystemBase {
     return Commands.runOnce(() -> sysIdTranslator = !sysIdTranslator);
   }
 
+
+  public Command autoAlignCommand(boolean left, Supplier<Boolean> l4, Supplier<Boolean> l4Score, Supplier<Boolean> hpAlign) {
+    return startRun(()->{
+      // Set the target pose based on the alignment side
+      double targetX;
+      double targetY;
+      double targetTheta;
+
+      targetX = left ? leftHPAlignmentX : rightHPAlignmentX;
+      targetY = left ? leftHPAlignmentY : rightHPAlignmentY;
+      targetTheta = left ? leftHPThetaAlignment : rightHPThetaAlignment;
+      
+      xController.setGoal(targetX);
+      yController.setGoal(targetY);
+      thetaController.setGoal(targetTheta);
+    },() -> {
+      // Get the latest vision measurement (robot pose in tag space)
+      Optional<Pose2d> visionOpt = vision.getRobotInTagSpace(left);
+     
+      if (visionOpt.isPresent()) {
+        Pose2d visionPose = visionOpt.get();
+       
+       
+        // Calculate corrections using your PID controllers
+        double xPower = xController.calculate(visionPose.getX());
+        double yPower = yController.calculate(visionPose.getY());
+        double thetaPower = thetaController.calculate(visionPose.getRotation().getRadians());
+       
+        // Publish debug values to SmartDashboard (optional)
+        SmartDashboard.putNumber("AutoAlign/xError", xController.getPositionError());
+        SmartDashboard.putNumber("AutoAlign/yError", yController.getPositionError());
+        SmartDashboard.putNumber("AutoAlign/xPos", visionPose.getX());
+        SmartDashboard.putNumber("AutoAlign/yPos", visionPose.getY());
+        SmartDashboard.putNumber("AutoAlign/xTarget", xController.getGoal().position);
+        SmartDashboard.putNumber("AutoAlign/yTarget", yController.getGoal().position);
+        SmartDashboard.putNumber("AutoAlign/thetaError", thetaController.getPositionError());
+        SmartDashboard.putNumber("AutoAlign/xPower", xPower);
+        SmartDashboard.putNumber("AutoAlign/yPower", yPower);
+        SmartDashboard.putNumber("AutoAlign/thetaPower", thetaPower);
+       
+        // Command the drive: Here we send the PID outputs as chassis speeds
+        driveRobotCentric(new ChassisSpeeds(
+            Math.max(-2, Math.min(2, -xPower)),
+            Math.max(-2, Math.min(2, -yPower)),
+            thetaPower
+        ));
+      } else {
+        // If no vision data is available, stop the robot
+        driveRobotCentric(new ChassisSpeeds(0, 0, 0));
+      }
+    }).until(() -> {
+      // Terminate when the vision measurements are within the set tolerances
+      return xController.atSetpoint() &&
+      yController.atSetpoint() &&
+      thetaController.atSetpoint();
+    });
+
+    // swerve.setControl(SwerveRequest.PointWheelsAt);
+  }
   public Command autoAlignCommand(boolean left, Supplier<Boolean> l4, Supplier<Boolean> l4Score) {
     return startRun(()->{
       // Set the target pose based on the alignment side

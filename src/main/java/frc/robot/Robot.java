@@ -13,6 +13,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -230,9 +231,14 @@ public class Robot extends TimedRobot {
     NamedCommands.registerCommand("ScoreL4Auto", new ScoreL4Auto(elevator, claw, drive));
     NamedCommands.registerCommand("AutonScoreL4Left", new AutonScoreL4(drive,elevator, claw, true));
     NamedCommands.registerCommand("AutonScoreL4Right", new AutonScoreL4(drive,elevator, claw, false));
+    NamedCommands.registerCommand("RightHPAutoAlign", drive.autoAlignCommand(false,() -> false, ()->false, ()-> true));
+    NamedCommands.registerCommand("LeftHPAutoAlign", drive.autoAlignCommand(true,() -> false, ()->false, ()-> true));
     NamedCommands.registerCommand("RunRollersIn", claw.runRollersInCommand().until(() -> claw.isCoralInClaw()).finallyDo(() -> claw.stopRoller()));
     NamedCommands.registerCommand("StopRollers", claw.stopRollersCommand());
+    NamedCommands.registerCommand("new bot pose reset", Commands.runOnce(() -> drive.resetPose(new Pose2d(5.234,2.524, Rotation2d.fromDegrees(-158.638 - 90)))));
     // NamedCommands.registerCommand("ScoreL4Auto", new ScoreL4Teleop(elevator, claw, drive));
+    NamedCommands.registerCommand("DoubleScoreLeft", new DoubleScore(drive, elevator, claw, true));
+    NamedCommands.registerCommand("DoubleScoreRight", new DoubleScore(drive, elevator, claw, false));
     NamedCommands.registerCommand("do nothing", Commands.none());
     NamedCommands.registerCommand("brake", drive.brakeCommand());
     NamedCommands.registerCommand("Drive Robot Centric Forward", drive.driveRobotCentricCommand(() -> new ChassisSpeeds(1, 0, 0)));
@@ -308,8 +314,8 @@ public class Robot extends TimedRobot {
     // driverControls.x().whileTrue(drive.hpAlign(true));
     // driverControls.b().whileTrue(drive.hpAlign(false));
 
-    driverControls.a().whileTrue(AutoBuilder.buildAuto("Left 2 Coral Preload L4"));
-    driverControls.y().whileTrue(AutoBuilder.buildAuto("Right 2 Coral Preload L4"));
+    driverControls.a().whileTrue(drive.autoAlignCommand(true,() -> false, ()->false, ()-> true));
+    driverControls.y().whileTrue(drive.autoAlignCommand(false,() -> false, ()->false, ()-> true));
 
     driverControls.rightTrigger().whileTrue(new SequentialCommandGroup(
       drive.autoAlignCommand(false, () -> Robot.l4, () -> Robot.l4Score))

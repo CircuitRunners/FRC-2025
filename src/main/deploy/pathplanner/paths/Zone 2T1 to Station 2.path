@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.34096831328051,
-        "y": 5.684462540954904
+        "x": 5.188897469374041,
+        "y": 5.894209828572671
       },
       "isLocked": true,
       "linkedName": "Reef Zone 2T1"
     },
     {
       "anchor": {
-        "x": 0.9165667808219178,
-        "y": 7.187906678082191
+        "x": 1.5394736842105263,
+        "y": 6.921134868421052
       },
       "prevControl": {
-        "x": 0.5974225264984837,
-        "y": 7.295811167266991
+        "x": 1.2348549386108043,
+        "y": 6.96296619877477
       },
       "nextControl": null,
-      "isLocked": true,
-      "linkedName": "Coral Station 2"
+      "isLocked": false,
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.5,
-    "maxAcceleration": 3.5,
+    "maxVelocity": 4.5,
+    "maxAcceleration": 7.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
