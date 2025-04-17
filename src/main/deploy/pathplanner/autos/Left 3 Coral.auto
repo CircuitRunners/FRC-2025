@@ -5,27 +5,34 @@
     "data": {
       "commands": [
         {
-          "type": "path",
-          "data": {
-            "pathName": "Top Preload to Zone 2T1"
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "AutonScoreL4Right"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "Zone 2T1 to Station 2"
+            "name": "new bot pose reset left"
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "LeftHPAutoAlign"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "MoveToIntake"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Zone 2T1 to Station 2"
+                }
+              }
+            ]
           }
         },
         {
@@ -37,7 +44,7 @@
       ]
     }
   },
-  "resetOdom": true,
+  "resetOdom": false,
   "folder": null,
   "choreoAuto": false
 }

@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Rotation;
+
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -19,6 +22,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -135,25 +139,28 @@ public class Robot extends TimedRobot {
     //           }
     //         });
     // m_visionThread.setDaemon(true);
-    // m_visionThread.start();
+    // m_visionThread.start();\
+  
+    SmartDashboard.putNumber("match time", DriverStation.getMatchTime());
   }
-    
+  
   
   
   @Override
   public void driverStationConnected() {
     configureBindings();
   }
-
+  
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
-
+    
     if(Robot.isSimulation()){
       drive.vision.simulationPeriodic(drive.getPose());
     }
     SmartDashboard.putBoolean("Auto Align to L4", l4);
     SmartDashboard.putBoolean("L4 Score", l4Score);
+    SmartDashboard.putNumber("match time", DriverStation.getMatchTime());
   }
 
   @Override
@@ -235,7 +242,10 @@ public class Robot extends TimedRobot {
     NamedCommands.registerCommand("LeftHPAutoAlign", drive.autoAlignCommand(true,() -> false, ()->false, ()-> true));
     NamedCommands.registerCommand("RunRollersIn", claw.runRollersInCommand().until(() -> claw.isCoralInClaw()).finallyDo(() -> claw.stopRoller()));
     NamedCommands.registerCommand("StopRollers", claw.stopRollersCommand());
-    NamedCommands.registerCommand("new bot pose reset", Commands.runOnce(() -> drive.resetPose(new Pose2d(5.234,2.524, Rotation2d.fromDegrees(-158.638 - 90)))));
+    NamedCommands.registerCommand("new bot pose reset", 
+    Commands.runOnce(() -> drive.resetPose(DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().equals(Optional.of(DriverStation.Alliance.Blue)) ? new Pose2d(5.234,2.524, Rotation2d.fromDegrees(-158.638 - 90)) : new Pose2d(12.556, 5.247, Rotation2d.fromDegrees(-60.000)))));
+    NamedCommands.registerCommand("new bot pose reset left", 
+    Commands.runOnce(() -> drive.resetPose(DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().equals(Optional.of(DriverStation.Alliance.Blue)) ? new Pose2d(5.148,5.526, Rotation2d.fromDegrees(83.603 - 90)) : new Pose2d(12.547, 2.832, Rotation2d.fromDegrees(60.000)))));
     // NamedCommands.registerCommand("ScoreL4Auto", new ScoreL4Teleop(elevator, claw, drive));
     NamedCommands.registerCommand("DoubleScoreLeft", new DoubleScore(drive, elevator, claw, true));
     NamedCommands.registerCommand("DoubleScoreRight", new DoubleScore(drive, elevator, claw, false));
@@ -249,16 +259,12 @@ public class Robot extends TimedRobot {
     // autoChooser = new SendableChooser<Command>();
     autoChooser.addOption("long taxi", drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.6 * SwerveConstants.maxVelocityMPS, 0, 0)).withTimeout(7));
     autoChooser.setDefaultOption("Middle Preload Left",
-      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(1, 0, 0))
-        .alongWith(claw.runRollersInCommand().withTimeout(0.2))
-        .withTimeout(1)
+        claw.runRollersInCommand().withTimeout(0.2)
         .andThen(new AutonScoreL4(drive, elevator, claw, true))
         .andThen(elevator.moveToBottom())
       );
     autoChooser.addOption("Middle Preload Right",
-      drive.driveRobotCentricCommand(() -> new ChassisSpeeds(1, 0, 0))
-        .alongWith(claw.runRollersInCommand().withTimeout(0.2))
-        .withTimeout(1)
+      claw.runRollersInCommand().withTimeout(0.2)
         .andThen(new AutonScoreL4(drive, elevator, claw, false))
         .andThen(elevator.moveToBottom())
       );
