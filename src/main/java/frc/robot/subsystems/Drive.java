@@ -11,6 +11,7 @@ import java.util.function.Supplier;
 // import org.photonvision.EstimatedRobotPose;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.Pigeon2;
@@ -19,12 +20,15 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.SysIdSwerveRotation;
 import com.ctre.phoenix6.swerve.SwerveRequest.SysIdSwerveTranslation;
 
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -33,6 +37,8 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -52,6 +58,7 @@ import frc.robot.Constants.DriverConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.io.DriverControls;
+import frc.robot.subsystems.Vision.FieldPositions;
 
 import java.time.LocalDate;
 
@@ -109,6 +116,13 @@ public class Drive extends SubsystemBase {
   private ProfiledPIDController xController = new ProfiledPIDController(kPX, 0, 0.001, new TrapezoidProfile.Constraints(3, 20));
   private ProfiledPIDController yController = new ProfiledPIDController(kPY, 0, 0.001, new TrapezoidProfile.Constraints(3, 20));
   private ProfiledPIDController thetaController = new ProfiledPIDController(kPTheta, 0, 0.001, new TrapezoidProfile.Constraints(2 * Math.PI, Math.PI * 20));
+
+  private PIDController HPXController = new PIDController(kPX, 0, 0.001);
+  private PIDController HPYController = new PIDController(kPY, 0, 0.001);
+  private ProfiledPIDController HPThetaController = new ProfiledPIDController(kPTheta, 0, 0.001, new TrapezoidProfile.Constraints(2 * Math.PI, Math.PI * 20));
+
+  private HolonomicDriveController holonomicController = new HolonomicDriveController(HPXController, HPYController, HPThetaController);
+  private Pose2d nearestHP;
   
   
 
@@ -191,11 +205,23 @@ public class Drive extends SubsystemBase {
     thetaController.setTolerance(kThetaTolerance);
     thetaController.enableContinuousInput(-Math.PI/2, Math.PI/2);
 
-    vision = new Vision();
+    vision = new Vision(this);
+    //swerve.setVisionMeasurementStdDevs(VecBuilder.fill(0.9, 0.9, Math.toRadians(0.9))); Uncomment and tweak if needed. Increasing values trusts vision less
   }
 
   @Override
   public void periodic() {
+    var estimatePoseRight = vision.getEstimatedGlobalPoseRight(getPose());
+    if(estimatePoseRight.isPresent()) {
+      swerve.addVisionMeasurement(estimatePoseRight.get().estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(estimatePoseRight.get().timestampSeconds));
+    }
+    var estimatePoseLeft = vision.getEstimatedGlobalPoseLeft(getPose());
+    if(estimatePoseLeft.isPresent()) {
+      swerve.addVisionMeasurement(estimatePoseLeft.get().estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(estimatePoseLeft.get().timestampSeconds));
+    }
+    SmartDashboard.putNumber("Global Pose X", getPose().getX());
+    SmartDashboard.putNumber("Global Pose Y", getPose().getY());
+    SmartDashboard.putNumber("Global Pose Rotation", getPose().getRotation().getDegrees());
     fieldUtil.setSwerveRobotPose(swerve.getPose2d(), swerve.getModuleStates(), SwerveConstants.modulePositions);
   }
 
@@ -642,6 +668,45 @@ public class Drive extends SubsystemBase {
       thetaController.atSetpoint();
     });
   }
+
+  public Command autoAlignNearestHPCommand(){
+    HPThetaController.enableContinuousInput(-Math.PI, Math.PI);
+    HPThetaController.setTolerance(Math.toRadians(2));
+    Pose2d[] hpPoses = new Pose2d[]{FieldPositions.HP1, FieldPositions.HP2, FieldPositions.HP12, FieldPositions.HP13};
+    return startRun(() -> {
+      Pose2d currentPose = getPose();
+      nearestHP = hpPoses[0];
+      double minDistance = currentPose.getTranslation().getDistance(hpPoses[0].getTranslation());
+
+      holonomicController.setTolerance(new Pose2d(0.05, 0.05, new Rotation2d(0.05)));
+
+      for (Pose2d hp : hpPoses) {
+        double dist = currentPose.getTranslation().getDistance(hp.getTranslation());
+        if (dist < minDistance) {
+            nearestHP = hp;
+            minDistance = dist;
+        }
+      }
+
+  }, () -> {
+    double distance = getPose().getTranslation().getDistance(nearestHP.getTranslation());
+
+// Far away → ignore heading, Near → fully track heading
+Rotation2d desiredHeading = 
+    (distance > 1.3) ? getPose().getRotation() : nearestHP.getRotation(); // tune distance so it swoops the least but doesnt overshoot
+
+driveRobotCentric(holonomicController.calculate(
+    getPose(),
+    nearestHP,
+    0.0,
+    desiredHeading
+));
+  }).until(() -> {
+    // Terminate when at HP station inside the 0.05 tolerance
+    return holonomicController.atReference();
+});
+
+}
 
 
 

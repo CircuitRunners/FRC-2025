@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Microseconds;
 import static edu.wpi.first.units.Units.Milliseconds;
+import static edu.wpi.first.units.Units.Newton;
 import static edu.wpi.first.units.Units.Seconds;
 import java.util.Map;
 import java.util.HashMap;
@@ -58,7 +59,8 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class Vision extends SubsystemBase{
-    public static final double leftAlignmentX = .2435737274077523; //meters
+    private final Drive drive;
+    public static final double leftAlignmentX = .2435737274077523; //   meters
     public static final double leftAlignmentY = 0.275;
     public static final double rightAlignmentX = .2435737274077523;
     public static final double rightAlignmentY = 0;
@@ -70,6 +72,7 @@ public class Vision extends SubsystemBase{
     public static final double thetaTolerance = .05;
 
     public static class FieldPositions {
+        // Robot Positions when lining up to the tags, L means left branch, R means right
         //Blue
         public static final Pose2d L17 = new Pose2d(4.019, 2.913, new Rotation2d(Math.toRadians(150)));
         public static final Pose2d L18 = new Pose2d(3.357, 3.829, new Rotation2d(Math.toRadians(90)));
@@ -85,6 +88,9 @@ public class Vision extends SubsystemBase{
         public static final Pose2d R21 = new Pose2d(5.779, 4.379, new Rotation2d(Math.toRadians(-90)));
         public static final Pose2d R22 = new Pose2d(5.483, 3.261, new Rotation2d(Math.toRadians(210)));
 
+        public static final Pose2d HP12 = new Pose2d(1.111, 1.01 , new Rotation2d(Math.toRadians(54)));
+        public static final Pose2d HP13 = new Pose2d(1.111, 7.039 , new Rotation2d(Math.toRadians(306)));
+
         //Red
         public static final Pose2d L6 = new Pose2d(13.65, 2.92, new Rotation2d(Math.toRadians(210)));
         public static final Pose2d L7 = new Pose2d(14.32, 4.00, new Rotation2d(Math.toRadians(-90)));
@@ -99,6 +105,9 @@ public class Vision extends SubsystemBase{
         public static final Pose2d R9 = new Pose2d(11.95, 4.87, new Rotation2d(Math.toRadians(30)));
         public static final Pose2d R10 = new Pose2d(11.78, 3.51, new Rotation2d(Math.toRadians(90)));
         public static final Pose2d R11 = new Pose2d(12.87, 2.67, new Rotation2d(Math.toRadians(150)));
+
+        public static final Pose2d HP1 = new Pose2d(16.438, 1.01, new Rotation2d(Math.toRadians(126)));
+        public static final Pose2d HP2 = new Pose2d(16.438, 7.039, new Rotation2d(Math.toRadians(234)));
 
         public static final Pose2d HP6 = new Pose2d(
             (FieldPositions.R6.getX() + FieldPositions.L6.getX()) / 2,
@@ -215,13 +224,14 @@ private static final Map<Pose2d, Integer> rightDepositMapping = new HashMap<>() 
     StructPublisher<Pose2d> estimatedCaemraPose = NetworkTableInstance.getDefault()
         .getStructTopic("SmartDashboard/Subsystem/Vision/estimatedCameraPose", Pose2d.struct).publish();
 
-    public Vision() {
+    public Vision(Drive drive) {
+        this.drive = drive;
 
         fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
         rightCamera = new PhotonCamera("rightCamera");
         leftCamera = new PhotonCamera("leftCamera");
-        rightPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.LOWEST_AMBIGUITY, rightCameraTransform);
-        leftPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.LOWEST_AMBIGUITY, leftCameraTransform);
+        rightPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, rightCameraTransform);
+        leftPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, leftCameraTransform);
         lastCalculatedDist = Optional.empty();
 
         prop = new SimCameraProperties();
@@ -244,6 +254,9 @@ private static final Map<Pose2d, Integer> rightDepositMapping = new HashMap<>() 
 
     @Override
     public void periodic() {
+
+        SmartDashboard.putNumber("Left Tags Seen", leftCamera.getLatestResult().getTargets().size());
+        SmartDashboard.putNumber("Right Tags Seen", rightCamera.getLatestResult().getTargets().size());
 
         var rightPose = getRobotInTagSpace(true);
         SmartDashboard.putBoolean("Subsystem/posePresent", rightPose.isPresent());
@@ -333,18 +346,18 @@ private static final Map<Pose2d, Integer> rightDepositMapping = new HashMap<>() 
     public Optional<Pose2d> getRobotInTagSpace(boolean left, boolean hp) {
         // Get the latest vision result
         PhotonPipelineResult result = left ? leftCamera.getLatestResult() : rightCamera.getLatestResult();
-        PhotonPoseEstimator selectedPoseEstimator = left ? leftPoseEstimator : rightPoseEstimator;
+        //PhotonPoseEstimator selectedPoseEstimator = left ? leftPoseEstimator : rightPoseEstimator;
 
         if (result == null || !result.hasTargets()) {
             return lastCalculatedDist;
         }
         
         // Use the photon pose estimator to update the global robot pose based on the vision result.
-        Optional<EstimatedRobotPose> globalPoseOpt = selectedPoseEstimator.update(result);
-        if (!globalPoseOpt.isPresent()) {
-            return lastCalculatedDist;
-        }
-        Pose2d globalPose = globalPoseOpt.get().estimatedPose.toPose2d();
+        // Optional<EstimatedRobotPose> globalPoseOpt = selectedPoseEstimator.update(result);
+        // if (!globalPoseOpt.isPresent()) {
+        //     return lastCalculatedDist;
+        // }
+        Pose2d globalPose = drive.getPose();
 
 
         // Choose the list of deposit poses (for example, the left positions).
@@ -366,10 +379,82 @@ private static final Map<Pose2d, Integer> rightDepositMapping = new HashMap<>() 
         lastCalculatedDist = Optional.of(relativePose);
         
         return Optional.of(relativePose);
+
     }
 
     public Optional<Pose2d> getRobotInTagSpace(boolean left) {
         return getRobotInTagSpace(left, false);
+    }
+
+    /////////////////////////////////////// Global Pose //////////////////////////////////////////////
+
+private static boolean isSane(EstimatedRobotPose est,
+                              PhotonPipelineResult src,
+                              Pose2d reference) {
+    Pose2d p = est.estimatedPose.toPose2d();
+    double dist = p.getTranslation().getDistance(reference.getTranslation());
+    int tags = (src != null && src.hasTargets()) ? src.getTargets().size() : 0;
+    double amb = (src != null && src.hasTargets() && src.getBestTarget() != null)
+        ? src.getBestTarget().getPoseAmbiguity()
+        : -1.0;
+
+    // Reject sketchy single-tag solutions that jump far from reference with high ambiguity.
+    if (tags <= 1 && amb > 0.25 && dist > 1.0) {
+        return false;
+    }
+    return true;
+}
+
+    public Optional<EstimatedRobotPose> getEstimatedGlobalPoseRight(Pose2d prevEstimatedRobotPose) {
+        // 1) Grab latest results
+        PhotonPipelineResult rightResult = rightCamera.getLatestResult();
+        if (rightResult.getTargets().size() < 2){
+            return Optional.empty();
+        }
+
+        Optional<EstimatedRobotPose> rightEst = Optional.empty();
+
+        if (rightResult != null && rightResult.hasTargets()) {
+            rightEst = rightPoseEstimator.update(rightResult);
+        }
+
+        // 2) Sanity check
+        if (rightEst.isPresent() && !isSane(rightEst.get(), rightResult, prevEstimatedRobotPose)) {
+            rightEst = Optional.empty();
+        }
+
+        // 3) If the estimate is present, return it
+        if (rightEst.isPresent()) {
+            return rightEst;
+        }
+
+        return Optional.empty();
+    }
+
+    public Optional<EstimatedRobotPose> getEstimatedGlobalPoseLeft(Pose2d prevEstimatedRobotPose) {
+        // 1) Grab latest results
+        PhotonPipelineResult leftResult = leftCamera.getLatestResult();
+        if (leftResult.getTargets().size() < 2){
+            return Optional.empty();
+        }
+
+        Optional<EstimatedRobotPose> leftEst = Optional.empty();
+
+        if (leftResult != null && leftResult.hasTargets()) {
+            leftEst = leftPoseEstimator.update(leftResult);
+        }
+
+        // 2) Sanity check
+        if (leftEst.isPresent() && !isSane(leftEst.get(), leftResult, prevEstimatedRobotPose)) {
+            leftEst = Optional.empty();
+        }
+
+        // 3) If the estimate is present, return it
+        if (leftEst.isPresent()) {
+            return leftEst;
+        }
+        
+        return Optional.empty();
     }
 
     // public static final int[] kReefIDs = {6};

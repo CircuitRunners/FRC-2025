@@ -320,8 +320,10 @@ public class Robot extends TimedRobot {
     // driverControls.x().whileTrue(drive.hpAlign(true));
     // driverControls.b().whileTrue(drive.hpAlign(false));
 
-    driverControls.a().whileTrue(drive.autoAlignCommand(true,() -> false, ()->false, ()-> true));
+    //driverControls.a().whileTrue(drive.autoAlignCommand(true,() -> false, ()->false, ()-> true));
     driverControls.y().whileTrue(drive.autoAlignCommand(false,() -> false, ()->false, ()-> true));
+
+    driverControls.a().whileTrue(drive.autoAlignNearestHPCommand());
 
     driverControls.rightTrigger().whileTrue(new SequentialCommandGroup(
       drive.autoAlignCommand(false, () -> Robot.l4, () -> Robot.l4Score))
