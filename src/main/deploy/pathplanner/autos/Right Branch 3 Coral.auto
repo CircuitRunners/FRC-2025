@@ -1,0 +1,49 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "AutonScoreL4Right"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "HP Align"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutonScoreL4Right"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "HP Align"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutonScoreL4Left"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": false,
+  "folder": null,
+  "choreoAuto": false
+}

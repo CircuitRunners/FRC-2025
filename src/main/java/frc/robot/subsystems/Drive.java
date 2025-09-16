@@ -4,7 +4,9 @@ import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -19,6 +21,14 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.SysIdSwerveRotation;
 import com.ctre.phoenix6.swerve.SwerveRequest.SysIdSwerveTranslation;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.Waypoint;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.HolonomicDriveController;
@@ -37,6 +47,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -189,6 +200,7 @@ public class Drive extends SubsystemBase {
             this
         )
     );
+    
 
   private SlewRateLimiter forwardLimiter, strafeLimiter;
   /** Creates a new Drive */
@@ -204,6 +216,9 @@ public class Drive extends SubsystemBase {
     yController.setTolerance(kYTolerance);
     thetaController.setTolerance(kThetaTolerance);
     thetaController.enableContinuousInput(-Math.PI/2, Math.PI/2);
+    HPThetaController.enableContinuousInput(-Math.PI, Math.PI);
+    HPThetaController.setTolerance(Math.toRadians(2));
+    holonomicController.setTolerance(new Pose2d(0.05, 0.05, new Rotation2d(0.05)));
 
     vision = new Vision(this);
     //swerve.setVisionMeasurementStdDevs(VecBuilder.fill(0.9, 0.9, Math.toRadians(0.9))); Uncomment and tweak if needed. Increasing values trusts vision less
@@ -669,29 +684,30 @@ public class Drive extends SubsystemBase {
     });
   }
 
-  public Command autoAlignNearestHPCommand(){
-    HPThetaController.enableContinuousInput(-Math.PI, Math.PI);
-    HPThetaController.setTolerance(Math.toRadians(2));
+  public Pose2d getNearestHP(){
     Pose2d[] hpPoses = new Pose2d[]{FieldPositions.HP1, FieldPositions.HP2, FieldPositions.HP12, FieldPositions.HP13};
-    return startRun(() -> {
-      Pose2d currentPose = getPose();
-      nearestHP = hpPoses[0];
-      double minDistance = currentPose.getTranslation().getDistance(hpPoses[0].getTranslation());
+    Pose2d currentPose = getPose();
+    nearestHP = hpPoses[0];
+    double minDistance = currentPose.getTranslation().getDistance(hpPoses[0].getTranslation());
 
-      holonomicController.setTolerance(new Pose2d(0.05, 0.05, new Rotation2d(0.05)));
-
-      for (Pose2d hp : hpPoses) {
-        double dist = currentPose.getTranslation().getDistance(hp.getTranslation());
-        if (dist < minDistance) {
-            nearestHP = hp;
-            minDistance = dist;
-        }
+    for (Pose2d hp : hpPoses) {
+      double dist = currentPose.getTranslation().getDistance(hp.getTranslation());
+      if (dist < minDistance) {
+          nearestHP = hp;
+          minDistance = dist;
       }
+    }
+    return nearestHP;
+  }
+
+  public Command autoAlignNearestHPCommand(){
+    return startRun(() -> {
+      nearestHP = getNearestHP();
 
   }, () -> {
     double distance = getPose().getTranslation().getDistance(nearestHP.getTranslation());
 
-// Far away → ignore heading, Near → fully track heading
+// Only start rotating robot when within a certain distance of the HP station
 Rotation2d desiredHeading = 
     (distance > 1.3) ? getPose().getRotation() : nearestHP.getRotation(); // tune distance so it swoops the least but doesnt overshoot
 
@@ -709,5 +725,53 @@ driveRobotCentric(holonomicController.calculate(
 }
 
 
+public Command PPHPAlign(BooleanSupplier buttonHeld){
+  return new Command() {
+    Command pathCommand;
 
+  @Override
+  public void initialize() {
+  nearestHP = getNearestHP();
+
+  // Create a list of waypoints from poses. Each pose represents one waypoint.
+  // The rotation component of the pose should be the direction of travel. Do not use holonomic rotation.
+  // Figures out the angle of the straight line from the robot to the HP station
+  Translation2d angle = nearestHP.getTranslation().minus(getPose().getTranslation());
+  Rotation2d pathHeading = new Rotation2d(Math.atan2(angle.getY(), angle.getX()));
+  List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(
+      new Pose2d(getPose().getTranslation(), pathHeading),
+      new Pose2d(nearestHP.getTranslation(), pathHeading)
+  );
+
+  PathConstraints constraints = Constants.SwerveConstants.pathConstraints; // The constraints for this path.
+  //PathConstraints constraints = PathConstraints.unlimitedConstraints(12.0); // You can also use unlimited constraints, only limited by motor torque and nominal battery voltage
+
+  // Create the path using the waypoints created above
+  PathPlannerPath path = new PathPlannerPath(
+    waypoints,
+    constraints,
+    null, // The ideal starting state, this is only relevant for pre-planned paths, so can be null for on-the-fly paths.
+    new GoalEndState(0.0, nearestHP.getRotation()) // Goal end state. You can set a holonomic rotation here. If using a differential drivetrain, the rotation will have no effect.   
+  );
+  // Prevent the path from being flipped if the coordinates are already correct
+  path.preventFlipping = true;
+  pathCommand = AutoBuilder.followPath(path);
+  pathCommand.schedule();
+  }
+
+  @Override
+  public void execute() {}
+
+  @Override
+  public boolean isFinished(){
+    return !buttonHeld.getAsBoolean();
+  }
+
+  @Override
+  public void end(boolean interrupted) {
+    if (pathCommand != null) pathCommand.cancel();
+  }
+};
+
+}
 }

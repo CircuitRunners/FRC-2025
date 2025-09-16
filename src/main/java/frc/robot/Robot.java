@@ -253,6 +253,7 @@ public class Robot extends TimedRobot {
     NamedCommands.registerCommand("brake", drive.brakeCommand());
     NamedCommands.registerCommand("Drive Robot Centric Forward", drive.driveRobotCentricCommand(() -> new ChassisSpeeds(1, 0, 0)));
     NamedCommands.registerCommand("Drive Robot Centric Forward", drive.driveRobotCentricCommand(() -> new ChassisSpeeds(-1, 0, 0)));
+    NamedCommands.registerCommand("HP Align", drive.autoAlignNearestHPCommand().withTimeout(2.5));
     PathPlannerUtil.configure(drive, true);
 
     autoChooser = AutoBuilder.buildAutoChooser("taxi");
@@ -321,9 +322,10 @@ public class Robot extends TimedRobot {
     // driverControls.b().whileTrue(drive.hpAlign(false));
 
     //driverControls.a().whileTrue(drive.autoAlignCommand(true,() -> false, ()->false, ()-> true));
-    driverControls.y().whileTrue(drive.autoAlignCommand(false,() -> false, ()->false, ()-> true));
+    //driverControls.y().whileTrue(drive.autoAlignCommand(false,() -> false, ()->false, ()-> true));
 
-    driverControls.a().whileTrue(drive.autoAlignNearestHPCommand());
+    driverControls.y().whileTrue(drive.autoAlignNearestHPCommand());
+    driverControls.a().whileTrue(drive.PPHPAlign(driverControls.y()::getAsBoolean));
 
     driverControls.rightTrigger().whileTrue(new SequentialCommandGroup(
       drive.autoAlignCommand(false, () -> Robot.l4, () -> Robot.l4Score))
