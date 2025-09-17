@@ -284,9 +284,9 @@ public class Robot extends TimedRobot {
   private void configureBindings() {
     
     // ------------------------------- DRIVER CONTROLS ---------------------------------------------------------
-    
     SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
     .withDriveRequestType(DriveRequestType.OpenLoopVoltage).withDeadband(DriverConstants.stickDeadband);
+    if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){
     driverControls = new DriverControls(DriverConstants.driverPort);
     drive.setDefaultCommand(drive.driveFieldCentricCommand(() -> 
       driveRequest
@@ -294,6 +294,16 @@ public class Robot extends TimedRobot {
         .withVelocityY(driverControls.driveStrafe())
         .withRotationalRate(driverControls.driveRotation() * 0.8)  
     ));
+    }
+    else if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == DriverStation.Alliance.Red){
+      driverControls = new DriverControls(DriverConstants.driverPort);
+      drive.setDefaultCommand(drive.driveFieldCentricCommand(() -> 
+        driveRequest
+          .withVelocityX(-driverControls.driveForward())
+          .withVelocityY(-driverControls.driveStrafe())
+          .withRotationalRate(driverControls.driveRotation() * 0.8)  
+      ));
+    }
     // driverControls.increaseLimit().onTrue(drive.increaseLimitCommand());
     // driverControls.decreaseLimit().onTrue(drive.decreaseLimitCommand());
     // 
