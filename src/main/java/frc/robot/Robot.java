@@ -195,7 +195,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     elevator.resetTargetPos().execute();;
-    // drive.resetRotation(new Rotation2d(330));
+    drive.resetRotation(drive.getRotation2d());
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }

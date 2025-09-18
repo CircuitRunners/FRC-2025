@@ -286,7 +286,7 @@ public class Drive extends SubsystemBase {
     swerve.setControl(SwerveConfig.brake);
   }
 
-  public Rotation2d geRotation2d(){
+  public Rotation2d getRotation2d(){
     return swerve.getPose2d().getRotation();
   }
 

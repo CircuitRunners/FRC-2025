@@ -106,8 +106,8 @@ public class Vision extends SubsystemBase{
         public static final Pose2d R10 = new Pose2d(11.78, 3.51, new Rotation2d(Math.toRadians(90)));
         public static final Pose2d R11 = new Pose2d(12.87, 2.67, new Rotation2d(Math.toRadians(150)));
 
-        public static final Pose2d HP1 = new Pose2d(16.438, 1.01, new Rotation2d(Math.toRadians(126)));
-        public static final Pose2d HP2 = new Pose2d(16.438, 7.039, new Rotation2d(Math.toRadians(234)));
+        public static final Pose2d HP1 = new Pose2d(16.3764, 1.0548, new Rotation2d(Math.toRadians(126)));
+        public static final Pose2d HP2 = new Pose2d(16.3764, 7.0838, new Rotation2d(Math.toRadians(234)));
 
         public static final Pose2d HP6 = new Pose2d(
             (FieldPositions.R6.getX() + FieldPositions.L6.getX()) / 2,
@@ -399,7 +399,7 @@ private static boolean isSane(EstimatedRobotPose est,
         : -1.0;
 
     // Reject sketchy single-tag solutions that jump far from reference with high ambiguity.
-    if (tags <= 1 && amb > 0.25 && dist > 1.0) {
+    if (tags <= 1 && amb > 0.25 && dist > .3) {
         return false;
     }
     return true;
