@@ -11,15 +11,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "HP Align"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "AutoIntake"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "HP Align"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "MoveToIntake"
+                }
+              }
+            ]
           }
         },
         {
@@ -29,15 +36,34 @@
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "HP Align"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "HP Align"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "MoveToIntake"
+                }
+              }
+            ]
           }
         },
         {
           "type": "named",
           "data": {
             "name": "AutonScoreL4Right"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "MoveToIntake"
           }
         }
       ]

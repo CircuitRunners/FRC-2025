@@ -253,7 +253,9 @@ public class Robot extends TimedRobot {
     NamedCommands.registerCommand("brake", drive.brakeCommand());
     NamedCommands.registerCommand("Drive Robot Centric Forward", drive.driveRobotCentricCommand(() -> new ChassisSpeeds(1, 0, 0)));
     NamedCommands.registerCommand("Drive Robot Centric Forward", drive.driveRobotCentricCommand(() -> new ChassisSpeeds(-1, 0, 0)));
-    NamedCommands.registerCommand("HP Align", drive.autoAlignNearestHPCommand().withTimeout(2.5));
+    NamedCommands.registerCommand("HP Align", drive.PPHPAlignAuto().withTimeout(2.5));
+    NamedCommands.registerCommand("PPDoubleScoreLeft", new PPDoubleScore(drive, elevator, claw, true));
+    NamedCommands.registerCommand("PPDoubleScoreRight", new PPDoubleScore(drive, elevator, claw, false));
     PathPlannerUtil.configure(drive, true);
 
     autoChooser = AutoBuilder.buildAutoChooser("taxi");
