@@ -11,6 +11,8 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import org.photonvision.EstimatedRobotPose;
+
 // import org.photonvision.EstimatedRobotPose;
 
 import com.ctre.phoenix6.SignalLogger;
@@ -82,7 +84,7 @@ import edu.wpi.first.epilogue.Logged;
 @Logged
 public class Drive extends SubsystemBase {
   public static double limit = 1;
-  private Swerve swerve;
+  public Swerve swerve;
   private FieldUtil fieldUtil = FieldUtil.getField();
   private boolean sysIdTranslator = true;
   public long setTime;
@@ -231,11 +233,14 @@ public class Drive extends SubsystemBase {
   @Override
   public void periodic() {
     var estimatePoseRight = vision.getEstimatedGlobalPoseRight(getPose());
-    if(estimatePoseRight.isPresent()) {
+    var estimatePoseLeft = vision.getEstimatedGlobalPoseLeft(getPose());
+    if (getAverageGlobalPose(estimatePoseLeft, estimatePoseRight) != null){
+      swerve.addVisionMeasurement(getAverageGlobalPose(estimatePoseLeft, estimatePoseRight), Utils.fpgaToCurrentTime(estimatePoseRight.get().timestampSeconds));
+    }
+    else if(estimatePoseRight.isPresent()) {
       swerve.addVisionMeasurement(estimatePoseRight.get().estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(estimatePoseRight.get().timestampSeconds));
     }
-    var estimatePoseLeft = vision.getEstimatedGlobalPoseLeft(getPose());
-    if(estimatePoseLeft.isPresent()) {
+    else if(estimatePoseLeft.isPresent()) {
       swerve.addVisionMeasurement(estimatePoseLeft.get().estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(estimatePoseLeft.get().timestampSeconds));
     }
     SmartDashboard.putNumber("Global Pose X", getPose().getX());
@@ -314,6 +319,10 @@ public class Drive extends SubsystemBase {
 
   public ChassisSpeeds getChassisSpeeds(){
     return swerve.getState().Speeds;
+  }
+
+  public double getSpeed(){
+    return Math.hypot(getChassisSpeeds().vxMetersPerSecond, getChassisSpeeds().vyMetersPerSecond);
   }
 
   public Command brakeCommand(){
@@ -729,57 +738,7 @@ driveRobotCentric(holonomicController.calculate(
 }
 
 
-public Command PPHPAlign(BooleanSupplier buttonHeld){
-  return new Command() {
-    Command pathCommand;
-
-  @Override
-  public void initialize() {
-  nearestHP = getNearestHP();
-
-  // Create a list of waypoints from poses. Each pose represents one waypoint.
-  // The rotation component of the pose should be the direction of travel. Do not use holonomic rotation.
-  // Figures out the angle of the straight line from the robot to the HP station
-  Translation2d angle = nearestHP.getTranslation().minus(getPose().getTranslation());
-  Rotation2d pathHeading = new Rotation2d(Math.atan2(angle.getY(), angle.getX()));
-  List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(
-      new Pose2d(getPose().getTranslation(), pathHeading),
-      new Pose2d(nearestHP.getTranslation(), pathHeading)
-  );
-
-  PathConstraints constraints = Constants.SwerveConstants.pathConstraints; // The constraints for this path.
-  //PathConstraints constraints = PathConstraints.unlimitedConstraints(12.0); // You can also use unlimited constraints, only limited by motor torque and nominal battery voltage
-
-  // Create the path using the waypoints created above
-  PathPlannerPath path = new PathPlannerPath(
-    waypoints,
-    constraints,
-    null, // The ideal starting state, this is only relevant for pre-planned paths, so can be null for on-the-fly paths.
-    new GoalEndState(0.0, nearestHP.getRotation()) // Goal end state. You can set a holonomic rotation here. If using a differential drivetrain, the rotation will have no effect.   
-  );
-  // Prevent the path from being flipped if the coordinates are already correct
-  path.preventFlipping = true;
-  pathCommand = AutoBuilder.followPath(path);
-  pathCommand.schedule();
-  }
-
-  @Override
-  public void execute() {}
-
-  @Override
-  public boolean isFinished(){
-    return !buttonHeld.getAsBoolean();
-  }
-
-  @Override
-  public void end(boolean interrupted) {
-    if (pathCommand != null) pathCommand.cancel();
-  }
-};
-
-}
-
- public Command PPHPAlignAuto(){
+ public Command PPHPAlign(){
   return Commands.defer(() -> {
   nearestHP = getNearestHP();
 
@@ -805,9 +764,27 @@ public Command PPHPAlign(BooleanSupplier buttonHeld){
   );
   // Prevent the path from being flipped if the coordinates are already correct
   path.preventFlipping = true;
+  driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, 0));
   return new SequentialCommandGroup(AutoBuilder.followPath(path));
   },
   Set.of(this));
   };
+
+  public Pose2d getAverageGlobalPose(Optional<EstimatedRobotPose> left, Optional<EstimatedRobotPose> right){
+    if (left.isPresent() && right.isPresent()){
+      Pose2d leftPose = left.get().estimatedPose.toPose2d();
+      Pose2d rightPose = right.get().estimatedPose.toPose2d();
+
+      double avgX = (leftPose.getX() + rightPose.getX()) / 2.0;
+      double avgY = (leftPose.getY() + rightPose.getY()) / 2.0;
+      //be careful of this, if one rotation is near +π and the other near -π, the result can suddenly flip by almost 180°
+      Rotation2d avgRot = new Rotation2d(Math.atan2((leftPose.getRotation().getSin() + rightPose.getRotation().getSin()), 
+      (leftPose.getRotation().getCos() + rightPose.getRotation().getCos())));
+      return new Pose2d(avgX, avgY, avgRot);
+    }
+    else{
+      return null;
+    }
+  }
  }
 
