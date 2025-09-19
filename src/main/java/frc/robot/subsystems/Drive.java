@@ -77,7 +77,9 @@ import java.time.LocalDate;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.HttpCamera;
+import edu.wpi.first.epilogue.Logged;
 
+@Logged
 public class Drive extends SubsystemBase {
   public static double limit = 1;
   private Swerve swerve;

@@ -51,6 +51,8 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.CvSink;
 import edu.wpi.first.cscore.CvSource;
 import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.epilogue.Epilogue;
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.wpilibj.TimedRobot;
 
 import org.opencv.core.Core;
@@ -73,6 +75,7 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import frc.robot.commands.auton.*;
 
+@Logged
 public class Robot extends TimedRobot {
   private Drive drive;
   private Elevator elevator;
@@ -91,9 +94,11 @@ public class Robot extends TimedRobot {
   Thread m_visionThread;
 
 
-  // public Robot() {
-  //   configureAutos();
-  // }
+  public Robot() {
+    // configureAutos();
+    DataLogManager.start();
+    Epilogue.bind(this);
+  }
 
   @Override
   public void robotInit() {
@@ -101,7 +106,7 @@ public class Robot extends TimedRobot {
     configureSubsystems();
     configureAutos();
 
-    DataLogManager.logNetworkTables(false);
+    // DataLogManager.logNetworkTables(false);
     // CameraServer.startAutomaticCapture();
     SmartDashboard.putNumber("time in teleo", timeSinceteleopStart);
 

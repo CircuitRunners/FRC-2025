@@ -402,15 +402,18 @@ private static boolean isSane(EstimatedRobotPose est,
     if (tags <= 1 && amb > 0.25 && dist > .3) {
         return false;
     }
+    else if (tags == 1 && amb < 0.1 && dist < 0.3){
+        return true;
+    }
     return true;
 }
 
     public Optional<EstimatedRobotPose> getEstimatedGlobalPoseRight(Pose2d prevEstimatedRobotPose) {
         // 1) Grab latest results
         PhotonPipelineResult rightResult = rightCamera.getLatestResult();
-        if (rightResult.getTargets().size() < 2){
-            return Optional.empty();
-        }
+        // if (rightResult.getTargets().size() < 2){
+        //     return Optional.empty();
+        // }
 
         Optional<EstimatedRobotPose> rightEst = Optional.empty();
 
@@ -434,9 +437,9 @@ private static boolean isSane(EstimatedRobotPose est,
     public Optional<EstimatedRobotPose> getEstimatedGlobalPoseLeft(Pose2d prevEstimatedRobotPose) {
         // 1) Grab latest results
         PhotonPipelineResult leftResult = leftCamera.getLatestResult();
-        if (leftResult.getTargets().size() < 2){
-            return Optional.empty();
-        }
+        // if (leftResult.getTargets().size() < 2){
+        //     return Optional.empty();
+        // }
 
         Optional<EstimatedRobotPose> leftEst = Optional.empty();
 
