@@ -1,0 +1,22 @@
+package frc.robot.commands.auton;
+
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.commands.moving.MoveToIntake;
+import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Elevator;
+
+public class TripleScore extends SequentialCommandGroup{
+    public TripleScore(Drive drive, Elevator elevator, Claw claw, boolean left) {
+        addRequirements(drive, claw, elevator);
+        addCommands(
+        new AutonScoreL4(drive, elevator, claw, left),
+        new ParallelCommandGroup(drive.PPHPAlign(), new MoveToIntake(elevator, claw, drive)),
+        new AutonScoreL4(drive, elevator, claw, left),
+        new ParallelCommandGroup(drive.PPHPAlign(), new MoveToIntake(elevator, claw, drive)),
+        new AutonScoreL4(drive, elevator, claw, left),
+        new MoveToIntake(elevator, claw, drive)
+        );
+    }
+}

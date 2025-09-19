@@ -16,6 +16,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -142,6 +143,8 @@ public class Robot extends TimedRobot {
     // m_visionThread.start();\
   
     SmartDashboard.putNumber("match time", DriverStation.getMatchTime());
+    //get an accurate starting pose
+    drive.swerve.setVisionMeasurementStdDevs(VecBuilder.fill(0.1, 0.1, 0.1)); //(X, Y, Rad) tweak if needed, Increasing values trusts vision less
   }
   
   
@@ -161,10 +164,18 @@ public class Robot extends TimedRobot {
     SmartDashboard.putBoolean("Auto Align to L4", l4);
     SmartDashboard.putBoolean("L4 Score", l4Score);
     SmartDashboard.putNumber("match time", DriverStation.getMatchTime());
+    //change vision trusting based on speed, might not be good because of distance when at HP station
+    // if(drive.getSpeed() < 0.1){
+    //   drive.swerve.setVisionMeasurementStdDevs(VecBuilder.fill(0.1, 0.1, 0.1)); //(X, Y, Rad) tweak if needed, Increasing values trusts vision less
+    // }
+    // else{
+    //   drive.swerve.setVisionMeasurementStdDevs(VecBuilder.fill(1, 1, 1)); //(X, Y, Rad) tweak if needed, Increasing values trusts vision less
+    // }
   }
 
   @Override
   public void disabledInit() {
+    drive.swerve.setVisionMeasurementStdDevs(VecBuilder.fill(0.1, 0.1, 0.1)); //(X, Y, Rad) tweak if needed, Increasing values trusts vision less
   }
 
   @Override
@@ -179,7 +190,7 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
-    
+    drive.swerve.setVisionMeasurementStdDevs(VecBuilder.fill(1, 1, 1)); //(X, Y, Rad) tweak if needed, Increasing values trusts vision less
   }
 
   @Override
@@ -189,7 +200,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousExit() {
-    drive.resetOrientationAuto();
+    //drive.resetOrientationAuto();
   }
 
   @Override
@@ -201,6 +212,7 @@ public class Robot extends TimedRobot {
     }
     timer.start();
     SmartDashboard.putNumber("time in teleo", timeSinceteleopStart);
+    drive.swerve.setVisionMeasurementStdDevs(VecBuilder.fill(1, 1, 1)); //(X, Y, Rad) tweak if needed, Increasing values trusts vision less
   }
   
   @Override
@@ -253,9 +265,6 @@ public class Robot extends TimedRobot {
     NamedCommands.registerCommand("brake", drive.brakeCommand());
     NamedCommands.registerCommand("Drive Robot Centric Forward", drive.driveRobotCentricCommand(() -> new ChassisSpeeds(1, 0, 0)));
     NamedCommands.registerCommand("Drive Robot Centric Forward", drive.driveRobotCentricCommand(() -> new ChassisSpeeds(-1, 0, 0)));
-    NamedCommands.registerCommand("HP Align", drive.PPHPAlignAuto().withTimeout(2.5));
-    NamedCommands.registerCommand("PPDoubleScoreLeft", new PPDoubleScore(drive, elevator, claw, true));
-    NamedCommands.registerCommand("PPDoubleScoreRight", new PPDoubleScore(drive, elevator, claw, false));
     PathPlannerUtil.configure(drive, true);
 
     autoChooser = AutoBuilder.buildAutoChooser("taxi");
@@ -271,6 +280,8 @@ public class Robot extends TimedRobot {
         .andThen(new AutonScoreL4(drive, elevator, claw, false))
         .andThen(elevator.moveToBottom())
       );
+    autoChooser.addOption("3 Coral Left Branch", new TripleScore(drive, elevator, claw, true));
+    autoChooser.addOption("3 Coral Right Branch", new TripleScore(drive, elevator, claw, false));
         // .andThen(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, Math.PI)).withTimeout(1).finallyDo(drive::brake)));
       // autoChooser.addOption("scoreL4 auto remove algae no pathplanner",
       // drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.75, 0, 0))
@@ -306,6 +317,12 @@ public class Robot extends TimedRobot {
           .withRotationalRate(driverControls.driveRotation() * 0.8)  
       ));
     }
+//     drive.setDefaultCommand(drive.driveFieldCentricCommand(() -> //use for debugging in case controls flip again in shop, If the robot moves forward correctly, yoystick mapping is the problem, If it moves backward, your field frame vs driver frame is inverted.
+//     driveRequest
+//     .withVelocityX(1)
+//     .withVelocityY(0)
+//     .withRotationalRate(0)
+// ));
     // driverControls.increaseLimit().onTrue(drive.increaseLimitCommand());
     // driverControls.decreaseLimit().onTrue(drive.decreaseLimitCommand());
     // 
@@ -337,7 +354,7 @@ public class Robot extends TimedRobot {
     //driverControls.y().whileTrue(drive.autoAlignCommand(false,() -> false, ()->false, ()-> true));
 
     driverControls.y().whileTrue(drive.autoAlignNearestHPCommand());
-    driverControls.a().whileTrue(drive.PPHPAlign(driverControls.a()::getAsBoolean));
+    driverControls.a().whileTrue(drive.PPHPAlign());
 
     driverControls.rightTrigger().whileTrue(new SequentialCommandGroup(
       drive.autoAlignCommand(false, () -> Robot.l4, () -> Robot.l4Score))
