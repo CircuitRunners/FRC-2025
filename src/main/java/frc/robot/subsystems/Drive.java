@@ -140,6 +140,9 @@ public class Drive extends SubsystemBase {
 
   private HolonomicDriveController holonomicController = new HolonomicDriveController(HPXController, HPYController, HPThetaController);
   private Pose2d nearestHP;
+
+  private Pose2d leftCameraPose = new Pose2d();
+  private Pose2d rightCameraPose = new Pose2d();
   
   
 
@@ -234,15 +237,16 @@ public class Drive extends SubsystemBase {
   public void periodic() {
     var estimatePoseRight = vision.getEstimatedGlobalPoseRight(getPose());
     var estimatePoseLeft = vision.getEstimatedGlobalPoseLeft(getPose());
-    if (getAverageGlobalPose(estimatePoseLeft, estimatePoseRight) != null){
-      swerve.addVisionMeasurement(getAverageGlobalPose(estimatePoseLeft, estimatePoseRight), Utils.fpgaToCurrentTime(estimatePoseRight.get().timestampSeconds));
+    if (estimatePoseRight.isPresent()){
+      rightCameraPose = estimatePoseRight.get().pose();
+      swerve.addVisionMeasurement(rightCameraPose, Utils.fpgaToCurrentTime(estimatePoseRight.get().timestampSeconds()), estimatePoseRight.get().stdDevs());
     }
-    else if(estimatePoseRight.isPresent()) {
-      swerve.addVisionMeasurement(estimatePoseRight.get().estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(estimatePoseRight.get().timestampSeconds));
+    if (estimatePoseLeft.isPresent()){
+      leftCameraPose = estimatePoseLeft.get().pose();
+      swerve.addVisionMeasurement(leftCameraPose, Utils.fpgaToCurrentTime(estimatePoseLeft.get().timestampSeconds()), estimatePoseLeft.get().stdDevs());
+
     }
-    else if(estimatePoseLeft.isPresent()) {
-      swerve.addVisionMeasurement(estimatePoseLeft.get().estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(estimatePoseLeft.get().timestampSeconds));
-    }
+
     SmartDashboard.putNumber("Global Pose X", getPose().getX());
     SmartDashboard.putNumber("Global Pose Y", getPose().getY());
     SmartDashboard.putNumber("Global Pose Rotation", getPose().getRotation().getDegrees());

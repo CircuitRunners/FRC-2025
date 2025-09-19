@@ -13,9 +13,9 @@ public class TripleScore extends SequentialCommandGroup{
         addCommands(
         new AutonScoreL4(drive, elevator, claw, left),
         new ParallelCommandGroup(drive.PPHPAlign(), new MoveToIntake(elevator, claw, drive)),
-        new AutonScoreL4(drive, elevator, claw, left),
+        new AutonScoreL4(drive, elevator, claw, true),
         new ParallelCommandGroup(drive.PPHPAlign(), new MoveToIntake(elevator, claw, drive)),
-        new AutonScoreL4(drive, elevator, claw, left),
+        new AutonScoreL4(drive, elevator, claw, false),
         new MoveToIntake(elevator, claw, drive)
         );
     }
