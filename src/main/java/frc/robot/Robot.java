@@ -149,7 +149,6 @@ public class Robot extends TimedRobot {
   
     SmartDashboard.putNumber("match time", DriverStation.getMatchTime());
     //get an accurate starting pose
-    drive.swerve.setVisionMeasurementStdDevs(VecBuilder.fill(0.1, 0.1, 0.1)); //(X, Y, Rad) tweak if needed, Increasing values trusts vision less
   }
   
   
@@ -169,18 +168,10 @@ public class Robot extends TimedRobot {
     SmartDashboard.putBoolean("Auto Align to L4", l4);
     SmartDashboard.putBoolean("L4 Score", l4Score);
     SmartDashboard.putNumber("match time", DriverStation.getMatchTime());
-    //change vision trusting based on speed, might not be good because of distance when at HP station
-    // if(drive.getSpeed() < 0.1){
-    //   drive.swerve.setVisionMeasurementStdDevs(VecBuilder.fill(0.1, 0.1, 0.1)); //(X, Y, Rad) tweak if needed, Increasing values trusts vision less
-    // }
-    // else{
-    //   drive.swerve.setVisionMeasurementStdDevs(VecBuilder.fill(1, 1, 1)); //(X, Y, Rad) tweak if needed, Increasing values trusts vision less
-    // }
   }
 
   @Override
   public void disabledInit() {
-    drive.swerve.setVisionMeasurementStdDevs(VecBuilder.fill(0.1, 0.1, 0.1)); //(X, Y, Rad) tweak if needed, Increasing values trusts vision less
   }
 
   @Override
@@ -195,7 +186,6 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
-    drive.swerve.setVisionMeasurementStdDevs(VecBuilder.fill(1, 1, 1)); //(X, Y, Rad) tweak if needed, Increasing values trusts vision less
   }
 
   @Override
@@ -217,7 +207,6 @@ public class Robot extends TimedRobot {
     }
     timer.start();
     SmartDashboard.putNumber("time in teleo", timeSinceteleopStart);
-    drive.swerve.setVisionMeasurementStdDevs(VecBuilder.fill(1, 1, 1)); //(X, Y, Rad) tweak if needed, Increasing values trusts vision less
   }
   
   @Override

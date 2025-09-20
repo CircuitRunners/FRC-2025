@@ -773,22 +773,5 @@ driveRobotCentric(holonomicController.calculate(
   },
   Set.of(this));
   };
-
-  public Pose2d getAverageGlobalPose(Optional<EstimatedRobotPose> left, Optional<EstimatedRobotPose> right){
-    if (left.isPresent() && right.isPresent()){
-      Pose2d leftPose = left.get().estimatedPose.toPose2d();
-      Pose2d rightPose = right.get().estimatedPose.toPose2d();
-
-      double avgX = (leftPose.getX() + rightPose.getX()) / 2.0;
-      double avgY = (leftPose.getY() + rightPose.getY()) / 2.0;
-      //be careful of this, if one rotation is near +π and the other near -π, the result can suddenly flip by almost 180°
-      Rotation2d avgRot = new Rotation2d(Math.atan2((leftPose.getRotation().getSin() + rightPose.getRotation().getSin()), 
-      (leftPose.getRotation().getCos() + rightPose.getRotation().getCos())));
-      return new Pose2d(avgX, avgY, avgRot);
-    }
-    else{
-      return null;
-    }
-  }
  }
 

@@ -429,17 +429,14 @@ public class Vision extends SubsystemBase {
             Pose2d reference) {
         Pose2d p = est.estimatedPose.toPose2d();
         double dist = p.getTranslation().getDistance(reference.getTranslation());
-        int tags = (src != null && src.hasTargets()) ? src.getTargets().size() : 0;
         double amb = (src != null && src.hasTargets() && src.getBestTarget() != null)
                 ? src.getBestTarget().getPoseAmbiguity()
                 : -1.0;
 
         // Reject sketchy single-tag solutions that jump far from reference with high
         // ambiguity.
-        if (tags <= 1 && amb > 0.25 && dist > .3) {
+        if (amb > 0.25 && dist > 1) {
             return false;
-        } else if (tags == 1 && amb < 0.1 && dist < 0.3) {
-            return true;
         }
         return true;
     }
