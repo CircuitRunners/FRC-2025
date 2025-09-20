@@ -93,8 +93,8 @@ public class Vision extends SubsystemBase {
         public static final Pose2d R21 = new Pose2d(5.779, 4.379, new Rotation2d(Math.toRadians(-90)));
         public static final Pose2d R22 = new Pose2d(5.483, 3.261, new Rotation2d(Math.toRadians(210)));
 
-        public static final Pose2d HP12 = new Pose2d(Units.inchesToMeters(33.51) - robotCenterToEdge*Math.cos(54), Units.inchesToMeters(25.80) - robotCenterToEdge*Math.sin(54), new Rotation2d(Math.toRadians(54)));
-        public static final Pose2d HP13 = new Pose2d(Units.inchesToMeters(33.51) - robotCenterToEdge*Math.cos(54), Units.inchesToMeters(291.20) + robotCenterToEdge*Math.sin(54), new Rotation2d(Math.toRadians(306)));
+        public static final Pose2d HP12 = new Pose2d(Units.inchesToMeters(33.51) + robotCenterToEdge*Math.cos(Math.toRadians(54)), Units.inchesToMeters(25.80) + robotCenterToEdge*Math.sin(Math.toRadians(54)), new Rotation2d(Math.toRadians(54)));
+        public static final Pose2d HP13 = new Pose2d(Units.inchesToMeters(33.51) + robotCenterToEdge*Math.cos(Math.toRadians(54)), Units.inchesToMeters(291.20) - robotCenterToEdge*Math.sin(Math.toRadians(54)), new Rotation2d(Math.toRadians(306)));
 
         // Red
         public static final Pose2d L6 = new Pose2d(13.65, 2.92, new Rotation2d(Math.toRadians(210)));
@@ -111,8 +111,8 @@ public class Vision extends SubsystemBase {
         public static final Pose2d R10 = new Pose2d(11.78, 3.51, new Rotation2d(Math.toRadians(90)));
         public static final Pose2d R11 = new Pose2d(12.87, 2.67, new Rotation2d(Math.toRadians(150)));
 
-        public static final Pose2d HP1 = new Pose2d(Units.inchesToMeters(657.37) + robotCenterToEdge*Math.cos(54), Units.inchesToMeters(25.80) - robotCenterToEdge*Math.sin(54), new Rotation2d(Math.toRadians(126)));
-        public static final Pose2d HP2 = new Pose2d(Units.inchesToMeters(657.37) + robotCenterToEdge*Math.cos(54), Units.inchesToMeters(291.20) + robotCenterToEdge*Math.sin(54), new Rotation2d(Math.toRadians(234)));
+        public static final Pose2d HP1 = new Pose2d(Units.inchesToMeters(657.37) - robotCenterToEdge*Math.cos(Math.toRadians(54)), Units.inchesToMeters(25.80) + robotCenterToEdge*Math.sin(Math.toRadians(54)), new Rotation2d(Math.toRadians(126)));
+        public static final Pose2d HP2 = new Pose2d(Units.inchesToMeters(657.37) - robotCenterToEdge*Math.cos(Math.toRadians(54)), Units.inchesToMeters(291.20) - robotCenterToEdge*Math.sin(Math.toRadians(54)), new Rotation2d(Math.toRadians(234)));
 
         public static final Pose2d HP6 = new Pose2d(
                 (FieldPositions.R6.getX() + FieldPositions.L6.getX()) / 2,
