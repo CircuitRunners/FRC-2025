@@ -469,18 +469,22 @@ public class Vision extends SubsystemBase {
 
     }
 
-    public List<EstimatedRobotPose> getAllVisionEstimates() {
-        List<EstimatedRobotPose> results = new ArrayList<>();
+    public List<Optional<VisionEstimate>> getAllVisionEstimates(Pose2d prevPose) {
+        List<Optional<VisionEstimate>> estimates = new ArrayList<>();
 
         leftCamera.getAllUnreadResults().forEach(x -> {
-            leftPoseEstimator.update(x).ifPresent(results::add);
+            leftPoseEstimator.update(x).ifPresent(y -> {
+                estimates.add(Optional.of(new VisionEstimate(y.estimatedPose.toPose2d(), y.timestampSeconds, calculateStdValues(y, prevPose))));
+            });
         });
 
         rightCamera.getAllUnreadResults().forEach(x -> {
-            rightPoseEstimator.update(x).ifPresent(results::add);
+            rightPoseEstimator.update(x).ifPresent(y -> {
+                estimates.add(Optional.of(new VisionEstimate(y.estimatedPose.toPose2d(), y.timestampSeconds, calculateStdValues(y, prevPose))));
+            });
         });
 
-        return results;
+        return estimates;
     }
 
     public Optional<VisionEstimate> getEstimatedGlobalPoseRight(Pose2d prevEstimatedRobotPose) {

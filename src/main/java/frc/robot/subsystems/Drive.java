@@ -235,17 +235,23 @@ public class Drive extends SubsystemBase {
 
   @Override
   public void periodic() {
-    var estimatePoseRight = vision.getEstimatedGlobalPoseRight(getPose());
-    var estimatePoseLeft = vision.getEstimatedGlobalPoseLeft(getPose());
-    if (estimatePoseRight.isPresent()){
-      rightCameraPose = estimatePoseRight.get().pose();
-      swerve.addVisionMeasurement(rightCameraPose, Utils.fpgaToCurrentTime(estimatePoseRight.get().timestampSeconds()), estimatePoseRight.get().stdDevs());
+    var poses = vision.getAllVisionEstimates(getPose());
+    // var estimatePoseRight = vision.getEstimatedGlobalPoseRight(getPose());
+    // var estimatePoseLeft = vision.getEstimatedGlobalPoseLeft(getPose());
+    if (poses.size() > 0){
+    poses.forEach(x -> {
+      swerve.addVisionMeasurement(x.get().pose(), Utils.fpgaToCurrentTime(x.get().timestampSeconds()), x.get().stdDevs());
+    });
     }
-    if (estimatePoseLeft.isPresent()){
-      leftCameraPose = estimatePoseLeft.get().pose();
-      swerve.addVisionMeasurement(leftCameraPose, Utils.fpgaToCurrentTime(estimatePoseLeft.get().timestampSeconds()), estimatePoseLeft.get().stdDevs());
+    // if (estimatePoseRight.isPresent()){
+    //   rightCameraPose = estimatePoseRight.get().pose();
+    //   swerve.addVisionMeasurement(rightCameraPose, Utils.fpgaToCurrentTime(estimatePoseRight.get().timestampSeconds()), estimatePoseRight.get().stdDevs());
+    // }
+    // if (estimatePoseLeft.isPresent()){
+    //   leftCameraPose = estimatePoseLeft.get().pose();
+    //   swerve.addVisionMeasurement(leftCameraPose, Utils.fpgaToCurrentTime(estimatePoseLeft.get().timestampSeconds()), estimatePoseLeft.get().stdDevs());
 
-    }
+    // }
 
     SmartDashboard.putNumber("Global Pose X", getPose().getX());
     SmartDashboard.putNumber("Global Pose Y", getPose().getY());
