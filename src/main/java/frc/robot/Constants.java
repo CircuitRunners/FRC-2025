@@ -194,7 +194,7 @@ public final class Constants {
       public static final Translation2d position = new Translation2d(-driveBaseRadiusMeter/2.0,-wheelBase/2.0);// -x,-y
     }
   
-    public static final PathConstraints pathConstraints = new PathConstraints(maxVelocityMPS, 3, maxAngularVelocityRPS, maxAngularAccelerationRPSSq);
+    public static final PathConstraints pathConstraints = new PathConstraints(maxVelocityMPS - 1, 3, maxAngularVelocityRPS, maxAngularAccelerationRPSSq);
     public static final double robotMass = 54.431;
     public static final double MOI = 6.898;
     public static final double wheelCOF = 1.0;
@@ -280,7 +280,7 @@ public final class Constants {
       public static double tolerance = 0.5;
       public static int canRangePort = 2;
       public static double algaeValue = 40 / 5 - encoderOffset;
-      public static double coralSensorRange = 0.05;
+      public static double coralSensorRange = 0.06;
     }
 }
 

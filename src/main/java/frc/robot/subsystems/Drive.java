@@ -143,6 +143,8 @@ public class Drive extends SubsystemBase {
 
   private Pose2d leftCameraPose = new Pose2d();
   private Pose2d rightCameraPose = new Pose2d();
+
+  private Pose2d cameraPose = new Pose2d();
   
   
 
@@ -240,7 +242,8 @@ public class Drive extends SubsystemBase {
     // var estimatePoseLeft = vision.getEstimatedGlobalPoseLeft(getPose());
     if (poses.size() > 0){
     poses.forEach(x -> {
-      swerve.addVisionMeasurement(x.get().pose(), Utils.fpgaToCurrentTime(x.get().timestampSeconds()), x.get().stdDevs());
+      cameraPose = x.get().pose();
+      swerve.addVisionMeasurement(cameraPose, Utils.fpgaToCurrentTime(x.get().timestampSeconds()), x.get().stdDevs());
     });
     }
     // if (estimatePoseRight.isPresent()){

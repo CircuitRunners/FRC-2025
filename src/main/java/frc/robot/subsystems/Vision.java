@@ -73,7 +73,7 @@ public class Vision extends SubsystemBase {
     public static final double yTolerance = .05;
     public static final double thetaTolerance = .05;
 
-    public static final double robotCenterToEdge = Units.inchesToMeters(17.5);
+    public static final double robotCenterToEdge = Units.inchesToMeters(17.5 + 7);
 
     public static class FieldPositions {
         // Robot Positions when lining up to the tags, L means left branch, R means
@@ -452,16 +452,16 @@ public class Vision extends SubsystemBase {
         // double maxTargetAngle = estimate.targetsUsed.stream().mapToDouble(x -> x.bestCameraToTarget.getRotation().getAngle()).max().getAsDouble();
         // System.out.println(maxTargetAngle);
 
-        if (distance > 1){
-            double distanceSquared = distance * distance;
-            xValue*=distanceSquared;
-            yValue*=distanceSquared;
-            rotValue*=distanceSquared;
+        if (tags < 2){
+            xValue*=200;
+            yValue*=200;
+            rotValue*=200;
 
-            if (tags < 2) {
-                xValue*=200;
-                yValue*=200;
-                rotValue*=200;
+            if (distance > 1) {
+             double distanceSquared = distance * distance;
+             xValue*=distanceSquared;
+             yValue*=distanceSquared;
+             rotValue*=distanceSquared;
             }
         }
 

@@ -404,13 +404,22 @@ public class Robot extends TimedRobot {
 
     //overall controls
     manipulatorControls.leftStick().onTrue(new SequentialCommandGroup(new MoveToIntake(elevator, claw, drive), Commands.runOnce(() -> Robot.l4Score = false))).onFalse(Commands.runOnce(() -> {
+      if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){
       drive.setDefaultCommand(drive.driveFieldCentricCommand(() -> 
         driveRequest
           .withVelocityX(driverControls.driveForward())
           .withVelocityY(driverControls.driveStrafe())
           .withRotationalRate(driverControls.driveRotation() * 0.8)  
     ));
-    }));
+    }else if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == DriverStation.Alliance.Red){
+      driverControls = new DriverControls(DriverConstants.driverPort);
+      drive.setDefaultCommand(drive.driveFieldCentricCommand(() -> 
+        driveRequest
+          .withVelocityX(-driverControls.driveForward())
+          .withVelocityY(-driverControls.driveStrafe())
+          .withRotationalRate(driverControls.driveRotation() * 0.8)  
+      ));
+    }}));
 
     // manipulatorControls.rightTrigger().whileTrue(elevator.moveElevatorUp()).onFalse(elevator.resetTargetPos());
     // manipulatorControls.leftTrigger().whileTrue(elevator.moveElevatorDown()).onFalse(elevator.resetTargetPos());

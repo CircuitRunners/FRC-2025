@@ -152,7 +152,7 @@ public class Claw extends SubsystemBase {
     }
 
     public Command autoIntakeCommand() {
-        return runRollersInCommand().until(this::isCoralInClaw).finallyDo(this::stopRoller);
+        return runRollersInSuperFast().until(this::isCoralInClaw).finallyDo(this::stopRoller);
     }
 
     public Command stopRollersCommand() {
