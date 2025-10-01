@@ -274,8 +274,8 @@ public class Robot extends TimedRobot {
         .andThen(new AutonScoreL4(drive, elevator, claw, false))
         .andThen(elevator.moveToBottom())
       );
-    autoChooser.addOption("3 Coral Left Branch", new TripleScore(drive, elevator, claw, true));
-    autoChooser.addOption("3 Coral Right Branch", new TripleScore(drive, elevator, claw, false));
+    autoChooser.addOption("3 Coral Right Side", new TripleScore(drive, elevator, claw, true));
+    autoChooser.addOption("3 Coral Left Side", new TripleScore(drive, elevator, claw, false));
         // .andThen(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, Math.PI)).withTimeout(1).finallyDo(drive::brake)));
       // autoChooser.addOption("scoreL4 auto remove algae no pathplanner",
       // drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.75, 0, 0))

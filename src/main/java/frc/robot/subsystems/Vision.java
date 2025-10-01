@@ -453,9 +453,9 @@ public class Vision extends SubsystemBase {
         // System.out.println(maxTargetAngle);
 
         if (tags < 2){
-            xValue*=200;
-            yValue*=200;
-            rotValue*=200;
+            xValue*=100;
+            yValue*=100;
+            rotValue*=100;
 
             if (distance > 1) {
              double distanceSquared = distance * distance;
