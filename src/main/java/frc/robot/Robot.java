@@ -16,6 +16,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -51,6 +52,8 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.CvSink;
 import edu.wpi.first.cscore.CvSource;
 import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.epilogue.Epilogue;
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.wpilibj.TimedRobot;
 
 import org.opencv.core.Core;
@@ -73,6 +76,7 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import frc.robot.commands.auton.*;
 
+@Logged
 public class Robot extends TimedRobot {
   private Drive drive;
   private Elevator elevator;
@@ -91,9 +95,11 @@ public class Robot extends TimedRobot {
   Thread m_visionThread;
 
 
-  // public Robot() {
-  //   configureAutos();
-  // }
+  public Robot() {
+    // configureAutos();
+    DataLogManager.start();
+    Epilogue.bind(this);
+  }
 
   @Override
   public void robotInit() {
@@ -101,7 +107,7 @@ public class Robot extends TimedRobot {
     configureSubsystems();
     configureAutos();
 
-    DataLogManager.logNetworkTables(false);
+    // DataLogManager.logNetworkTables(false);
     // CameraServer.startAutomaticCapture();
     SmartDashboard.putNumber("time in teleo", timeSinceteleopStart);
 
@@ -142,6 +148,7 @@ public class Robot extends TimedRobot {
     // m_visionThread.start();\
   
     SmartDashboard.putNumber("match time", DriverStation.getMatchTime());
+    //get an accurate starting pose
   }
   
   
@@ -179,7 +186,6 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
-    
   }
 
   @Override
@@ -189,13 +195,13 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousExit() {
-    drive.resetOrientationAuto();
+    //drive.resetOrientationAuto();
   }
 
   @Override
   public void teleopInit() {
     elevator.resetTargetPos().execute();;
-    // drive.resetRotation(new Rotation2d(330));
+    // drive.resetRotation(drive.getRotation2d());
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
@@ -268,6 +274,8 @@ public class Robot extends TimedRobot {
         .andThen(new AutonScoreL4(drive, elevator, claw, false))
         .andThen(elevator.moveToBottom())
       );
+    autoChooser.addOption("3 Coral Left Branch", new TripleScore(drive, elevator, claw, true));
+    autoChooser.addOption("3 Coral Right Branch", new TripleScore(drive, elevator, claw, false));
         // .andThen(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, Math.PI)).withTimeout(1).finallyDo(drive::brake)));
       // autoChooser.addOption("scoreL4 auto remove algae no pathplanner",
       // drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0.75, 0, 0))
@@ -283,9 +291,9 @@ public class Robot extends TimedRobot {
   private void configureBindings() {
     
     // ------------------------------- DRIVER CONTROLS ---------------------------------------------------------
-    
     SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
     .withDriveRequestType(DriveRequestType.OpenLoopVoltage).withDeadband(DriverConstants.stickDeadband);
+    if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){
     driverControls = new DriverControls(DriverConstants.driverPort);
     drive.setDefaultCommand(drive.driveFieldCentricCommand(() -> 
       driveRequest
@@ -293,6 +301,22 @@ public class Robot extends TimedRobot {
         .withVelocityY(driverControls.driveStrafe())
         .withRotationalRate(driverControls.driveRotation() * 0.8)  
     ));
+    }
+    else if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == DriverStation.Alliance.Red){
+      driverControls = new DriverControls(DriverConstants.driverPort);
+      drive.setDefaultCommand(drive.driveFieldCentricCommand(() -> 
+        driveRequest
+          .withVelocityX(-driverControls.driveForward())
+          .withVelocityY(-driverControls.driveStrafe())
+          .withRotationalRate(driverControls.driveRotation() * 0.8)  
+      ));
+    }
+//     drive.setDefaultCommand(drive.driveFieldCentricCommand(() -> //use for debugging in case controls flip again in shop, If the robot moves forward correctly, yoystick mapping is the problem, If it moves backward, your field frame vs driver frame is inverted.
+//     driveRequest
+//     .withVelocityX(1)
+//     .withVelocityY(0)
+//     .withRotationalRate(0)
+// ));
     // driverControls.increaseLimit().onTrue(drive.increaseLimitCommand());
     // driverControls.decreaseLimit().onTrue(drive.decreaseLimitCommand());
     // 
@@ -320,8 +344,11 @@ public class Robot extends TimedRobot {
     // driverControls.x().whileTrue(drive.hpAlign(true));
     // driverControls.b().whileTrue(drive.hpAlign(false));
 
-    driverControls.a().whileTrue(drive.autoAlignCommand(true,() -> false, ()->false, ()-> true));
-    driverControls.y().whileTrue(drive.autoAlignCommand(false,() -> false, ()->false, ()-> true));
+    //driverControls.a().whileTrue(drive.autoAlignCommand(true,() -> false, ()->false, ()-> true));
+    //driverControls.y().whileTrue(drive.autoAlignCommand(false,() -> false, ()->false, ()-> true));
+
+    driverControls.y().whileTrue(drive.autoAlignNearestHPCommand());
+    driverControls.a().whileTrue(drive.PPHPAlign());
 
     driverControls.rightTrigger().whileTrue(new SequentialCommandGroup(
       drive.autoAlignCommand(false, () -> Robot.l4, () -> Robot.l4Score))
@@ -377,13 +404,22 @@ public class Robot extends TimedRobot {
 
     //overall controls
     manipulatorControls.leftStick().onTrue(new SequentialCommandGroup(new MoveToIntake(elevator, claw, drive), Commands.runOnce(() -> Robot.l4Score = false))).onFalse(Commands.runOnce(() -> {
+      if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){
       drive.setDefaultCommand(drive.driveFieldCentricCommand(() -> 
         driveRequest
           .withVelocityX(driverControls.driveForward())
           .withVelocityY(driverControls.driveStrafe())
           .withRotationalRate(driverControls.driveRotation() * 0.8)  
     ));
-    }));
+    }else if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == DriverStation.Alliance.Red){
+      driverControls = new DriverControls(DriverConstants.driverPort);
+      drive.setDefaultCommand(drive.driveFieldCentricCommand(() -> 
+        driveRequest
+          .withVelocityX(-driverControls.driveForward())
+          .withVelocityY(-driverControls.driveStrafe())
+          .withRotationalRate(driverControls.driveRotation() * 0.8)  
+      ));
+    }}));
 
     // manipulatorControls.rightTrigger().whileTrue(elevator.moveElevatorUp()).onFalse(elevator.resetTargetPos());
     // manipulatorControls.leftTrigger().whileTrue(elevator.moveElevatorDown()).onFalse(elevator.resetTargetPos());
