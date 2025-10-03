@@ -107,6 +107,8 @@ public class Robot extends TimedRobot {
     configureSubsystems();
     configureAutos();
 
+    
+
     // DataLogManager.logNetworkTables(false);
     // CameraServer.startAutomaticCapture();
     SmartDashboard.putNumber("time in teleo", timeSinceteleopStart);

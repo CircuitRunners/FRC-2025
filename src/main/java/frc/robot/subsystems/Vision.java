@@ -31,6 +31,7 @@ import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -58,6 +59,8 @@ import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
+
+import com.ctre.phoenix6.Utils;
 
 public class Vision extends SubsystemBase {
     public static record VisionEstimate(Pose2d pose, double timestampSeconds, Vector<N3> stdDevs){}
@@ -225,6 +228,8 @@ public class Vision extends SubsystemBase {
     private PhotonPoseEstimator leftPoseEstimator;
     private int latestID;
     private Pose2d reefDstPose;
+
+    private Translation2d reefCenter;
     // private static Transform3d rightCameraTransform = new
     // Transform3d(.177,-.299,.223+0.036073,new
     // Rotation3d(0,11.508393*0.01745329,31.474949*0.01745329));
@@ -446,23 +451,25 @@ public class Vision extends SubsystemBase {
         double xValue = 0.1;
         double yValue = 0.1;
         double rotValue = 0.1;
-        double distance = estimate.estimatedPose.toPose2d().getTranslation().getDistance(currentPose.getTranslation());
+        double distance = drive.getPose().getTranslation().getDistance(getReefCenter());
         int tags = estimate.targetsUsed.size();
         // double averageAmbiguity = estimate.targetsUsed.stream().mapToDouble(x -> x.poseAmbiguity).average().getAsDouble();
         // double maxTargetAngle = estimate.targetsUsed.stream().mapToDouble(x -> x.bestCameraToTarget.getRotation().getAngle()).max().getAsDouble();
         // System.out.println(maxTargetAngle);
 
-        if (tags < 2){
-            xValue*=100;
-            yValue*=100;
-            rotValue*=100;
+        if (tags < 2 && distance > 1.3){
+            distance = distance * 1.8;
+            distance = Math.pow(distance, 5);
+            xValue*=distance;
+            yValue*=distance;
+            rotValue*=distance;
+        }
 
-            if (distance > 1) {
-             double distanceSquared = distance * distance;
-             xValue*=distanceSquared;
-             yValue*=distanceSquared;
-             rotValue*=distanceSquared;
-            }
+        if (tags > 1 && distance > 3.5){
+            distance = Math.pow(distance, 2);
+            xValue*=distance;
+            yValue*=distance;
+            rotValue*=distance;
         }
 
         return VecBuilder.fill(xValue, yValue, rotValue);
@@ -486,6 +493,17 @@ public class Vision extends SubsystemBase {
 
         return estimates;
     }
+
+    public Translation2d getReefCenter(){
+        if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){
+            reefCenter = new Translation2d(Units.inchesToMeters(176.745), Units.inchesToMeters(158.5));
+        }
+        else if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == DriverStation.Alliance.Red){
+            reefCenter = new Translation2d(Units.inchesToMeters(514.13), Units.inchesToMeters(158.5));
+        }
+        return reefCenter;
+    }
+    
 
     public Optional<VisionEstimate> getEstimatedGlobalPoseRight(Pose2d prevEstimatedRobotPose) {
         // 1) Grab latest results

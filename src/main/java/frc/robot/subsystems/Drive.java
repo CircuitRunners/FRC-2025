@@ -33,7 +33,9 @@ import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.Waypoint;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -102,15 +104,15 @@ public class Drive extends SubsystemBase {
 
 
   public static final double leftL4AlignmentX = 0.7;
-  public static final double leftAlignmentX = 0.4445;
-  public static final double leftL4ScoreAlignmentX = 0.5;   
+  public static final double leftAlignmentX = 0.4045;
+  public static final double leftL4ScoreAlignmentX = 0.46;   
   public static final double leftAlignmentY = -0.17;
 
 
   public static final double rightL4AlignmentX = leftL4AlignmentX;
   public static final double rightAlignmentX = leftAlignmentX;
   public static final double rightL4ScoreAlignmentX = leftL4ScoreAlignmentX;
-  public static final double rightAlignmentY = 0.15;
+  public static final double rightAlignmentY = 0.17;
 
   public static final double thetaAlignment = 0;
 
@@ -233,6 +235,16 @@ public class Drive extends SubsystemBase {
 
     vision = new Vision(this);
     //swerve.setVisionMeasurementStdDevs(VecBuilder.fill(0.9, 0.9, Math.toRadians(0.9))); Uncomment and tweak if needed. Increasing values trusts vision less
+    var poses = vision.getAllVisionEstimates(getPose());
+    // var estimatePoseRight = vision.getEstimatedGlobalPoseRight(getPose());
+    // var estimatePoseLeft = vision.getEstimatedGlobalPoseLeft(getPose());
+    if (poses.size() > 0){
+    poses.forEach(x -> {
+      cameraPose = x.get().pose();
+      swerve.addVisionMeasurement(cameraPose, Utils.fpgaToCurrentTime(x.get().timestampSeconds()), VecBuilder.fill(0.1,0.1,0.1));
+    });
+  };
+
   }
 
   @Override
