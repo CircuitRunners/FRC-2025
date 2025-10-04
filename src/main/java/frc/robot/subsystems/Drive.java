@@ -280,7 +280,7 @@ public class Drive extends SubsystemBase {
   }
   public void seedFieldCentric() {
     // swerve.seedFieldCentric();
-    swerve.resetRotation(new Rotation2d(Math.toRadians(0)));
+    swerve.resetRotation(new Rotation2d(Math.toRadians(180)));
   }
 
   public void resetOrientationAuto() {
