@@ -20,17 +20,20 @@ public class TripleScore extends SequentialCommandGroup{
         addCommands(
         new AutonScoreL43Coral(drive, elevator, claw, left),
         new ParallelCommandGroup(drive.PPHPAlign(), new MoveToIntake(elevator, claw, drive)),
-        new SequentialCommandGroup(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, 0)).withTimeout(0.05).andThen(claw.autoIntakeCommand().until(() -> claw.isCoralInClaw()).withTimeout(1.5)).andThen(Commands.either(claw.runRollersInCommand().withTimeout(.2), jiggle().repeatedly().until(claw::isCoralInClaw).andThen(claw.runRollersInCommand().withTimeout(.2)), claw::isCoralInClaw)).finallyDo(claw::stopRoller)),
+        new SequentialCommandGroup(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, 0)).withTimeout(0.05).andThen(claw.autoIntakeCommand().until(() -> claw.isCoralInClaw()).withTimeout(1.5)).andThen(Commands.either(claw.runRollersInCommand().withTimeout(.2), jiggle(drive).alongWith(claw.autoIntakeCommand()).repeatedly().until(claw::isCoralInClaw).andThen(claw.runRollersInCommand().withTimeout(.2)), claw::isCoralInClaw)).finallyDo(claw::stopRoller)),
         new AutonScoreL43Coral(drive, elevator, claw, true),
         new ParallelCommandGroup(drive.PPHPAlign(), new MoveToIntake(elevator, claw, drive)),
-        new SequentialCommandGroup(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, 0)).withTimeout(0.05).andThen(claw.autoIntakeCommand().until(() -> claw.isCoralInClaw()).withTimeout(1.5)).andThen(Commands.either(claw.runRollersInCommand().withTimeout(.2), jiggle().repeatedly().until(claw::isCoralInClaw).andThen(claw.runRollersInCommand().withTimeout(.2)), claw::isCoralInClaw)).finallyDo(claw::stopRoller)),
+        new SequentialCommandGroup(drive.driveRobotCentricCommand(() -> new ChassisSpeeds(0, 0, 0)).withTimeout(0.05).andThen(claw.autoIntakeCommand().until(() -> claw.isCoralInClaw()).withTimeout(1.5)).andThen(Commands.either(claw.runRollersInCommand().withTimeout(.2), jiggle(drive).alongWith(claw.autoIntakeCommand()).repeatedly().until(claw::isCoralInClaw).andThen(claw.runRollersInCommand().withTimeout(.2)), claw::isCoralInClaw)).finallyDo(claw::stopRoller)),
         new AutonScoreL43Coral(drive, elevator, claw, false),
         new MoveToIntake(elevator, claw, drive)
         );
     }
-    public Command jiggle() {
-        return drive.driveRobotCentricCommand(() -> ChassisSpeeds.fromRobotRelativeSpeeds(2, 0, 0, drive.getRotation2d())).withTimeout(0.1).andThen(drive.driveRobotCentricCommand(() -> ChassisSpeeds.fromRobotRelativeSpeeds(-2, 0, 0, drive.getRotation2d())).withTimeout(0.1))
-        .andThen(drive.driveRobotCentricCommand(() -> ChassisSpeeds.fromRobotRelativeSpeeds(0, 2, 0, drive.getRotation2d())).withTimeout(0.1).andThen(drive.driveRobotCentricCommand(() -> ChassisSpeeds.fromRobotRelativeSpeeds(0, -2, 0, drive.getRotation2d())).withTimeout(0.1)));
+    public static Command jiggle(Drive drive) {
+        return new SequentialCommandGroup(
+            drive.driveRobotCentricInstantCommand(() -> new ChassisSpeeds(2, 0, 0)).withTimeout(0.3),
+            drive.driveRobotCentricInstantCommand(() -> new ChassisSpeeds(0, 0, 0)).withTimeout(0.1),
+            drive.driveRobotCentricInstantCommand(() -> new ChassisSpeeds(-3, 0, 0)).withTimeout(0.7)
+        );
     }
 
 }

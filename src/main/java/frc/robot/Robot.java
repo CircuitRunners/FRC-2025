@@ -107,7 +107,7 @@ public class Robot extends TimedRobot {
     configureSubsystems();
     configureAutos();
 
-    
+
 
     // DataLogManager.logNetworkTables(false);
     // CameraServer.startAutomaticCapture();
@@ -349,8 +349,9 @@ public class Robot extends TimedRobot {
     //driverControls.a().whileTrue(drive.autoAlignCommand(true,() -> false, ()->false, ()-> true));
     //driverControls.y().whileTrue(drive.autoAlignCommand(false,() -> false, ()->false, ()-> true));
 
-    driverControls.y().whileTrue(drive.autoAlignNearestHPCommand());
+    //driverControls.y().whileTrue(drive.autoAlignNearestHPCommand());
     driverControls.a().whileTrue(drive.PPHPAlign());
+    driverControls.y().whileTrue(TripleScore.jiggle(drive).alongWith(claw.autoIntakeCommand()));
 
     driverControls.rightTrigger().whileTrue(new SequentialCommandGroup(
       drive.autoAlignCommand(false, () -> Robot.l4, () -> Robot.l4Score))
@@ -368,6 +369,8 @@ public class Robot extends TimedRobot {
       drive.autoAlignCommand(true, () -> true, () -> true).withTimeout(0.001),
       drive.autoAlignCommand(true, () -> true, () -> true))
     );
+
+    driverControls.start().onTrue(Commands.runOnce(() -> drive.resetPose(drive.cameraPose)));
 
     // driverControls.back().onTrue(drive.toggleSysIdMode());
     

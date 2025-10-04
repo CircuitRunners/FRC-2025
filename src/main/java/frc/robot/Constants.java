@@ -280,7 +280,7 @@ public final class Constants {
       public static double tolerance = 0.5;
       public static int canRangePort = 2;
       public static double algaeValue = 40 / 5 - encoderOffset;
-      public static double coralSensorRange = 0.06;
+      public static double coralSensorRange = 0.055;
     }
 }
 

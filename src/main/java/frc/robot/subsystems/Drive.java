@@ -146,7 +146,7 @@ public class Drive extends SubsystemBase {
   private Pose2d leftCameraPose = new Pose2d();
   private Pose2d rightCameraPose = new Pose2d();
 
-  private Pose2d cameraPose = new Pose2d();
+  public Pose2d cameraPose = new Pose2d();
   
   
 
@@ -234,16 +234,19 @@ public class Drive extends SubsystemBase {
     holonomicController.setTolerance(new Pose2d(0.05, 0.05, new Rotation2d(0.05)));
 
     vision = new Vision(this);
-    //swerve.setVisionMeasurementStdDevs(VecBuilder.fill(0.9, 0.9, Math.toRadians(0.9))); Uncomment and tweak if needed. Increasing values trusts vision less
-    var poses = vision.getAllVisionEstimates(getPose());
-    // var estimatePoseRight = vision.getEstimatedGlobalPoseRight(getPose());
-    // var estimatePoseLeft = vision.getEstimatedGlobalPoseLeft(getPose());
-    if (poses.size() > 0){
-    poses.forEach(x -> {
-      cameraPose = x.get().pose();
-      swerve.addVisionMeasurement(cameraPose, Utils.fpgaToCurrentTime(x.get().timestampSeconds()), VecBuilder.fill(0.1,0.1,0.1));
-    });
-  };
+  //   for(int i = 0; i < 10; i ++) {
+  //     var poses = vision.getAllVisionEstimates(getPose());
+  //     // var estimatePoseRight = vision.getEstimatedGlobalPoseRight(getPose());
+  //     // var estimatePoseLeft = vision.getEstimatedGlobalPoseLeft(getPose());
+  //     if (poses.size() > 0){
+  //     poses.forEach(x -> {
+  //       cameraPose = x.get().pose();
+  //       swerve.addVisionMeasurement(cameraPose, Utils.fpgaToCurrentTime(x.get().timestampSeconds()), VecBuilder.fill(0.01,0.01,0.01));
+  //     });
+  //     Commands.waitSeconds(0.2).execute();
+  //   }
+  //   swerve.resetPose(cameraPose);
+  // };
 
   }
 
@@ -312,6 +315,20 @@ public class Drive extends SubsystemBase {
         // .withVelocityY(speeds.vyMetersPerSecond)
       .withRotationalRate(speeds.omegaRadiansPerSecond * 0.5)
     );
+  }
+    
+    public void driveRobotCentricInstant(ChassisSpeeds speeds){
+      setTime = (new Date()).getTime();
+      swerve.setControl(
+        SwerveConfig.robotCentric
+        .withVelocityX(speeds.vxMetersPerSecond)
+        .withVelocityY(speeds.vyMetersPerSecond)
+      .withRotationalRate(speeds.omegaRadiansPerSecond * 0.5)
+    );
+  }
+
+  public Command driveRobotCentricInstantCommand(Supplier<ChassisSpeeds> speeds) {
+    return run(() -> driveRobotCentricInstant(speeds.get()));
   }
 
   public void brake(){
@@ -506,17 +523,17 @@ public class Drive extends SubsystemBase {
       thetaController.setGoal(targetTheta);
     },() -> {
       // Get the latest vision measurement (robot pose in tag space)
-      Optional<Pose2d> visionOpt = vision.getRobotInTagSpace(left);
+      // Optional<Pose2d> visionOpt = vision.getRobotInTagSpace(left);
      
-      if (visionOpt.isPresent()) {
-        Pose2d visionPose = visionOpt.get();
+      // if (visionOpt.isPresent()) {
+        // Pose2d visionPose = visionOpt.get();
        
        
         // Calculate corrections using your PID controllers
-        double xPower = xController.calculate(visionPose.getX());
-        double yPower = yController.calculate(visionPose.getY());
-        double thetaPower = thetaController.calculate(visionPose.getRotation().getRadians());
-       
+        double xPower = xController.calculate(getPose().getX()); // switched to using odo with vision update rather than direct drive vision
+        double yPower = yController.calculate(getPose().getY()); // switched to using odo with vision update rather than direct drive vision
+        double thetaPower = thetaController.calculate(getPose().getRotation().getRadians()); // switched to using odo with vision update rather than direct drive vision
+        
         // Publish debug values to SmartDashboard (optional)
         SmartDashboard.putNumber("AutoAlign/xError", xController.getPositionError());
         SmartDashboard.putNumber("AutoAlign/yError", yController.getPositionError());
@@ -531,10 +548,10 @@ public class Drive extends SubsystemBase {
             Math.max(-2, Math.min(2, -yPower)),
             thetaPower
         ));
-      } else {
-        // If no vision data is available, stop the robot
-        driveRobotCentric(new ChassisSpeeds(0, 0, 0));
-      }
+      // } else {
+      //   // If no vision data is available, stop the robot
+      //   driveRobotCentric(new ChassisSpeeds(0, 0, 0));
+      // }
     }).until(() -> {
       // Terminate when the vision measurements are within the set tolerances
       return xController.atSetpoint() &&
