@@ -112,7 +112,7 @@ public class Drive extends SubsystemBase {
   public static final double rightL4AlignmentX = leftL4AlignmentX;
   public static final double rightAlignmentX = leftAlignmentX;
   public static final double rightL4ScoreAlignmentX = leftL4ScoreAlignmentX;
-  public static final double rightAlignmentY = 0.17;
+  public static final double rightAlignmentY = 0.16;
 
   public static final double thetaAlignment = 0;
 
