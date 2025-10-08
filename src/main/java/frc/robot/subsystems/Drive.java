@@ -523,17 +523,17 @@ public class Drive extends SubsystemBase {
       thetaController.setGoal(targetTheta);
     },() -> {
       // Get the latest vision measurement (robot pose in tag space)
-      // Optional<Pose2d> visionOpt = vision.getRobotInTagSpace(left);
+      Optional<Pose2d> visionOpt = vision.getRobotInTagSpace(left);
      
-      // if (visionOpt.isPresent()) {
-        // Pose2d visionPose = visionOpt.get();
+      if (visionOpt.isPresent()) {
+        Pose2d visionPose = visionOpt.get();
        
        
         // Calculate corrections using your PID controllers
-        double xPower = xController.calculate(getPose().getX()); // switched to using odo with vision update rather than direct drive vision
-        double yPower = yController.calculate(getPose().getY()); // switched to using odo with vision update rather than direct drive vision
-        double thetaPower = thetaController.calculate(getPose().getRotation().getRadians()); // switched to using odo with vision update rather than direct drive vision
-        
+        double xPower = xController.calculate(visionPose.getX());
+        double yPower = yController.calculate(visionPose.getY());
+        double thetaPower = thetaController.calculate(visionPose.getRotation().getRadians());
+       
         // Publish debug values to SmartDashboard (optional)
         SmartDashboard.putNumber("AutoAlign/xError", xController.getPositionError());
         SmartDashboard.putNumber("AutoAlign/yError", yController.getPositionError());
@@ -548,10 +548,10 @@ public class Drive extends SubsystemBase {
             Math.max(-2, Math.min(2, -yPower)),
             thetaPower
         ));
-      // } else {
-      //   // If no vision data is available, stop the robot
-      //   driveRobotCentric(new ChassisSpeeds(0, 0, 0));
-      // }
+      } else {
+        // If no vision data is available, stop the robot
+        driveRobotCentric(new ChassisSpeeds(0, 0, 0));
+      }
     }).until(() -> {
       // Terminate when the vision measurements are within the set tolerances
       return xController.atSetpoint() &&
