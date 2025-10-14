@@ -164,6 +164,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putBoolean("L4 Score", l4Score);
     SmartDashboard.putNumber("match time", DriverStation.getMatchTime());
     speedLimit = SmartDashboard.getNumber("Speed Limit", 0.1);
+    SmartDashboard.putString("Speed Limit Info", "Type the speed limit and then PRESS ENTER");
   }
 
   @Override
