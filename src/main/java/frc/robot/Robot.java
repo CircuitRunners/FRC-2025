@@ -81,6 +81,7 @@ public class Robot extends TimedRobot {
   private ManipulatorControls manipulatorControls;
   private Command m_autonomousCommand;
   private SendableChooser<Command> autoChooser = new SendableChooser<>();
+  private double speedLimit = 0.1;
 
   private static boolean l4 = true;
   private static boolean l4Score = false;
@@ -142,6 +143,7 @@ public class Robot extends TimedRobot {
     // m_visionThread.start();\
   
     SmartDashboard.putNumber("match time", DriverStation.getMatchTime());
+    SmartDashboard.putNumber("Speed Limit", speedLimit);
   }
   
   
@@ -161,6 +163,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putBoolean("Auto Align to L4", l4);
     SmartDashboard.putBoolean("L4 Score", l4Score);
     SmartDashboard.putNumber("match time", DriverStation.getMatchTime());
+    speedLimit = SmartDashboard.getNumber("Speed Limit", 0.1);
   }
 
   @Override
@@ -289,9 +292,9 @@ public class Robot extends TimedRobot {
     driverControls = new DriverControls(DriverConstants.driverPort);
     drive.setDefaultCommand(drive.driveFieldCentricCommand(() -> 
       driveRequest
-        .withVelocityX(driverControls.driveForward())
-        .withVelocityY(driverControls.driveStrafe())
-        .withRotationalRate(driverControls.driveRotation() * 0.8)  
+      .withVelocityX(driverControls.driveForward() * speedLimit)
+      .withVelocityY(driverControls.driveStrafe() * speedLimit)
+      .withRotationalRate(driverControls.driveRotation() * 0.8 * speedLimit)  
     ));
     // driverControls.increaseLimit().onTrue(drive.increaseLimitCommand());
     // driverControls.decreaseLimit().onTrue(drive.decreaseLimitCommand());
@@ -379,9 +382,9 @@ public class Robot extends TimedRobot {
     manipulatorControls.leftStick().onTrue(new SequentialCommandGroup(new MoveToIntake(elevator, claw, drive), Commands.runOnce(() -> Robot.l4Score = false))).onFalse(Commands.runOnce(() -> {
       drive.setDefaultCommand(drive.driveFieldCentricCommand(() -> 
         driveRequest
-          .withVelocityX(driverControls.driveForward())
-          .withVelocityY(driverControls.driveStrafe())
-          .withRotationalRate(driverControls.driveRotation() * 0.8)  
+          .withVelocityX(driverControls.driveForward() * speedLimit)
+          .withVelocityY(driverControls.driveStrafe() * speedLimit)
+          .withRotationalRate(driverControls.driveRotation() * 0.8 * speedLimit)  
     ));
     }));
 
