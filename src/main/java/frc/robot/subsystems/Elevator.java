@@ -29,6 +29,9 @@ extends SubsystemBase {
     private String targetState;
     private boolean running;
     public boolean manual;
+    private double kP;
+    private double kI;
+    private double kD;
 
     public Elevator(){
         //Initialize motors with correct ports
@@ -45,13 +48,13 @@ extends SubsystemBase {
         targetPos = getElevatorPos();
 
         //Tunes the PID gains- Adjust for better control and movement of elevator
-        double kp = 0.06; //Proportional (Increase the number if moving too slow, decrease if oscillating)  NEEDS TO BE TUNED
-        double ki = 0.0; //Integral (Stays at 0 unless there's a steady-state error)  NEEDS TO BE TUNED
-        double kd = 0; //Derivate (Increase if overshoot target, decrease if sluggish/slow)  NEEDS TO BE TUNED
+        kP = 0.7; //Proportional (Increase the number if moving too slow, decrease if oscillating)  NEEDS TO BE TUNED
+        kI = 0.0; //Integral (Stays at 0 unless there's a steady-state error)  NEEDS TO BE TUNED
+        kD = 0; //Derivate (Increase if overshoot target, decrease if sluggish/slow)  NEEDS TO BE TUNED
         
         //Initialize PID controller with motion constraints
-        pidController = new ProfiledPIDController(kp, ki, kd, new TrapezoidProfile.Constraints(600, 2400));
-        pidController.setTolerance(6); //Acceptable error range
+        pidController = new ProfiledPIDController(kP, kI, kD, new TrapezoidProfile.Constraints(600, 2400));
+        pidController.setTolerance(.00001); //Acceptable error range
     }
 
     // Move the elevator to the specified position
@@ -146,7 +149,7 @@ extends SubsystemBase {
         return run(() -> {
             this.manual = true;
             SmartDashboard.putString("state", "moving");
-            elevatorSparkMax1.set(-0.5);});
+            elevatorSparkMax1.set(-0.5);}).finallyDo(() -> elevatorSparkMax1.set(0));
     }
 
     public Command moveElevatorDown() {
@@ -185,15 +188,16 @@ extends SubsystemBase {
     public void periodic(){
         if (manual == false) {
             if (targetPos > getElevatorPos()) {
-                pidController.setP(0.02);
+                pidController.setP(kP/10);
             } else {
-                pidController.setP(0.1);
+                pidController.setP(kP);
+            }
+            if (targetPos == ElevatorConstants.l4EncoderValue) {
+                pidController.setP(kP/1.25);
             }
             var output = pidController.calculate(getElevatorPos(), this.targetPos);
-            if (targetPos == ElevatorConstants.l4EncoderValue) {
-                output = Math.max(-0.75, Math.min(0.75, output));
-            }
             elevatorSparkMax1.set(output);
+            SmartDashboard.putNumber("elevator pid", output);
         }
 
         SmartDashboard.putNumber("elevator position",getElevatorPos());
@@ -205,7 +209,7 @@ extends SubsystemBase {
         SmartDashboard.putNumber("motor current", elevatorSparkMax1.getOutputCurrent());
         // SmartDashboard.putNumber("output", output);
         SmartDashboard.putBoolean("running", running);
-        SmartDashboard.updateValues();
+        SmartDashboard.updateValues();  
     }
 
     public static class MoveElevatorCommand extends Command {

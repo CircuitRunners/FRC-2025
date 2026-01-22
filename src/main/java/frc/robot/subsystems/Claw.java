@@ -41,15 +41,15 @@ public class Claw extends SubsystemBase {
         SparkBaseConfig r2mConfig = new SparkMaxConfig().follow(ClawConstants.rollerMotorPort1,true).idleMode(IdleMode.kCoast).smartCurrentLimit(30);
         roller1Motor.configure(r1mConfig, null, null);
         roller2Motor.configure(r2mConfig, null, null);
-
+        //moveMotor.configure(new SparkMaxConfig().idleMode(IdleMode.kCoast).smartCurrentLimit(30), null, null);
         canRangeSensor = new CANrange(ClawConstants.canRangePort);
 
-        double constP = 0.045; // proportional coefficient gain
+        double constP = 1.0; // proportional coefficient gain
         double constI = 0; // integral coefficient gain
         double constD = 0; // derivative coefficient gain
 
         pidController = new PIDController(constP, constI, constD);
-        pidController.setTolerance(5);
+        pidController.setTolerance(0.00001);
 
         clawEncoder = moveMotor.getEncoder();
         targetPos = clawEncoder.getPosition(); // initialize targetPos so PID doesn't try calculating with a null value
@@ -231,6 +231,7 @@ public class Claw extends SubsystemBase {
         if(this.manual == false) {
             double output = pidController.calculate(getClawPos(), this.targetPos);
             moveMotor.set(output);
+            SmartDashboard.putNumber("claw output", output);
         }
         SmartDashboard.updateValues();
     }

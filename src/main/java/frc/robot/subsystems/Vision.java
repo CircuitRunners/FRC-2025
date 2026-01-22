@@ -242,45 +242,45 @@ private static final Map<Pose2d, Integer> rightDepositMapping = new HashMap<>() 
         leftCameraSim.enableProcessedStream(true);
     }
 
-    @Override
-    public void periodic() {
+    // @Override
+    // public void periodic() {
 
-        var rightPose = getRobotInTagSpace(true);
-        SmartDashboard.putBoolean("Subsystem/posePresent", rightPose.isPresent());
-        SmartDashboard.putString("tagPose", rightPose.toString());
+    //     var rightPose = getRobotInTagSpace(true);
+    //     SmartDashboard.putBoolean("Subsystem/posePresent", rightPose.isPresent());
+    //     SmartDashboard.putString("tagPose", rightPose.toString());
 
-        var leftPose = getRobotInTagSpace(false); // Use left camera for left-side alignment
-        SmartDashboard.putBoolean("Subsystem/leftPosePresent", leftPose.isPresent());
-        SmartDashboard.putString("leftTagPose", leftPose.toString());
+    //     var leftPose = getRobotInTagSpace(false); // Use left camera for left-side alignment
+    //     SmartDashboard.putBoolean("Subsystem/leftPosePresent", leftPose.isPresent());
+    //     SmartDashboard.putString("leftTagPose", leftPose.toString());
 
-        if (rightPose != null && rightPose.isPresent()) {
-            reefDstPose = rightPose.get();
-            reefTagDisp.set(reefDstPose);
+    //     if (rightPose != null && rightPose.isPresent()) {
+    //         reefDstPose = rightPose.get();
+    //         reefTagDisp.set(reefDstPose);
 
-            SmartDashboard.putBoolean("Subsystem/ALIGNED",
-                (((Math.abs(reefDstPose.getX() - leftAlignmentX) < xTolerance)
-                    && (Math.abs(reefDstPose.getY() - leftAlignmentY) < yTolerance)
-                    && (Math.abs(reefDstPose.getRotation().getRadians() - thetaAlignment) < thetaTolerance))
-                    || ((Math.abs(reefDstPose.getX() - rightAlignmentX) < xTolerance)
-                        && (Math.abs(reefDstPose.getY() - rightAlignmentY) < yTolerance)
-                        && (Math.abs(reefDstPose.getRotation().getRadians() - thetaAlignment) < thetaTolerance))));
+    //         SmartDashboard.putBoolean("Subsystem/ALIGNED",
+    //             (((Math.abs(reefDstPose.getX() - leftAlignmentX) < xTolerance)
+    //                 && (Math.abs(reefDstPose.getY() - leftAlignmentY) < yTolerance)
+    //                 && (Math.abs(reefDstPose.getRotation().getRadians() - thetaAlignment) < thetaTolerance))
+    //                 || ((Math.abs(reefDstPose.getX() - rightAlignmentX) < xTolerance)
+    //                     && (Math.abs(reefDstPose.getY() - rightAlignmentY) < yTolerance)
+    //                     && (Math.abs(reefDstPose.getRotation().getRadians() - thetaAlignment) < thetaTolerance))));
 
-            SmartDashboard.putBoolean("Subsystem/Vision_CAN_ALIGN",
-                latestID != -1 && FieldPositions.isReefID(latestID)
-                    && rightPose.get().getX() < maxAlignmentDistance);
+    //         SmartDashboard.putBoolean("Subsystem/Vision_CAN_ALIGN",
+    //             latestID != -1 && FieldPositions.isReefID(latestID)
+    //                 && rightPose.get().getX() < maxAlignmentDistance);
 
-        } else {
-            SmartDashboard.putBoolean("Subsystem/Vision_CAN_ALIGN", false);
-            SmartDashboard.putBoolean("Subsystem/ALIGNED", false);
-        }
+    //     } else {
+    //         SmartDashboard.putBoolean("Subsystem/Vision_CAN_ALIGN", false);
+    //         SmartDashboard.putBoolean("Subsystem/ALIGNED", false);
+    //     }
 
-        var result = rightCamera.getLatestResult();
-        if (result != null && result.hasTargets()) {
-            latestID = result.getBestTarget().getFiducialId();
-        } else {
-            latestID = -1;
-        }
-    }
+    //     var result = rightCamera.getLatestResult();
+    //     if (result != null && result.hasTargets()) {
+    //         latestID = result.getBestTarget().getFiducialId();
+    //     } else {
+    //         latestID = -1;
+    //     }
+    // }
 
     public int getBestTag(boolean left) {
         List<PhotonTrackedTarget> targetsSeen = getTargetsSeen(left);

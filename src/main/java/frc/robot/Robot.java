@@ -165,6 +165,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("match time", DriverStation.getMatchTime());
     speedLimit = SmartDashboard.getNumber("Speed Limit", 0.1);
     SmartDashboard.putString("Speed Limit Info", "Type the speed limit and then PRESS ENTER");
+    SmartDashboard.putData(CommandScheduler.getInstance());
   }
 
   @Override
@@ -364,9 +365,9 @@ public class Robot extends TimedRobot {
     manipulatorControls.start().onTrue(claw.runRollersInSuperFast()).onFalse(claw.stopRollersCommand());
     // manipulatorControls.moveClawL4().onTrue(claw.moveClawToL4Command());
     // manipulatorControls.scoreL4Algae2().onTrue(new ScoreL4Algae(elevator, claw));
-    manipulatorControls.Algae1().onTrue(new Algae1(elevator, claw));
+    // manipulatorControls.Algae1().onTrue(new Algae1(elevator, claw));
     
-    manipulatorControls.Algae2().onTrue(new Algae2(elevator, claw));
+    // manipulatorControls.Algae2().onTrue(new Algae2(elevator, claw));
     manipulatorControls.scoreL4().whileTrue(new ScoreL4(elevator, claw));
     manipulatorControls.x().onTrue(claw.runRollersInSlowCommand()).onFalse(claw.stopRollersCommand());
     // manipulatorControls.x().onTrue(claw.moveClawToHorizontalCommand()); 
@@ -389,10 +390,10 @@ public class Robot extends TimedRobot {
     ));
     }));
 
-    // manipulatorControls.rightTrigger().whileTrue(elevator.moveElevatorUp()).onFalse(elevator.resetTargetPos());
-    // manipulatorControls.leftTrigger().whileTrue(elevator.moveElevatorDown()).onFalse(elevator.resetTargetPos());
+   //manipulatorControls.rightTrigger().whileTrue(elevator.moveElevatorUp());//.onFalse(elevator.resetTargetPos());
+   //manipulatorControls.leftTrigger().whileTrue(elevator.moveElevatorDown());//.onFalse(elevator.resetTargetPos());
 
-    // manipulatorControls.back().onTrue(new MoveToIntake(elevator, claw, drive));
+    //manipulatorControls.back().onTrue(new MoveToIntake(elevator, claw, drive));
     manipulatorControls.back().onTrue(Commands.runOnce(() -> Robot.l4 = !Robot.l4).andThen(Commands.run(() -> driverControls.setRumble(RumbleType.kBothRumble, 1)).withTimeout(0.3).finallyDo(() -> driverControls.setRumble(RumbleType.kBothRumble, 0))));
     manipulatorControls.moveToL1().onTrue(new SequentialCommandGroup(
       new MoveToL1(elevator, claw, drive),
@@ -416,7 +417,6 @@ public class Robot extends TimedRobot {
     ));
     manipulatorControls.leftTrigger().onTrue(claw.runManualCommand(-0.1)).onFalse(claw.zeroArm());
     manipulatorControls.rightTrigger().onTrue(claw.runManualCommand(0.2)).onFalse(claw.zeroArm());
-    
     
   }
 
